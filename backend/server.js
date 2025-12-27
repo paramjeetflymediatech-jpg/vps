@@ -68,8 +68,6 @@
 
 // startServer();
 
-
-
 import express from "express";
 import cors from "cors";
 import "./config/env.js";
@@ -82,9 +80,7 @@ import bookingRoutes from "./routes/booking.routes.js";
 
 const app = express();
 
-/* ================== ENV ================== */
 const PORT = process.env.PORT || 5000;
-const NODE_ENV = process.env.NODE_ENV || "development";
 
 /* ================== CORS ================== */
 const allowedOrigins = [
@@ -96,23 +92,13 @@ const allowedOrigins = [
 app.use(
   cors({
     origin: (origin, callback) => {
-      // allow requests with no origin (Postman, mobile apps)
       if (!origin) return callback(null, true);
-
-      if (allowedOrigins.includes(origin)) {
-        return callback(null, true);
-      }
-
+      if (allowedOrigins.includes(origin)) return callback(null, true);
       return callback(new Error("Not allowed by CORS"));
     },
     credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
-
-// ✅ REQUIRED for Render & browser preflight
-app.options("*", cors());
 
 /* ================== BODY PARSER ================== */
 app.use(express.json({ limit: "10mb" }));
@@ -124,36 +110,14 @@ app.use("/api/otp", otpRoutes);
 app.use("/api/tutors", tutorRoutes);
 app.use("/api/bookings", bookingRoutes);
 
-/* ================== HEALTH CHECK ================== */
+/* ================== HEALTH ================== */
 app.get("/", (req, res) => {
-  res.status(200).json({
-    success: true,
-    message: "🚀 English Raj Backend is Live",
-    environment: NODE_ENV,
-  });
+  res.json({ success: true, message: "🚀 Backend running" });
 });
 
-/* ================== 404 HANDLER ================== */
-app.use((req, res) => {
-  res.status(404).json({
-    success: false,
-    message: "❌ API route not found",
-  });
+/* ================== START ================== */
+connectDB().then(() => {
+  app.listen(PORT, () =>
+    console.log(`🔥 Server running on port ${PORT}`)
+  );
 });
-
-/* ================== START SERVER ================== */
-const startServer = async () => {
-  try {
-    await connectDB();
-    app.listen(PORT, () => {
-      console.log(
-        `🔥 Server running in ${NODE_ENV} mode on port ${PORT}`
-      );
-    });
-  } catch (error) {
-    console.error("❌ Server startup failed:", error.message);
-    process.exit(1);
-  }
-};
-
-startServer();
