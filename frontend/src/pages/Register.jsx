@@ -34,6 +34,9 @@ const Register = () => {
       await sendOtp({ email: form.email });
 
       // 3️⃣ Redirect to OTP page with email
+
+      if (res.data.message === "Registered successfully") {
+}
      navigate("/register-otp", {
   state: { email: form.email },
 });

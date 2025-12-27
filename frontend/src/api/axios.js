@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "https://theenglishraj-backend.onrender.com/api", // backend URL
+  baseURL: "http://localhost:5000/api", // backend URL
   headers: {
     "Content-Type": "application/json",
   },
@@ -17,3 +17,6 @@ api.interceptors.request.use((config) => {
 });
 
 export default api;
+
+
+// http://localhost:5000
