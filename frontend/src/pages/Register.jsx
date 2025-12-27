@@ -29,6 +29,12 @@ const Register = () => {
     try {
       // 1️⃣ Register user
       await registerUser(form);
+await sendOtp({ email: form.email });
+
+if (res.data.message === "Registered successfully") {
+}
+navigate("/register-otp", { state: { email: form.email } });
+
 
       // 2️⃣ Send OTP to email
       await sendOtp({ email: form.email });
