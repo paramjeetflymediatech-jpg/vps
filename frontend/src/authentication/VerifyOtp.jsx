@@ -1,7 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { verifyOtp, resendOtp } from "@/api/otp.api";
-
 
 const VerifyOtp = () => {
   const [otp, setOtp] = useState("");
@@ -11,16 +10,19 @@ const VerifyOtp = () => {
   const navigate = useNavigate();
   const { state } = useLocation();
 
-  const email = state?.email; // ✅ VERY IMPORTANT
+  const email = state?.email;
+  const purpose = state?.purpose || "register";
+
+  // ✅ HARD GUARD
+  useEffect(() => {
+    if (!email) {
+      navigate("/register");
+    }
+  }, [email, navigate]);
 
   const handleVerify = async (e) => {
     e.preventDefault();
     setError("");
-
-    if (!email) {
-      setError("Email not found. Please try again.");
-      return;
-    }
 
     if (otp.length !== 6) {
       setError("OTP must be 6 digits");
@@ -30,12 +32,24 @@ const VerifyOtp = () => {
     try {
       setLoading(true);
 
-      await verifyOtp({ email, otp });
-
-      // Pass both email and otp to reset password page
-      navigate("/reset-password", {
-        state: { email, otp },
+      await verifyOtp({
+        email,
+        otp,
+        purpose,
       });
+
+      // REGISTER FLOW → LOGIN
+      if (purpose === "register") {
+        navigate("/login");
+      }
+
+      // FORGOT FLOW → RESET PASSWORD
+      if (purpose === "forgot") {
+        navigate("/reset-password", {
+          state: { email, otp },
+        });
+      }
+
     } catch (err) {
       setError(err?.response?.data?.message || "Invalid OTP");
     } finally {
@@ -44,10 +58,8 @@ const VerifyOtp = () => {
   };
 
   const handleResend = async () => {
-    setError("");
-
     try {
-      await resendOtp({ email }); // ✅ FIXED
+      await resendOtp({ email });
       alert("OTP resent successfully");
     } catch (err) {
       alert(err?.response?.data?.message || "Failed to resend OTP");
@@ -57,7 +69,6 @@ const VerifyOtp = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#F8F3F3] px-4">
       <div className="w-full max-w-md bg-white rounded-xl shadow-lg p-8">
-
         <h2 className="text-2xl font-bold text-center mb-2">
           Verify OTP 🔢
         </h2>
@@ -110,4 +121,3 @@ const VerifyOtp = () => {
 };
 
 export default VerifyOtp;
-

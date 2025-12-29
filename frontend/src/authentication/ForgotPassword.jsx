@@ -32,7 +32,7 @@ const ForgotPassword = () => {
 
       // Redirect to OTP verification page with email
       setTimeout(() => {
-        navigate("/verify-otp", { state: { email } });
+        navigate("/verify-otp", { state: { email, purpose: 'forgot' } });
       }, 800);
 
     } catch (err) {

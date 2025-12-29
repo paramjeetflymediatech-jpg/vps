@@ -5,6 +5,7 @@ import Otp from "../models/Otp.js";
 import { generateOtp } from "../utils/generateOtp.js";
 import { sendOtpEmail } from "../utils/sendEmail.js";
 
+
 /* ================= REGISTER ================= */
 export const register = async (req, res) => {
   try {
@@ -63,14 +64,14 @@ export const register = async (req, res) => {
 /* ================= VERIFY OTP ================= */
 export const verifyOtp = async (req, res) => {
   try {
-    const { email, otp } = req.body;
+    const { email, otp, purpose } = req.body; // purpose: 'register' | 'forgot'
     const emailLower = String(email).toLowerCase();
 
     if (!email || !otp) {
       return res.status(400).json({ message: "Email and OTP are required" });
     }
 
-    // Find OTP record matching email + otp (string) for robustness
+    // Find OTP record matching email + otp
     const record = await Otp.findOne({ email: emailLower, otp: String(otp).trim() });
 
     if (!record) {
@@ -82,10 +83,15 @@ export const verifyOtp = async (req, res) => {
       return res.status(400).json({ message: "Invalid or expired OTP" });
     }
 
-    await User.updateOne({ email: emailLower }, { isVerified: true });
-    await Otp.deleteMany({ email: emailLower });
+    // If this verification is for registration, mark user verified and remove OTPs
+    if (!purpose || purpose === "register") {
+      await User.updateOne({ email: emailLower }, { isVerified: true });
+      await Otp.deleteMany({ email: emailLower });
+      return res.json({ success: true, message: "Email verified successfully" });
+    }
 
-    res.json({ success: true, message: "Email verified successfully" });
+    // If purpose is 'forgot', do NOT delete the OTP here — keep it so reset-password can verify
+    return res.json({ success: true, message: "OTP verified for password reset" });
 
   } catch (error) {
     console.error(error);
@@ -158,89 +164,159 @@ export const forgotPassword = async (req, res) => {
 export const resetPassword = async (req, res) => {
   try {
     const { email, otp, newPassword } = req.body;
-    const emailLower = String(email).toLowerCase();
-    console.log("[resetPassword] payload:", { email: emailLower, otpProvided: otp ? String(otp).trim() : otp });
 
     if (!email || !otp || !newPassword) {
-      return res.status(400).json({ message: "Email, OTP and new password are required" });
+      return res.status(400).json({
+        success: false,
+        message: "Email, OTP and new password are required",
+      });
     }
 
-    // Look up record by email + otp
-    const record = await Otp.findOne({ email: emailLower, otp: String(otp).trim() });
-    console.log("[resetPassword] record:", record ? { otp: String(record.otp).trim(), expiresAt: record.expiresAt } : null);
+    const emailLower = email.toLowerCase().trim();
+    const otpTrimmed = String(otp).trim();
 
-    if (!record) {
-      return res.status(400).json({ message: "Invalid or expired OTP" });
+    console.log("[resetPassword] request:", {
+      email: emailLower,
+      otp: otpTrimmed,
+    });
+
+    // 1️⃣ Check user exists
+    const user = await User.findOne({ email: emailLower });
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
     }
 
-    if (new Date(record.expiresAt).getTime() < Date.now()) {
-      return res.status(400).json({ message: "Invalid or expired OTP" });
+    // 2️⃣ Find OTP record
+    const otpRecord = await Otp.findOne({
+      email: emailLower,
+      otp: otpTrimmed,
+    });
+
+    if (!otpRecord) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid or expired OTP",
+      });
     }
 
-    const hashed = await bcrypt.hash(newPassword, 10);
-    await User.updateOne({ email: emailLower }, { password: hashed });
+    // 3️⃣ Check OTP expiry
+    if (otpRecord.expiresAt.getTime() < Date.now()) {
+      await Otp.deleteMany({ email: emailLower }); // cleanup
+      return res.status(400).json({
+        success: false,
+        message: "OTP expired",
+      });
+    }
+
+    // 4️⃣ Hash new password
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    // 5️⃣ Update password
+    user.password = hashedPassword;
+    await user.save();
+
+    // 6️⃣ Delete OTPs after successful reset
     await Otp.deleteMany({ email: emailLower });
 
-    res.status(200).json({ success: true, message: "Password reset successful" });
+    console.log("[resetPassword] password updated for:", emailLower);
+
+    return res.status(200).json({
+      success: true,
+      message: "Password reset successful. Please login with your new password.",
+    });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Server error" });
+    console.error("Reset password error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
   }
 };
+
 
 /* ================= LOGIN ================= */
 export const login = async (req, res) => {
   try {
-    const { email, password } = req.body;
-    const emailLower = String(email).toLowerCase();
-    console.log("[login] attempt:", { email: emailLower });
+    const emailRaw = req.body.email;
+    const passwordRaw = req.body.password;
 
-    const user = await User.findOne({ email: emailLower }).select("+password");
+    // 1️⃣ Validate input
+    if (!emailRaw || !passwordRaw) {
+      return res.status(400).json({
+        success: false,
+        message: "Email and password are required",
+      });
+    }
+
+    const email = emailRaw.toLowerCase().trim();
+    const password = String(passwordRaw);
+
+    console.log("[login] attempt:", { email });
+
+    // 2️⃣ Find user
+    const user = await User.findOne({ email }).select("+password");
     if (!user) {
-      return res.status(400).json({ message: "User not found" });
+      return res.status(400).json({
+        success: false,
+        message: "User not found",
+      });
     }
 
+    // 3️⃣ Check email verification
     if (!user.isVerified) {
-      return res
-        .status(401)
-        .json({ message: "Please verify your email first" });
+      return res.status(401).json({
+        success: false,
+        message: "Please verify your email first",
+      });
     }
 
-    const match = await bcrypt.compare(password, user.password);
-    if (!match) {
-      return res.status(400).json({ message: "Invalid credentials" });
+    // 4️⃣ Compare password safely
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid credentials",
+      });
     }
 
+    // 5️⃣ Generate JWT
     const token = jwt.sign(
       { id: user._id },
       process.env.JWT_SECRET,
-      { expiresIn: "7d" }
+      { expiresIn: process.env.JWT_EXPIRES_IN || "7d" }
     );
 
-    // ✅ COOKIE SET YAHAN
+    // 6️⃣ Set cookie
     res.cookie("token", token, {
       httpOnly: true,
       sameSite: "lax",
-      secure: false, // localhost
-      maxAge: 7 * 24 * 60 * 60 * 1000
+      secure: false, // set true in production with HTTPS
+      maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
-    res.status(200).json({
+    // 7️⃣ Response
+    return res.status(200).json({
       success: true,
       message: "Login successful",
       token,
       user: {
-        id: user._0?._id || user._id,
+        id: user._id,
         name: user.name,
-        email: user.email
-      }
+        email: user.email,
+      },
     });
-
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Server error" });
+    console.error("Login error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
   }
 };
+
 
 /* ================= LOGOUT ================= */
 export const logout = (req, res) => {

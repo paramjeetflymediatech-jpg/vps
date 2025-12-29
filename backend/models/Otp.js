@@ -2,9 +2,9 @@ import mongoose from "mongoose";
 
 const otpSchema = new mongoose.Schema(
   {
-    email: String,
-    otp: String,
-    expiresAt: Date,
+    email: { type: String, required: true },
+    otp: { type: String, required: true },
+    expiresAt: { type: Date, required: true },
   },
   { timestamps: true }
 );
