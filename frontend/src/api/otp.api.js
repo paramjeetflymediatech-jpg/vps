@@ -1,17 +1,13 @@
-import api from "./axios";
-
-/* ================= SEND OTP ================= */
-export const sendOtp = (data) => {
-  return api.post("/otp/send", data);
-};
+import API from "./axios.instance";
 
 /* ================= VERIFY OTP ================= */
 export const verifyOtp = (data) => {
-  return api.post("/otp/verify", data);
+  // email, otp
+  return API.post("/auth/verify-otp", data);
 };
 
 /* ================= RESEND OTP ================= */
-// 🔁 resend = send again
 export const resendOtp = (data) => {
-  return api.post("/otp/send", data);
+  // email
+  return API.post("/auth/resend-otp", data);
 };

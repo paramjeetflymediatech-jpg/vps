@@ -8,14 +8,20 @@ export default defineConfig({
     react(),
     tailwindcss(),
   ],
-  
-  extend: {
-  colors: {
-    primary: "#0852A1",
-    primaryDark: "#063F7C",
-  },
-},
 
+  /* ================= DEV SERVER ================= */
+  server: {
+    port: 5173,
+    proxy: {
+      "/api": {
+        target: "http://localhost:5000",
+        changeOrigin: true,
+        secure: false,
+      },
+    },
+  },
+
+  /* ================= PATH ALIAS ================= */
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
