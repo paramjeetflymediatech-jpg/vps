@@ -18,3 +18,7 @@ export default API;
 
 
 // https://production-backend-e4x8.onrender.com
+
+// https://vps-0dz8.onrender.com
+
+// http://localhost:8000
