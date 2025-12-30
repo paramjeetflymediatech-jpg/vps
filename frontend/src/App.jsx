@@ -6,7 +6,7 @@ import AuthLayout from "./components/AuthLayout";
 import ScrollToTop from "./common/ScrollToTop";
 
 /* ================= PUBLIC PAGES ================= */
-import Home from "./Home/Home";
+import Home from "./pages/Home/Home";   // ✅ FIXED
 import Tutors from "./pages/Tutors";
 import BecomeTutor from "./pages/BecomeTutor";
 import Organizations from "./pages/Organizations";
