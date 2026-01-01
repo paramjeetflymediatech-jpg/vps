@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || "https://api.theenglishraj.com/api",
+  baseURL: import.meta.env.VITE_API_URL || "http://localhost:8000/api",
   withCredentials: true,
 });
 
@@ -16,9 +16,3 @@ API.interceptors.request.use((req) => {
 
 export default API;
 
-
-// https://production-backend-e4x8.onrender.com
-
-// https://vps-0dz8.onrender.com
-
-// http://localhost:8000
