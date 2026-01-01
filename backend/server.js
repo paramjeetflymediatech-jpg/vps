@@ -4,6 +4,8 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import connectDB from "./config/db.js";
 import authRoutes from "./routes/auth.routes.js";
+import tutorRoutes from "./routes/tutor.routes.js";
+
 
 dotenv.config();
 
@@ -30,6 +32,9 @@ app.use(cookieParser());
 
 /* ================= ROUTES ================= */
 app.use("/api/auth", authRoutes);
+console.log("✅ Tutor routes loaded");
+app.use("/api/tutor", tutorRoutes);
+
 
 /* ================= START SERVER ================= */
 const startServer = async () => {

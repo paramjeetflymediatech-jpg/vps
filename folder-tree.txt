@@ -1,0 +1,131 @@
+└── 📁 theenglishraj
+    ├── 📁 backend
+    │   ├── 📄 .env
+    │   ├── 📁 config
+    │   │   ├── 📄 db.js
+    │   │   └── 📄 mailer.js
+    │   ├── 📁 controllers
+    │   │   ├── 📄 auth.controller.js
+    │   │   └── 📄 tutor.controller.js
+    │   ├── 📁 middlewares
+    │   │   └── 📄 auth.middleware.js
+    │   ├── 📁 models
+    │   │   ├── 📄 Otp.js
+    │   │   ├── 📄 Tutor.js
+    │   │   ├── 📄 TutorApplication.js
+    │   │   └── 📄 User.js
+    │   ├── 📄 package-lock.json
+    │   ├── 📄 package.json
+    │   ├── 📁 routes
+    │   │   ├── 📄 auth.routes.js
+    │   │   ├── 📄 tutor.routes.js
+    │   │   └── 📄 tutorRoutes.js
+    │   ├── 📄 server.js
+    │   └── 📁 utils
+    │       ├── 📄 generateOtp.js
+    │       └── 📄 sendEmail.js
+    ├── 📄 folder-tree.txt
+    └── 📁 frontend
+        ├── 📄 .env
+        ├── 📄 README.md
+        ├── 📁 dist
+        │   ├── 📄 .htaccess
+        │   ├── 📁 assets
+        │   │   ├── 📄 ielts-Fm1ZZdVc.jpg
+        │   │   ├── 📄 index-CB_e0QZ2.css
+        │   │   ├── 📄 index-DY9X4y3q.js
+        │   │   ├── 📄 interview-CN21X-fR.jpg
+        │   │   ├── 📄 logo-CV34BbrM.webp
+        │   │   ├── 📄 meeting-C7ZcLiPi.jpg
+        │   │   ├── 📄 phone-rfhi9S9E.png
+        │   │   ├── 📄 presentation-BwGsPPAK.jpg
+        │   │   ├── 📄 speaking-B38qh2mx.jpg
+        │   │   ├── 📄 tutor-CCGOjMz1.png
+        │   │   └── 📄 tutorimg-BWZrhxqj.jpg
+        │   ├── 📄 index.html
+        │   └── 📄 logo.png
+        ├── 📄 dist.zip
+        ├── 📄 eslint.config.js
+        ├── 📄 index.html
+        ├── 📄 package-lock.json
+        ├── 📄 package.json
+        ├── 📁 public
+        │   ├── 📄 .htaccess
+        │   └── 📄 logo.png
+        ├── 📁 src
+        │   ├── 📄 App.css
+        │   ├── 📄 App.jsx
+        │   ├── 📁 admin
+        │   │   ├── 📁 components
+        │   │   │   ├── 📄 Sidebar.jsx
+        │   │   │   └── 📄 Topbar.jsx
+        │   │   ├── 📁 pages
+        │   │   │   ├── 📄 Dashboard.jsx
+        │   │   │   ├── 📄 Settings.jsx
+        │   │   │   ├── 📄 Tutors.jsx
+        │   │   │   └── 📄 Users.jsx
+        │   │   └── 📄 routes.jsx
+        │   ├── 📁 api
+        │   │   ├── 📄 adminApi.js
+        │   │   ├── 📄 auth.api.js
+        │   │   ├── 📄 axios.instance.js
+        │   │   ├── 📄 otp.api.js
+        │   │   └── 📄 tutorApi.js
+        │   ├── 📁 assets
+        │   │   ├── 📁 home-bg
+        │   │   │   └── 📄 englsih-raj.jpg
+        │   │   ├── 📁 learning
+        │   │   │   ├── 📄 ielts.jpg
+        │   │   │   ├── 📄 interview.jpg
+        │   │   │   ├── 📄 meeting.jpg
+        │   │   │   ├── 📄 phone.png
+        │   │   │   ├── 📄 presentation.jpg
+        │   │   │   └── 📄 speaking.jpg
+        │   │   ├── 📁 logo
+        │   │   │   └── 📄 logo.webp
+        │   │   ├── 📄 react.svg
+        │   │   ├── 📄 tutor.png
+        │   │   └── 📄 tutorimg.jpg
+        │   ├── 📁 authentication
+        │   │   ├── 📄 ForgotPassword.jsx
+        │   │   ├── 📄 Login.jsx
+        │   │   ├── 📄 Register.jsx
+        │   │   ├── 📄 Registerotp.jsx
+        │   │   ├── 📄 ResetPassword.jsx
+        │   │   └── 📄 VerifyOtp.jsx
+        │   ├── 📁 common
+        │   │   ├── 📄 ProtectedRoute.jsx
+        │   │   └── 📄 ScrollToTop.jsx
+        │   ├── 📁 components
+        │   │   ├── 📄 AuthLayout.jsx
+        │   │   ├── 📄 CoursesPricing.jsx
+        │   │   ├── 📄 Footer.jsx
+        │   │   ├── 📄 Header.jsx
+        │   │   ├── 📄 LearningGoal.jsx
+        │   │   └── 📄 MainLayout.jsx
+        │   ├── 📁 hooks
+        │   │   └── 📄 useAuth.js
+        │   ├── 📄 index.css
+        │   ├── 📁 layouts
+        │   │   └── 📄 AdminLayout.jsx
+        │   ├── 📄 main.jsx
+        │   ├── 📁 pages
+        │   │   ├── 📄 BecomeTutor.jsx
+        │   │   ├── 📄 DashboardRedirect.jsx
+        │   │   ├── 📄 Home.jsx
+        │   │   ├── 📄 Organizations.jsx
+        │   │   ├── 📄 Testimonials.jsx
+        │   │   └── 📄 Tutors.jsx
+        │   └── 📁 tutor
+        │       ├── 📁 components
+        │       │   ├── 📄 Sidebar.jsx
+        │       │   ├── 📄 StatsCard.jsx
+        │       │   └── 📄 Topbar.jsx
+        │       ├── 📁 pages
+        │       │   ├── 📄 Dashboard.jsx
+        │       │   ├── 📄 Payments.jsx
+        │       │   ├── 📄 Profile.jsx
+        │       │   ├── 📄 Students.jsx
+        │       │   └── 📄 TutorLogin.jsx
+        │       └── 📄 routes.jsx
+        └── 📄 vite.config.js
