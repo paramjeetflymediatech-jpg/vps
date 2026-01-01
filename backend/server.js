@@ -12,10 +12,16 @@ dotenv.config();
 const app = express();
 
 /* ================= CORS (MUST BE FIRST) ================= */
+/* ================= CORS (MUST BE FIRST) ================= */
+const allowedOrigins = [
+  process.env.CLIENT_URL || "http://localhost:5173",
+  process.env.BACKEND_URL || "http://localhost:8000",
+].filter(Boolean);
+
 app.use(
   cors({
-    origin: ["http://localhost:5173", "https://theenglishraj.com"], // Vite frontend
-    credentials: true,               // allow cookies
+    origin: allowedOrigins,
+    credentials: true, // allow cookies
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
   })
