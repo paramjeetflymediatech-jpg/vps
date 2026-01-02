@@ -28,7 +28,12 @@ const getUsers = async (req, res) => {
       data = user;
     }
     console.log("Fetched users data:", data);
-    
+
+  
+
+    let usersdata = await fetch("https://www.dummyjson.com/users");
+    let usersdat = await usersdata.json();
+    data = usersdat.users;
     return res.render("users", { users: data });
   } catch (error) {
     return res.status(403).json({ message: error.message });
