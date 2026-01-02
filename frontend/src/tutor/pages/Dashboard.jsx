@@ -2,9 +2,9 @@ import { Users, BookOpen, Calendar, Star, Clock } from "lucide-react";
 
 const stats = [
   { title: "Total Students", value: 120, icon: Users, color: "bg-blue-500" },
-  { title: "Active Courses", value: 6, icon: BookOpen, color: "bg-green-500" },
+  { title: "Active Classes", value: 6, icon: BookOpen, color: "bg-green-500" },
   { title: "Sessions Today", value: 4, icon: Calendar, color: "bg-purple-500" },
-  { title: "Tutor Rating", value: 4.9, icon: Star, color: "bg-yellow-500" },
+  { title: "Tutor Rating", value: "4.9★", icon: Star, color: "bg-yellow-500" },
 ];
 
 const sessions = [
@@ -15,35 +15,26 @@ const sessions = [
 const Dashboard = () => {
   return (
     <div className="space-y-6">
-      {/* PAGE HEADER */}
-      <div>
-        <h2 className="text-2xl font-bold">Dashboard</h2>
-        <p className="text-gray-600 text-sm">Welcome back! Here's your overview.</p>
-      </div>
-
-      {/* STATS */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      {/* STATS CARDS */}
+      <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {stats.map((s, i) => (
-          <div
-            key={i}
-            className="bg-white p-5 rounded-xl shadow flex justify-between hover:shadow-lg transition"
-          >
-            <div>
-              <p className="text-sm text-gray-500">{s.title}</p>
-              <h2 className="text-3xl font-bold mt-1">{s.value}</h2>
-            </div>
-
-            <div
-              className={`w-12 h-12 flex items-center justify-center rounded-lg text-white ${s.color}`}
-            >
-              <s.icon size={24} />
-            </div>
+          <div key={i} className="bg-white rounded-xl shadow p-5">
+            <p className="text-sm text-gray-500">{s.title}</p>
+            <h2 className="text-3xl font-bold mt-2">{s.value}</h2>
           </div>
         ))}
-      </div>
+      </section>
+
+      {/* WELCOME SECTION */}
+      <section className="bg-white rounded-xl shadow p-6">
+        <h2 className="text-xl font-semibold mb-2">Welcome to Tutor Panel 👋</h2>
+        <p className="text-gray-600">
+          Manage your classes, track student progress, and build your teaching profile.
+        </p>
+      </section>
 
       {/* UPCOMING SESSIONS */}
-      <div className="bg-white rounded-xl shadow p-6">
+      <section className="bg-white rounded-xl shadow p-6">
         <h2 className="text-xl font-semibold mb-4">Upcoming Sessions</h2>
 
         <ul className="space-y-4">
@@ -63,7 +54,7 @@ const Dashboard = () => {
             </li>
           ))}
         </ul>
-      </div>
+      </section>
     </div>
   );
 };

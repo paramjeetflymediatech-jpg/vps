@@ -1,137 +1,78 @@
+
+
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Admin Dashboard</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-  </head>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard</title>
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
 
-  <body class="bg-gray-100 text-gray-800">
-    <div class="flex min-h-screen">
-      <!-- Sidebar -->
-      <aside
-        id="sidebar"
-        class="fixed md:static inset-y-0 left-0 z-40 w-64 bg-indigo-700 text-white transform -translate-x-full md:translate-x-0 transition-transform duration-300"
-      >
-        <div class="p-6 text-2xl font-bold border-b border-indigo-500">
-          English Admin
-        </div>
+  <!-- Sidebar -->
+<aside class="sidebar">
+  <div class="logo-box">
+    <img src="/logo.png" alt="Logo" class="logo-img" />
+  </div>
 
-        <nav class="p-4 space-y-2">
-          <a href="#" class="block px-4 py-2 rounded bg-indigo-600"
-            >Dashboard</a
-          >
-          <a
-            href="/admin/users?role=STUDENT"
-            class="block px-4 py-2 rounded hover:bg-indigo-600"
-            >Users</a
-          >
-          <a
-            href="/admin/courses"
-            class="block px-4 py-2 rounded hover:bg-indigo-600"
-            >Courses</a
-          >
-          <a
-            href="/admin/tests"
-            class="block px-4 py-2 rounded hover:bg-indigo-600"
-            >Tests</a
-          >
-          <a
-            href="/admin/results"
-            class="block px-4 py-2 rounded hover:bg-indigo-600"
-            >Results</a
-          >
-          <a
-            href="/admin/settings"
-            class="block px-4 py-2 rounded hover:bg-indigo-600"
-            >Settings</a
-          >
-        </nav>
-      </aside>
+  <ul class="menu">
+    <li class="active"><a href="#">Dashboard</a></li>
+    <li><a href="/admin/users">Users</a></li>
+    <li><a href="/admin/courses">Courses</a></li>
+    <li><a href="/admin/tests">Tests</a></li>
+    <li><a href="/admin/results">Results</a></li>
+    <li><a href="/admin/settings">Settings</a></li>
+  </ul>
+</aside>
 
-      <!-- Main Content -->
-      <div class="flex-1 md:ml-64">
-        <!-- Topbar -->
-        <header
-          class="flex items-center justify-between bg-white px-6 py-4 shadow"
-        >
-          <div class="flex items-center gap-4">
-            <button id="menuBtn" class="md:hidden text-2xl">☰</button>
-            <h1 class="text-xl font-semibold">Dashboard</h1>
-          </div>
 
-          <div class="flex items-center gap-3">
-            <span class="text-sm font-medium">Admin</span>
-            <img
-              src="https://i.pravatar.cc/40"
-              class="w-10 h-10 rounded-full border"
-              alt="Admin"
-            />
-            <a href="/admin/users/logout" id="logoutBtn">logout</a>
-          </div>
-        </header>
+  <!-- Main Content -->
+  <main class="main-content">
 
-        <!-- Dashboard Cards -->
-        <section
-          class="p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
-        >
-          <div class="bg-white rounded-xl shadow p-5">
-            <p class="text-sm text-gray-500">Total Users</p>
-            <h2 class="text-3xl font-bold mt-2">2,450</h2>
-          </div>
+    <!-- Topbar -->
+    <header class="topbar">
+      <button class="menu-btn">☰</button>
 
-          <div class="bg-white rounded-xl shadow p-5">
-            <p class="text-sm text-gray-500">Active Today</p>
-            <h2 class="text-3xl font-bold mt-2">320</h2>
-          </div>
-
-          <div class="bg-white rounded-xl shadow p-5">
-            <p class="text-sm text-gray-500">Total Courses</p>
-            <h2 class="text-3xl font-bold mt-2">35</h2>
-          </div>
-
-          <div class="bg-white rounded-xl shadow p-5">
-            <p class="text-sm text-gray-500">Pass Rate</p>
-            <h2 class="text-3xl font-bold mt-2">78%</h2>
-          </div>
-        </section>
-
-        <!-- Content Area -->
-        <section class="px-6 pb-6">
-          <div class="bg-white rounded-xl shadow p-6">
-            <h2 class="text-xl font-semibold mb-2">
-              Welcome to the Admin Panel 👋
-            </h2>
-            <p class="text-gray-600">
-              Use the sidebar to manage users, courses, tests, and results.
-            </p>
-          </div>
-        </section>
+      <h1>Dashboard</h1>
+      <div class="admin-profile">
+        <span>Admin</span>
+        <img src="https://i.pravatar.cc/40" alt="Admin">
       </div>
-    </div>
+    </header>
 
-    <!-- Sidebar Toggle Script -->
-    <script>
-      document.getElementById("menuBtn").onclick = () => {
-        document
-          .getElementById("sidebar")
-          .classList.toggle("-translate-x-full");
-      };
-      document.getElementById("logoutBtn").onclick = () => {
-        fetch("/admin/users/logout", {
-          method: "POST",
-          credentials: "include",
-        })
-          .then((response) => response.json())
-          .then((data) => {
-            alert(data.message);
-            window.location.href = "/admin/login";
-          })
-          .catch((error) => {
-            console.error("Error during logout:", error);
-          });
-      };
-    </script>
-  </body>
-</html>
+    <!-- Dashboard Cards -->
+    <section class="cards">
+      <div class="card">
+        <h3>Total Users</h3>
+        <p>2,450</p>
+      </div>
+      <div class="card">
+        <h3>Active Today</h3>
+        <p>320</p>
+      </div>
+      <div class="card">
+        <h3>Total Courses</h3>
+        <p>35</p>
+      </div>
+      <div class="card">
+        <h3>Pass Rate</h3>
+        <p>78%</p>
+      </div>
+    </section>
+
+    <!-- Content Area -->
+    <section class="content-box">
+      <h2>Welcome to the Admin Panel</h2>
+      <p>Use the sidebar to manage users, courses, tests, and results.</p>
+    </section>
+
+  </main>
+<script>
+  document.querySelector('.menu-btn').onclick = () => {
+    document.querySelector('.sidebar').classList.toggle('active');
+  };
+</script>
+
+</body>
+</html> 

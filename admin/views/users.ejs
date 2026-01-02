@@ -15,9 +15,67 @@
 
   <h2>Existing Users</h2>
   <ul>
-    <% users.forEach(user => { %>
-      <li><%= user.name %> - <%= user.role %></li>
-    <% }) %>
+    <%- include('layout', {
+  title: 'User Management',
+  pageTitle: 'Users',
+  active: 'users',
+  body: `
+    <!-- CREATE USER -->
+    <div class="bg-white p-6 rounded-xl shadow mb-6">
+      <h2 class="text-xl font-semibold mb-4">Create New User</h2>
+
+      <form action="/admin/users/create" method="POST" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <input
+          type="text"
+          name="username"
+          placeholder="Username"
+          required
+          class="border px-4 py-2 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
+        />
+
+        <input
+          type="password"
+          name="password"
+          placeholder="Password"
+          required
+          class="border px-4 py-2 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
+        />
+
+        <div class="md:col-span-2 flex justify-end">
+          <button
+            type="submit"
+            class="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition"
+          >
+            Create User
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- USERS LIST -->
+    <div class="bg-white p-6 rounded-xl shadow">
+      <h2 class="text-xl font-semibold mb-4">Existing Users</h2>
+
+      <table class="w-full border-collapse">
+        <thead>
+          <tr class="border-b text-left text-gray-500 text-sm">
+            <th class="py-2">Name</th>
+            <th class="py-2">Role</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% users.forEach(user => { %>
+            <tr class="border-b hover:bg-gray-50">
+              <td class="py-3 font-medium"><%= user.name %></td>
+              <td class="py-3 text-sm text-gray-600"><%= user.role %></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  `
+}) %>
+
   </ul>
 </body>
 </html>

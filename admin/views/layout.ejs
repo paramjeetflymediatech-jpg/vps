@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('partials/head', { title }) %>
+
+<body class="bg-gray-100">
+
+<div class="flex min-h-screen">
+
+  <!-- SIDEBAR -->
+  <aside class="w-64 bg-[#0852A1] text-white hidden md:block">
+    <div class="p-6 border-b border-white/20 flex justify-center">
+      <img src="/logo.png" class="h-10 object-contain" />
+    </div>
+
+    <nav class="p-4 space-y-2">
+      <a href="/admin/dashboard"
+         class="block px-4 py-2 rounded hover:bg-white/20 <%= active === 'dashboard' ? 'bg-white/20' : '' %>">
+        Dashboard
+      </a>
+
+      <a href="/admin/users"
+         class="block px-4 py-2 rounded hover:bg-white/20 <%= active === 'users' ? 'bg-white/20' : '' %>">
+        Users
+      </a>
+
+      <a href="/admin/courses"
+         class="block px-4 py-2 rounded hover:bg-white/20 <%= active === 'courses' ? 'bg-white/20' : '' %>">
+        Courses
+      </a>
+
+      <a href="/admin/settings"
+         class="block px-4 py-2 rounded hover:bg-white/20 <%= active === 'settings' ? 'bg-white/20' : '' %>">
+        Settings
+      </a>
+    </nav>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <div class="flex-1 flex flex-col">
+
+    <!-- TOPBAR -->
+    <header class="bg-white shadow px-6 py-4 flex justify-between items-center">
+      <h1 class="text-xl font-semibold"><%= pageTitle %></h1>
+
+      <div class="flex items-center gap-4">
+        <span class="text-sm font-medium">Admin</span>
+        <img src="https://i.pravatar.cc/40" class="w-10 h-10 rounded-full" />
+        <a href="/admin/logout" class="text-red-600 hover:underline font-medium">
+          Logout
+        </a>
+      </div>
+    </header>
+
+    <!-- PAGE CONTENT -->
+    <main class="flex-1 p-6">
+      <%- body %>
+    </main>
+
+  </div>
+</div>
+
+</body>
+</html>
