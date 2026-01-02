@@ -1,78 +1,44 @@
+<%- include('layouts/header') %>
+<!-- Sidebar -->
+<%- include('layouts/sidebar') %>
 
+<!-- Main Content -->
+<main class="main-content">
+  <!-- Topbar -->
+  <header class="topbar">
+    <button class="menu-btn">☰</button>
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Admin Dashboard</title>
-  <link rel="stylesheet" href="/css/style.css" />
-</head>
-<body>
+    <h1>Dashboard</h1>
+    <div class="admin-profile">
+      <span>Admin</span>
+      <img src="https://i.pravatar.cc/40" alt="Admin" />
+    </div>
+  </header>
 
-  <!-- Sidebar -->
-<aside class="sidebar">
-  <div class="logo-box">
-    <img src="/logo.png" alt="Logo" class="logo-img" />
-  </div>
+  <!-- Dashboard Cards -->
+  <section class="cards">
+    <div class="card">
+      <h3>Total Users</h3>
+      <p>2,450</p>
+    </div>
+    <div class="card">
+      <h3>Active Today</h3>
+      <p>320</p>
+    </div>
+    <div class="card">
+      <h3>Total Courses</h3>
+      <p>35</p>
+    </div>
+    <div class="card">
+      <h3>Pass Rate</h3>
+      <p>78%</p>
+    </div>
+  </section>
 
-  <ul class="menu">
-    <li class="active"><a href="#">Dashboard</a></li>
-    <li><a href="/admin/users">Users</a></li>
-    <li><a href="/admin/courses">Courses</a></li>
-    <li><a href="/admin/tests">Tests</a></li>
-    <li><a href="/admin/results">Results</a></li>
-    <li><a href="/admin/settings">Settings</a></li>
-  </ul>
-</aside>
-
-
-  <!-- Main Content -->
-  <main class="main-content">
-
-    <!-- Topbar -->
-    <header class="topbar">
-      <button class="menu-btn">☰</button>
-
-      <h1>Dashboard</h1>
-      <div class="admin-profile">
-        <span>Admin</span>
-        <img src="https://i.pravatar.cc/40" alt="Admin">
-      </div>
-    </header>
-
-    <!-- Dashboard Cards -->
-    <section class="cards">
-      <div class="card">
-        <h3>Total Users</h3>
-        <p>2,450</p>
-      </div>
-      <div class="card">
-        <h3>Active Today</h3>
-        <p>320</p>
-      </div>
-      <div class="card">
-        <h3>Total Courses</h3>
-        <p>35</p>
-      </div>
-      <div class="card">
-        <h3>Pass Rate</h3>
-        <p>78%</p>
-      </div>
-    </section>
-
-    <!-- Content Area -->
-    <section class="content-box">
-      <h2>Welcome to the Admin Panel</h2>
-      <p>Use the sidebar to manage users, courses, tests, and results.</p>
-    </section>
-
-  </main>
-<script>
-  document.querySelector('.menu-btn').onclick = () => {
-    document.querySelector('.sidebar').classList.toggle('active');
-  };
-</script>
-
-</body>
-</html> 
+  <!-- Content Area -->
+  <section class="content-box">
+    <h2>Welcome to the Admin Panel</h2>
+    <p>Use the sidebar to manage users, courses, tests, and results.</p>
+  </section>
+</main>
+<%- include('layouts/footer') %>

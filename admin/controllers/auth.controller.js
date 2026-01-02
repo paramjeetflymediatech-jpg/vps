@@ -23,7 +23,7 @@ const adminLogin = async (req, res) => {
     {
       id: admin._id,
       role: admin.role,
-      organizationId: admin.organizationId,
+      // organizationId: admin.organizationId,
     },
     process.env.JWT_SECRET,
     { expiresIn: "1d" }
@@ -38,7 +38,7 @@ const adminLogin = async (req, res) => {
       name: admin.name,
       email: admin.email,
       role: admin.role,
-      organizationId: admin.organizationId,
+      // organizationId: admin.organizationId,
     },
   });
 };

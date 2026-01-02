@@ -3,11 +3,35 @@ const router = express.Router();
 const User = require("../models/userModel");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const { auth } = require("../middlewares/auth.middleware");
+
 router.get("/login", (req, res) => {
-  res.render("adminlogin", { error: null });
+  const token = req.cookies?.token;
+  if (token) {
+    try {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      // ✅ Redirect to dashboard
+      return res.redirect("/admin/dashboard");
+    } catch (err) {
+      // Invalid token → remove it
+      res.clearCookie("token");
+    }
+  }
+  return res.render("adminlogin", { error: null });
 });
-router.post("/logout", (req, res) => {
+
+router.post("/logout", auth, (req, res) => {
+  res.clearCookie("token", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+  });
   res.json({ message: "Logout successful" });
+});
+router.get("/dashboard", auth, (req, res) => {
+  res.render("dashboard", {
+    user: req.user, // ✅ pass user to EJS
+  });
 });
 
 router.post("/login", async (req, res) => {
@@ -40,7 +64,7 @@ router.post("/login", async (req, res) => {
     secure: false, // true in production
   });
 
-  res.redirect("/admin/dashboard");
+  return res.redirect("dashboard");
 });
 
 module.exports = router;

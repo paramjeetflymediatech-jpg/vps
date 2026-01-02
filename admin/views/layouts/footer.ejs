@@ -1,0 +1,17 @@
+
+
+<script>
+  document.querySelector('.menu-btn').onclick = () => {
+    document.querySelector('.sidebar').classList.toggle('active');
+  };
+  document.getElementById('logoutbtn').onclick = () => {
+    fetch('/admin/logout', { method: 'POST' })
+      .then(() => {
+        window.location.href = '/admin/login';
+      })
+      .catch((err) => console.error('Logout failed:', err));
+  };
+</script>
+
+</body>
+</html> 
