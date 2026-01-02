@@ -22,6 +22,7 @@ import RegisterOtp from "./authentication/Registerotp";
 
 /* ================= TUTOR ================= */
 import TutorLogin from "@/tutor/pages/TutorLogin";
+import TutorDashboard from "@/tutor/pages/Dashboard";
 
 /* ================= DASHBOARD ================= */
 import DashboardRedirect from "./pages/DashboardRedirect";
@@ -60,6 +61,7 @@ const App = () => {
 
         {/* 👨‍🏫 TUTOR */}
         <Route path="/tutor/login" element={<TutorLogin />} />
+        <Route path="/tutor/dashboard" element={<TutorDashboard />} />
 
      
       </Routes>

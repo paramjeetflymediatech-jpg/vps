@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -23,5 +23,123 @@
       <li><%= course.title %> - <%= course.published ? 'Published' : 'Draft' %></li>
     <% }) %>
   </ul>
+</body>
+</html> -->
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Course Management</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100 text-gray-800">
+
+  <div class="max-w-7xl mx-auto px-6 py-10">
+
+    <!-- Page Header -->
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold">📚 Course Management</h1>
+      <p class="text-gray-500 mt-1">Create and manage all courses from here</p>
+    </div>
+
+    <!-- Create Course -->
+    <div class="bg-white rounded-xl shadow p-6 mb-10">
+      <h2 class="text-xl font-semibold mb-6">Create New Course</h2>
+
+      <form action="/admin/courses/create" method="POST" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+        <div>
+          <label class="block text-sm font-medium mb-1">Course Title</label>
+          <input
+            type="text"
+            name="title"
+            placeholder="Full Stack Web Development"
+            required
+            class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
+          />
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium mb-1">Instructor</label>
+          <input
+            type="text"
+            name="instructor"
+            placeholder="John Doe"
+            required
+            class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
+          />
+        </div>
+
+        <div class="md:col-span-2">
+          <label class="block text-sm font-medium mb-1">Course Description</label>
+          <textarea
+            name="description"
+            placeholder="Write course details here..."
+            required
+            class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none resize-none h-28"
+          ></textarea>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium mb-1">Price (₹)</label>
+          <input
+            type="number"
+            name="price"
+            placeholder="1999"
+            required
+            class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
+          />
+        </div>
+
+        <div class="flex items-center gap-3 mt-6">
+          <input
+            type="checkbox"
+            name="published"
+            class="w-5 h-5 text-indigo-600 rounded focus:ring-indigo-500"
+          />
+          <span class="text-sm">Publish immediately</span>
+        </div>
+
+        <div class="md:col-span-2 flex justify-end">
+          <button
+            type="submit"
+            class="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition"
+          >
+            ➕ Create Course
+          </button>
+        </div>
+
+      </form>
+    </div>
+
+    <!-- Existing Courses -->
+    <div class="bg-white rounded-xl shadow p-6">
+      <h2 class="text-xl font-semibold mb-6">Existing Courses</h2>
+
+      <ul class="divide-y">
+        <% courses.forEach(course => { %>
+          <li class="flex items-center justify-between py-4">
+            <div>
+              <p class="font-medium"><%= course.title %></p>
+              <p class="text-sm text-gray-500">Instructor: <%= course.instructor %></p>
+            </div>
+
+            <span class="px-3 py-1 text-sm rounded-full
+              <%= course.published ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700' %>">
+              <%= course.published ? 'Published' : 'Draft' %>
+            </span>
+          </li>
+        <% }) %>
+      </ul>
+    </div>
+
+  </div>
+
 </body>
 </html>
