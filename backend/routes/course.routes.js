@@ -1,17 +1,21 @@
 import express from "express";
-import {
-  createCourse,
-  getAllCourses,
-  getCourseById,
-  updateCourse,
-  deleteCourse,
+import { 
+    createCourse, 
+    getCourses, 
+    getCourseById, 
+    updateCourse, 
+    deleteCourse 
 } from "../controllers/course.controller.js";
+import { upload } from "../middlewares/upload.js"; // Aapka multer config
 
 const router = express.Router();
 
-router.post("/", createCourse);
-router.get("/", getAllCourses);
+// 'image' field name frontend ke FormData name se match hona chahiye
+router.post("/", upload.single("image"), createCourse);
+router.put("/:id", upload.single("image"), updateCourse);
+
+router.get("/", getCourses);
 router.get("/:id", getCourseById);
-router.put("/:id", updateCourse);
-router.delete("/:id", deleteCourse);  
+router.delete("/:id", deleteCourse);
+
 export default router;

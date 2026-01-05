@@ -1,18 +1,16 @@
 import axios from "axios";
 
-const API = axios.create({
-  baseURL: "http://localhost:8000/api/courses",
+const API = axios.create({ 
+    baseURL: "http://localhost:8000/api",
+    withCredentials: true 
 });
 
-// GET ALL
-export const getCourses = () => API.get("/");
+export const getCourses = () => API.get("/courses");
 
-// CREATE
-export const createCourse = (data) => API.post("/", data);
+// Create: FormData pass karein
+export const createCourse = (formData) => API.post("/courses", formData);
 
-// DELETE
-export const deleteCourse = (id) => API.delete(`/${id}`);
+// Update: FormData pass karein
+export const updateCourse = (id, formData) => API.put(`/courses/${id}`, formData);
 
-// UPDATE
-export const updateCourse = (id, data) =>
-  API.put(`/${id}`, data);
+export const deleteCourse = (id) => API.delete(`/courses/${id}`);
