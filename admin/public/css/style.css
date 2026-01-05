@@ -138,105 +138,126 @@ body {
    RESPONSIVE DESIGN
 ========================= */
 
-/* Tablets */
+/* =========================
+   TABLETS (≤1024px)
+========================= */
 @media (max-width: 1024px) {
   .cards {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
-/* Mobile */
+/* =========================
+   MOBILE & TABLET (≤768px)
+========================= */
 @media (max-width: 768px) {
+
   body {
     flex-direction: column;
   }
 
-  /* Sidebar becomes top menu */
-.sidebar {
-  width: 240px;           /* ✅ FIXED */
-  height: 100vh;
-  background-color: #387dc6;
-  color: #fff;
-  position: fixed;
-  top: 0;
-  left: 0;
-}
-
-  .logo {
-    text-align: left;
-    padding-left: 20px;
+  /* ===== SIDEBAR ===== */
+  .sidebar {
+    width: 240px;
+    height: 100vh;
+    background-color: #387dc6;
+    color: #fff;
+    position: fixed;
+    top: 0;
+    left: -240px; /* hidden by default */
+    z-index: 1000;
+    transition: left 0.3s ease;
   }
 
+  .sidebar.active {
+    left: 0;
+  }
+
+  /* ===== LOGO ===== */
+  .logo {
+    text-align: left;
+    padding: 16px 20px;
+    font-size: 18px;
+  }
+
+  /* ===== MENU ===== */
   .menu {
     display: flex;
-    overflow-x: auto;
+    flex-direction: column;
+    overflow-y: auto;
   }
 
   .menu li {
-    flex: 1;
-    text-align: center;
+    width: 100%;
+    text-align: left;
+    padding: 12px 20px;
     white-space: nowrap;
   }
 
+  /* ===== MAIN CONTENT ===== */
   .main-content {
     margin-left: 0;
     width: 100%;
   }
 
+  /* ===== TOPBAR ===== */
   .topbar {
-    flex-direction: column;
-    align-items: flex-start;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
     gap: 10px;
     height: auto;
-    padding: 15px;
+    padding: 12px 15px;
   }
 
+  /* ===== CARDS ===== */
   .cards {
     grid-template-columns: 1fr;
   }
 }
 
-/* Small Mobile */
+/* =========================
+   SMALL MOBILE (≤480px)
+========================= */
 @media (max-width: 480px) {
+
   .admin-profile span {
     display: none;
   }
 
   .card p {
-    font-size: 22px;
+    font-size: 20px;
   }
 
   .logo {
-    font-size: 18px;
+    font-size: 16px;
   }
-  .sidebar {
-    display: flex;
-    justify-content: space-between;
+
+  .topbar {
+    padding: 10px 12px;
   }
 }
+
+/* =========================
+   MENU BUTTON
+========================= */
 .menu-btn {
   display: none;
   background: none;
   border: none;
   font-size: 24px;
   cursor: pointer;
+  color: #333;
 }
 
-/* Show button on mobile */
+/* Show menu button on mobile */
 @media (max-width: 768px) {
   .menu-btn {
     display: block;
   }
-
-  .menu {
-    display: none;
-  }
-
-  .sidebar.active .menu {
-    display: flex;
-    flex-direction: column;
-  }
 }
+
 
 /* LOGO FIX */
 .logo-box {

@@ -5,10 +5,11 @@
 // - configures sessions, passport authentication, and middleware
 // - mounts admin routes and starts the HTTP server
 
+require("dotenv").config(); // Load .env (if present) into process.env
 const express = require("express");
 const mongoose = require("mongoose");
 // Load .env (if present) into process.env
-const dotenv = require("dotenv").config();
+
 const session = require("express-session");
 const passport = require("passport");
 const path = require("path");

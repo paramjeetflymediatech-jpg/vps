@@ -4,10 +4,15 @@
 <main class="flex-1 md:ml-64 p-4 md:p-6 bg-gray-100 min-h-screen">
 
   <!-- MOBILE HEADER -->
-  <div class="flex items-center justify-between mb-6 md:hidden">
-    <button class="menu-btn bg-blue-600 text-white px-3 py-2 rounded">☰</button>
-    <h1 class="text-xl font-semibold">Add User</h1>
-  </div>
+ <div class="relative flex items-center mb-8 md:hidden h-12">
+  <button class="menu-btn absolute left-0 bg-indigo-600 text-white p-2 rounded-lg shadow-md hover:bg-indigo-700 transition-all z-10">
+    ☰
+  </button>
+  
+  <h1 class="w-full text-center text-xl font-bold text-slate-800 tracking-tight">
+    Add User
+  </h1>
+</div>
 
   <!-- DESKTOP HEADER -->
   <div class="hidden md:flex justify-between items-center mb-6">

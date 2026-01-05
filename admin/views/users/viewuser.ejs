@@ -1,80 +1,128 @@
 <%- include('../layouts/header') %>
 <%- include('../layouts/sidebar') %>
 
-<div class="flex-1 md:ml-64 p-4 md:p-6  min-h-screen">
+<!-- MAIN WRAPPER -->
+<main
+  class="bg-gray-100 min-h-screen flex justify-center px-3 sm:px-4 md:px-6 py-6
+         w-full md:ml-64 transition-all"
+>
 
-  <!-- Mobile header -->
-  <div class="flex items-center justify-between mb-6 md:hidden">
-    <button class="menu-btn bg-blue-600 text-white px-3 py-2 rounded">☰</button>
-    <h1 class="text-xl font-semibold w-full">User Details</h1>
-  </div>
+  <!-- CONTENT CONTAINER -->
+  <div class="w-full max-w-4xl">
 
-  <h1 class="hidden md:block text-2xl font-semibold mb-6">User Details</h1>
+    <!-- ================= MOBILE HEADER ================= -->
+    <div class="flex items-center justify-between mb-6 md:hidden">
+      <button
+        class="menu-btn bg-blue-600 text-white px-3 py-2 rounded-lg shadow"
+      >
+        ☰
+      </button>
 
-  <div class="max-w-3xl bg-white rounded-xl shadow p-6">
-
-    <% if (data) { %>
-
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-      <!-- Name -->
-      <div>
-        <p class="text-sm text-gray-500">Name</p>
-        <p class="font-semibold uppercase"><%= data.name %></p>
-      </div>
-
-      <!-- Email -->
-      <div>
-        <p class="text-sm text-gray-500">Email</p>
-        <p class="break-all"><%= data.email %></p>
-      </div>
-
-      <!-- Role -->
-      <div>
-        <p class="text-sm text-gray-500">Role</p>
-        <span class="inline-block px-3 py-1 rounded-full text-sm
-          <%= data.role === 'admin' ? 'bg-red-100 text-red-600' : 'bg-blue-100 text-blue-600' %>">
-          <%= data.role %>
-        </span>
-      </div>
-
-      <!-- Phone -->
-      <div>
-        <p class="text-sm text-gray-500">Phone</p>
-        <p><%= data.phone || '-' %></p>
-      </div>
-
-      <!-- Department -->
-      <div>
-        <p class="text-sm text-gray-500">Department</p>
-        <p><%= data.department || '-' %></p>
-      </div>
-
-      <!-- Created At -->
-      <div>
-        <p class="text-sm text-gray-500">Created At</p>
-        <p><%= new Date(data.createdAt).toLocaleDateString() %></p>
-      </div>
-
+      <h1 class="text-lg font-semibold text-gray-800 text-center flex-1">
+        User Details
+      </h1>
     </div>
 
-    <!-- ACTIONS -->
-    <div class="mt-8 flex gap-4">
-      <a href="/admin/users" class="px-4 py-2 rounded bg-gray-200">
-        Back
-      </a>
+    <!-- ================= DESKTOP HEADER ================= -->
+    <h1 class="hidden md:block text-2xl font-semibold mb-6 text-gray-800">
+      User Details
+    </h1>
 
-      <a href="/admin/users/<%= data._id %>/edit" 
-         class="px-4 py-2 rounded bg-blue-600 text-white">
-        Edit User
-      </a>
+    <!-- ================= CARD ================= -->
+    <div class="bg-white rounded-2xl shadow p-4 sm:p-5 md:p-6">
+
+      <% if (data) { %>
+
+      <!-- DETAILS GRID -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+
+        <!-- Name -->
+        <div>
+          <p class="text-xs text-gray-500 mb-1">Name</p>
+          <p class="font-semibold uppercase text-gray-800">
+            <%= data.name %>
+          </p>
+        </div>
+
+        <!-- Email -->
+        <div>
+          <p class="text-xs text-gray-500 mb-1">Email</p>
+          <p class="break-all text-gray-800">
+            <%= data.email %>
+          </p>
+        </div>
+
+        <!-- Role -->
+        <div>
+          <p class="text-xs text-gray-500 mb-1">Role</p>
+          <span
+            class="inline-block px-3 py-1 rounded-full text-xs font-semibold
+            <%= data.role === 'admin'
+              ? 'bg-red-100 text-red-600'
+              : 'bg-blue-100 text-blue-600' %>"
+          >
+            <%= data.role %>
+          </span>
+        </div>
+
+        <!-- Phone -->
+        <div>
+          <p class="text-xs text-gray-500 mb-1">Phone</p>
+          <p class="text-gray-800">
+            <%= data.phone || '-' %>
+          </p>
+        </div>
+
+        <!-- Department -->
+        <div>
+          <p class="text-xs text-gray-500 mb-1">Department</p>
+          <p class="text-gray-800">
+            <%= data.department || '-' %>
+          </p>
+        </div>
+
+        <!-- Created At -->
+        <div>
+          <p class="text-xs text-gray-500 mb-1">Created At</p>
+          <p class="text-gray-800">
+            <%= new Date(data.createdAt).toLocaleDateString() %>
+          </p>
+        </div>
+
+      </div>
+
+      <!-- ================= ACTION BUTTONS ================= -->
+      <div class="mt-8 flex flex-col sm:flex-row gap-4">
+
+        <a
+          href="/admin/users"
+          class="w-full sm:w-auto text-center px-4 py-2 rounded-lg
+                 bg-gray-200 hover:bg-gray-300 transition"
+        >
+          ← Back
+        </a>
+
+        <a
+          href="/admin/users/<%= data._id %>/edit"
+          class="w-full sm:w-auto text-center px-4 py-2 rounded-lg
+                 bg-blue-600 text-white hover:bg-blue-700 transition"
+        >
+          Edit User
+        </a>
+
+      </div>
+
+      <% } else { %>
+
+      <!-- EMPTY STATE -->
+      <p class="text-gray-500 text-center py-10">
+        User not found.
+      </p>
+
+      <% } %>
+
     </div>
-
-    <% } else { %>
-      <p class="text-gray-500">User not found.</p>
-    <% } %>
-
   </div>
-</div>
+</main>
 
 <%- include('../layouts/footer') %>
