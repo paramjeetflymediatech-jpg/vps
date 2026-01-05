@@ -1,5 +1,5 @@
 <%- include('../layouts/header') %> <%- include('../layouts/sidebar') %>
- 
+
 <!-- <main class=" bg-gray-100 flex justify-center px-3 md:px-6 py-6"> -->
 <main class="bg-gray-100 flex justify-center px-3 md:px-6 py-6 w-full md:ml-64">
   <!-- CONTENT WRAPPER (CENTERED) -->
@@ -30,8 +30,8 @@
       <table class="min-w-full text-sm border-collapse">
         <thead>
           <tr class="border-b bg-gray-50 text-gray-600">
-            <th class="py-3 px-4 text-left">Title</th>
-            <th class="py-3 px-4 text-left">Instructor</th>
+            <th class="py-3 px-4 text-left">Image</th>
+            <th class="py-3 px-4 text-left">Title</th> 
             <th class="py-3 px-4 text-left">Price</th>
             <th class="py-3 px-4 text-left">Status</th>
             <th class="py-3 px-4 text-left">Action</th>
@@ -47,12 +47,16 @@
           </tr>
           <% } %> <% courses.forEach(course => { %>
           <tr class="border-b hover:bg-gray-50 transition">
+            <td class="py-3 px-4 font-medium uppercase">
+              <img
+                src="/uploads/courses/<%= course.image %>"
+                width="120"
+                class="rounded"
+              />
+            </td>
             <td class="py-3 px-4 font-medium uppercase"><%= course.title %></td>
 
-            <td class="py-3 px-4">
-              <%= course.instructor || (course.tutorId && course.tutorId.name)
-              || "—" %>
-            </td>
+            
 
             <td class="py-3 px-4">₹<%= course.price %></td>
 
@@ -93,11 +97,11 @@
       <div class="border rounded-xl p-4 shadow-sm bg-gray-50">
         <p class="font-semibold uppercase text-gray-800"><%= course.title %></p>
 
-        <p class="text-sm text-gray-600 mt-1">
-          <strong>Instructor:</strong>
-          <%= course.instructor || (course.tutorId && course.tutorId.name) ||
-          "—" %>
-        </p>
+        <img
+          src="/uploads/courses/<%= course.image %>"
+          width="100%"
+          class="rounded mt-2"
+        />
 
         <p class="text-sm text-gray-600">
           <strong>Price:</strong> ₹<%= course.price %>

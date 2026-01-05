@@ -1,0 +1,134 @@
+<%- include('../layouts/header') %>
+<%- include('../layouts/sidebar') %>
+<main class="flex-1 md:ml-64 p-4 md:p-6 bg-gray-100 min-h-screen">
+  <!-- MOBILE HEADER -->
+  <div class="flex items-center justify-between mb-6 md:hidden">
+    <button class="menu-btn bg-blue-600 text-white px-3 py-2 rounded">☰</button>
+    <h1 class="text-xl font-semibold">Edit Course</h1>
+  </div>
+
+  <!-- DESKTOP HEADER -->
+  <div class="hidden md:flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-semibold"></h1>
+  </div>
+<div class="mx-auto p-3 bg-white  rounded-xl shadow">
+  <h1 class="text-2xl font-semibold mb-6">Edit Course</h1>
+
+  <% if (error) { %>
+    <div class="bg-red-100 text-red-700 p-3 rounded mb-4">
+      <%= error %>
+    </div>
+  <% } %>
+
+  <form
+    action="/admin/courses/edit/<%= course._id %>"
+    method="POST"
+    enctype="multipart/form-data"
+    class="space-y-5"
+  >
+    <!-- Course Title -->
+    <div>
+      <label class="block text-sm font-medium mb-1">Course Title</label>
+      <input
+        type="text"
+        name="title"
+        value="<%= course.title %>"
+        required
+        class="w-full border rounded px-4 py-2"
+      />
+    </div>
+
+    <!-- Description -->
+    <div>
+      <label class="block text-sm font-medium mb-1">Description</label>
+      <textarea
+        name="description"
+        rows="4"
+        required
+        class="w-full border rounded px-4 py-2"
+      ><%= course.description %></textarea>
+    </div>
+
+    <!-- Assign Tutor -->
+    <div>
+      <label class="block text-sm font-medium mb-1">Assign Tutor</label>
+      <select
+        name="tutorId"
+        required
+        class="w-full border rounded px-4 py-2"
+      >
+        <option value="">-- Select Tutor --</option>
+        <% tutors.forEach(tutor => { %>
+          <option
+            value="<%= tutor._id %>"
+            <%= course.tutorId && course.tutorId.toString() === tutor._id.toString() ? "selected" : "" %>
+          >
+            <%= tutor.name %> (<%= tutor.email %>)
+          </option>
+        <% }) %>
+      </select>
+    </div>
+
+    <!-- Price -->
+    <div>
+      <label class="block text-sm font-medium mb-1">Price</label>
+      <input
+        type="number"
+        name="price"
+        value="<%= course.price %>"
+        min="0"
+        class="w-full border rounded px-4 py-2"
+      />
+    </div>
+
+    <!-- Current Image -->
+    <% if (course.image) { %>
+      <div>
+        <label class="block text-sm font-medium mb-2">Current Image</label>
+        <img
+          src="/uploads/courses/<%= course.image %>"
+          class="w-40 rounded border"
+        />
+      </div>
+    <% } %>
+
+    <!-- Replace Image -->
+    <div>
+      <label class="block text-sm font-medium mb-1">Replace Image</label>
+      <input type="file" name="image" accept="image/*" />
+      <p class="text-sm text-gray-500">Leave empty to keep existing image</p>
+    </div>
+
+    <!-- Publish -->
+    <div class="flex items-center gap-2">
+      <input
+        type="checkbox"
+        name="published"
+        id="published"
+        <%= course.published ? "checked" : "" %>
+      />
+      <label for="published">Published</label>
+    </div>
+
+    <!-- Actions -->
+    <div class="flex gap-3">
+      <button
+        type="submit"
+        class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700"
+      >
+        Update Course
+      </button>
+
+      <a
+        href="/admin/courses"
+        class="bg-gray-200 px-6 py-2 rounded"
+      >
+        Cancel
+      </a>
+    </div>
+  </form>
+</div>
+
+</main>
+
+<%- include('../layouts/footer') %>

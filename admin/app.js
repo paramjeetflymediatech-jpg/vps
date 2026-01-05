@@ -12,15 +12,10 @@ const dotenv = require("dotenv").config();
 const session = require("express-session");
 const passport = require("passport");
 const path = require("path");
-const config = require("./config");
+const config = require("./config/config");
 const app = express();
 const cookieParser = require("cookie-parser");
-// Connect to MongoDB using URI from `config`
-// Successful connection logs a confirmation, errors are printed to console.
-mongoose
-  .connect(config.mongoURI)
-  .then(() => console.log("MongoDB connected"))
-  .catch((err) => console.log(err));
+const connectDB = require("./config/db");
 
 // Session setup: stores session data server-side (default memory store here)
 // In production, replace the default store with a persistent store.
@@ -31,20 +26,24 @@ app.use(
     saveUninitialized: false,
   })
 );
+// Passport configuration and initialization
+// `./passport` should configure strategies and serialize/deserialize
+require("./passport")(passport);
+app.use(passport.initialize());
+app.use(passport.session());
+
 // Parse cookies on incoming requests (used by some auth/session flows)
 app.use(cookieParser());
 // Configure view engine (EJS) and views directory
-app.set("view engine", "ejs");
-app.set("views", path.join(__dirname, "views"));
-
-// Expose `node_modules` under `/vendor` for client-side libs if needed
-app.use("/vendor", express.static(path.join(__dirname, "node_modules")));
 
 // Static assets and body parsing middleware
 app.use(express.static(path.join(__dirname, "public")));
 app.use(express.urlencoded({ extended: true })); // parse form bodies
 app.use(express.json()); // parse JSON bodies
 
+// Expose `node_modules` under `/vendor` for client-side libs if needed
+app.use("/vendor", express.static(path.join(__dirname, "node_modules")));
+app.use("/uploads", express.static("uploads"));
 // Session setup: stores session data server-side (default memory store here)
 // In production, replace the default store with a persistent store.
 app.use(
@@ -55,11 +54,8 @@ app.use(
   })
 );
 
-// Passport configuration and initialization
-// `./passport` should configure strategies and serialize/deserialize
-require("./passport")(passport);
-app.use(passport.initialize());
-app.use(passport.session());
+app.set("view engine", "ejs");
+app.set("views", path.join(__dirname, "views"));
 
 // Mount admin-related routers
 app.use("/admin/users", require("./routes/userRoutes"));
@@ -103,7 +99,11 @@ app.use((err, req, res, next) => {
   });
 });
 // Start the HTTP server
-const PORT = 5000;
-app.listen(PORT, () => {
-  console.log(`Server started on port ${PORT}`);
+const PORT = config.PORT || 5000;
+
+// Connect to MongoDB
+connectDB().then(() => {
+  app.listen(PORT, () => {
+    console.log(`Server started on port ${PORT}`);
+  });
 });

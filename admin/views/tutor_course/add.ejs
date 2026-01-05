@@ -1,0 +1,102 @@
+<%- include('../layouts/header') %> <%- include('../layouts/sidebar') %>
+<main class="flex-1 md:ml-64 p-4 md:p-6 bg-gray-100 min-h-screen">
+  <!-- MOBILE HEADER -->
+  <div class="flex items-center justify-between mb-6 md:hidden">
+    <button class="menu-btn bg-blue-600 text-white px-3 py-2 rounded">☰</button>
+    <h1 class="text-xl font-semibold">Add User</h1>
+  </div>
+
+  <!-- DESKTOP HEADER -->
+  <div class="hidden md:flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-semibold">➕ Add New User</h1>
+  </div>
+  <div class="mx-auto bg-white p-2 rounded-xl shadow">
+    <form
+      action="/admin/courses/add"
+      method="POST"
+      enctype="multipart/form-data"
+      class="space-y-5"
+    >
+      <!-- Course Title -->
+      <div>
+        <label class="block text-sm font-medium mb-1">Title</label>
+        <input
+          type="text"
+          name="title"
+          required
+          class="w-full border rounded px-4 py-2"
+        />
+      </div>
+
+      <!-- Description -->
+      <div>
+        <label class="block text-sm font-medium mb-1">Description</label>
+        <textarea
+          name="description"
+          rows="4"
+          required
+          class="w-full border rounded px-4 py-2"
+        ></textarea>
+      </div>
+
+      <!-- Instructor -->
+      <div>
+        <label class="block text-sm font-medium mb-1">Assign Tutor</label>
+
+        <select name="tutorId" required class="w-full border rounded px-4 py-2">
+          <option value="">-- Select Tutor --</option>
+
+          <% tutors.forEach(tutor => { %>
+          <option value="<%= tutor._id %>">
+            <%= tutor.name %> (<%= tutor.email %>)
+          </option>
+          <% }) %>
+        </select>
+      </div>
+
+      <!-- Price -->
+      <div>
+        <label class="block text-sm font-medium mb-1">Price</label>
+        <input
+          type="number"
+          name="price"
+          min="0"
+          class="w-full border rounded px-4 py-2"
+        />
+      </div>
+
+      <!-- Course Image -->
+      <div>
+        <label class="block text-sm font-medium mb-1">Course Image</label>
+        <input
+          type="file"
+          name="image"
+          accept="image/*"
+          required
+          class="w-full"
+        />
+      </div>
+
+      <!-- Published -->
+      <div class="flex items-center gap-2">
+        <input type="checkbox" name="published" id="published" />
+        <label for="published">Publish Course</label>
+      </div>
+
+      <!-- Submit -->
+      <div class="flex gap-3">
+        <button
+          type="submit"
+          class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700"
+        >
+          Save Course
+        </button>
+
+        <a href="/admin/courses" class="bg-gray-200 px-6 py-2 rounded">
+          Cancel
+        </a>
+      </div>
+    </form>
+  </div>
+</main>
+<%- include('../layouts/footer') %>
