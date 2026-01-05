@@ -95,6 +95,38 @@ router.post("/create", auth, role("ADMIN"), async (req, res) => {
 });
 
 /* =========================================================
+    EDIT USER PAGE (ADMIN)
+========================================================= */
+
+router.get("/:id/edit", auth, role("ADMIN"), async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+    return res.render("users/edituser", { user });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).render("layouts/error", {
+      message: "Something went wrong",
+    });
+  }
+});
+
+/* =========================================================
+    UPDATE USER (ADMIN)
+========================================================= */
+
+router.post("/:id/update", auth, role("ADMIN"), async (req, res) => {
+  try {
+    await User.findByIdAndUpdate(req.params.id, req.body);
+    return res.redirect("/admin/users");
+  } catch (error) {
+    console.error(error);
+    return res.status(500).render("layouts/error", {
+      message: "Something went wrong",
+    });
+  }
+});
+
+/* =========================================================
    VIEW USER (ADMIN)
 ========================================================= */
 router.get("/:id", auth, role("ADMIN"), async (req, res) => {
