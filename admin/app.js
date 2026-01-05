@@ -22,6 +22,15 @@ mongoose
   .then(() => console.log("MongoDB connected"))
   .catch((err) => console.log(err));
 
+// Session setup: stores session data server-side (default memory store here)
+// In production, replace the default store with a persistent store.
+app.use(
+  session({
+    secret: config.sessionSecret,
+    resave: false,
+    saveUninitialized: false,
+  })
+);
 // Parse cookies on incoming requests (used by some auth/session flows)
 app.use(cookieParser());
 // Configure view engine (EJS) and views directory

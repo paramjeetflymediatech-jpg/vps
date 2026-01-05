@@ -73,7 +73,7 @@ router.post("/create", auth, role("ADMIN"), async (req, res) => {
       user.resetTokenExpiry = Date.now() + 1000 * 60 * 30; // 30 mins
       await user.save();
 
-      const link = `${process.env.BASE_URL}/users/setup-password/${token}`;
+      const link = `${process.env.BASE_URL}/admin/users/setup-password/${token}`;
 
       await sendMail({
         to: user.email,

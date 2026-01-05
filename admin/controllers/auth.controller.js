@@ -2,46 +2,45 @@ const User = require("../models/User.js");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
+ 
 const adminLogin = async (req, res) => {
-  const { email, password } = req.body;
+  try {
+    const { email, password } = req.body;
 
-  // 1. Find user
-  const admin = await User.findOne({ email, role: "ADMIN" });
+    const admin = await User.findOne({ email, role: "ADMIN" });
 
-  if (!admin) {
-    return res.status(401).json({ message: "Admin not found" });
+    if (!admin) {
+      req.flash("error", "Admin not found");
+      return res.redirect("/admin/login");
+    }
+
+    const isMatch = await bcrypt.compare(password, admin.password);
+    if (!isMatch) {
+      req.flash("error", "Invalid email or password");
+      return res.redirect("/admin/login");
+    }
+
+    const token = jwt.sign(
+      { id: admin._id, role: admin.role },
+      process.env.JWT_SECRET,
+      { expiresIn: "1d" }
+    );
+
+    res.cookie("admin_token", token, {
+      httpOnly: true,
+      secure: false, // true in production
+    });
+
+    req.flash("success", "Welcome Admin!");
+    res.redirect("/admin/dashboard");
+
+  } catch (err) {
+    console.error(err);
+    req.flash("error", "Server error");
+    res.redirect("/admin/login");
   }
-
-  // 2. Check password
-  const isMatch = await bcrypt.compare(password, admin.password);
-  if (!isMatch) {
-    return res.status(401).json({ message: "Invalid credentials" });
-  }
-
-  // 3. Generate token
-  const token = jwt.sign(
-    {
-      id: admin._id,
-      role: admin.role,
-      // organizationId: admin.organizationId,
-    },
-    process.env.JWT_SECRET,
-    { expiresIn: "1d" }
-  );
-
-  // 4. Response
-  res.json({
-    message: "Admin login successful",
-    token,
-    user: {
-      id: admin._id,
-      name: admin.name,
-      email: admin.email,
-      role: admin.role,
-      // organizationId: admin.organizationId,
-    },
-  });
 };
 
+ 
 
 module.exports = { adminLogin };

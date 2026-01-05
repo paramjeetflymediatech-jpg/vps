@@ -1,0 +1,134 @@
+<%- include('../layouts/header') %> <%- include('../layouts/sidebar') %>
+ 
+<!-- <main class=" bg-gray-100 flex justify-center px-3 md:px-6 py-6"> -->
+<main class="bg-gray-100 flex justify-center px-3 md:px-6 py-6 w-full md:ml-64">
+  <!-- CONTENT WRAPPER (CENTERED) -->
+  <div class="w-full max-w-7xl">
+    <!-- MOBILE HEADER -->
+    <div class="flex items-center justify-center mb-6 md:hidden">
+      <button
+        class="menu-btn bg-blue-600 text-white px-4 py-2 rounded-lg shadow"
+      >
+        ☰
+      </button>
+      <h1 class="text-xl font-semibold text-gray-800">User List</h1>
+    </div>
+
+    <!-- DESKTOP HEADER -->
+    <div class="hidden md:flex items-center justify-between mb-6">
+      <h1 class="text-2xl font-semibold text-gray-800">Course List</h1>
+
+      <a
+        href="/admin/courses/add"
+        class="text-sm bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
+      >
+        + Add Course
+      </a>
+    </div>
+    <!-- DESKTOP TABLE -->
+    <div class="hidden md:block overflow-x-auto">
+      <table class="min-w-full text-sm border-collapse">
+        <thead>
+          <tr class="border-b bg-gray-50 text-gray-600">
+            <th class="py-3 px-4 text-left">Title</th>
+            <th class="py-3 px-4 text-left">Instructor</th>
+            <th class="py-3 px-4 text-left">Price</th>
+            <th class="py-3 px-4 text-left">Status</th>
+            <th class="py-3 px-4 text-left">Action</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <% if (courses.length === 0) { %>
+          <tr>
+            <td colspan="5" class="text-center py-6 text-gray-500">
+              No courses found
+            </td>
+          </tr>
+          <% } %> <% courses.forEach(course => { %>
+          <tr class="border-b hover:bg-gray-50 transition">
+            <td class="py-3 px-4 font-medium uppercase"><%= course.title %></td>
+
+            <td class="py-3 px-4">
+              <%= course.instructor || (course.tutorId && course.tutorId.name)
+              || "—" %>
+            </td>
+
+            <td class="py-3 px-4">₹<%= course.price %></td>
+
+            <td class="py-3 px-4">
+              <span
+                class="px-3 py-1 rounded-full text-xs font-semibold <%= course.published ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700' %>"
+              >
+                <%= course.published ? "Published" : "Draft" %>
+              </span>
+            </td>
+
+            <td class="py-3 px-4 space-x-4">
+              <a
+                href="/admin/courses/edit/<%= course._id %>"
+                class="text-blue-600 hover:underline"
+              >
+                Edit
+              </a>
+
+              <form
+                method="POST"
+                action="/admin/courses/delete/<%= course._id %>"
+                class="inline"
+                onsubmit="return confirm('Delete this course?')"
+              >
+                <button class="text-red-600 hover:underline">Delete</button>
+              </form>
+            </td>
+          </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- MOBILE / TABLET CARDS -->
+    <div class="md:hidden space-y-4">
+      <% courses.forEach(course => { %>
+      <div class="border rounded-xl p-4 shadow-sm bg-gray-50">
+        <p class="font-semibold uppercase text-gray-800"><%= course.title %></p>
+
+        <p class="text-sm text-gray-600 mt-1">
+          <strong>Instructor:</strong>
+          <%= course.instructor || (course.tutorId && course.tutorId.name) ||
+          "—" %>
+        </p>
+
+        <p class="text-sm text-gray-600">
+          <strong>Price:</strong> ₹<%= course.price %>
+        </p>
+
+        <span
+          class="inline-block mt-2 px-3 py-1 rounded-full text-xs font-semibold <%= course.published ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700' %>"
+        >
+          <%= course.published ? "Published" : "Draft" %>
+        </span>
+
+        <div class="mt-4 flex gap-4">
+          <a
+            href="/admin/courses/edit/<%= course._id %>"
+            class="text-blue-600 font-medium"
+          >
+            Edit →
+          </a>
+
+          <form
+            method="POST"
+            action="/admin/courses/delete/<%= course._id %>"
+            onsubmit="return confirm('Delete this course?')"
+          >
+            <button class="text-red-600 font-medium">Delete</button>
+          </form>
+        </div>
+      </div>
+      <% }) %>
+    </div>
+  </div>
+</main>
+
+<%- include('../layouts/footer') %>
