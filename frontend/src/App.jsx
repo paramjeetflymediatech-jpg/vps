@@ -23,6 +23,7 @@ import RegisterOtp from "./authentication/Registerotp";
 /* TUTOR */
 import TutorLogin from "./tutor/pages/TutorLogin";
 import TutorDashboard from "./tutor/pages/Dashboard";
+import Courses from "./tutor/Courses";
 import Classes from "./tutor/Classes";
 import Settings from "./tutor/Settings";
 import TutorLayout from "./tutor/pages/TutorLayout";
@@ -71,6 +72,7 @@ const App = () => {
           <Route path="dashboard" element={<TutorDashboard />} />
           <Route path="classes" element={<Classes />} />
           <Route path="settings" element={<Settings />} />
+          <Route path="courses" element={<Courses />} />
         </Route>      
       </Routes>
     </>

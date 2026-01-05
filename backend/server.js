@@ -7,6 +7,8 @@ import authRoutes from "./routes/auth.routes.js";
 import tutorRoutes from "./routes/tutor.routes.js"; 
 import adminRoutes from "./routes/admin.routes.js"; 
 import studentRoutes from "./routes/student.routes.js";
+import courseRoutes from "./routes/course.routes.js";
+
 
 dotenv.config();
 
@@ -43,6 +45,8 @@ app.use("/api/auth", authRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/tutor", tutorRoutes);
 app.use("/api/student", studentRoutes);
+app.use("/api/courses", courseRoutes);
+
 
 /* ================= START SERVER ================= */
 const startServer = async () => {

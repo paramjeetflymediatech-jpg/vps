@@ -1,5 +1,5 @@
 import { Link, Outlet, useNavigate } from "react-router-dom";
-import { LayoutDashboard, BookOpen, Settings, LogOut, Menu } from "lucide-react";
+import { LayoutDashboard, BookOpen, Settings, LogOut, Menu, GraduationCap } from "lucide-react";
 import { useState } from "react";
 
 const TutorLayout = () => {
@@ -23,6 +23,9 @@ const TutorLayout = () => {
         <nav className="flex-1 p-4 space-y-2">
           <Link to="/tutor/dashboard" className="flex items-center gap-3 px-4 py-2 rounded hover:bg-white/20 transition">
             <LayoutDashboard size={18} /> Dashboard
+          </Link>
+          <Link to="/tutor/courses" className="flex items-center gap-3 px-4 py-2 rounded hover:bg-white/20 transition">
+            <GraduationCap size={18} /> Courses
           </Link>
           <Link to="/tutor/classes" className="flex items-center gap-3 px-4 py-2 rounded hover:bg-white/20 transition">
             <BookOpen size={18} /> Classes
