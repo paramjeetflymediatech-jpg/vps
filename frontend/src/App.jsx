@@ -76,7 +76,6 @@ const App = () => {
         <Route path="/tutor/login" element={<TutorLogin />} />
 
         {/* Tutor */}
-        <Route element={<ProtectedRoute allowedRoles={["TUTOR"]} />}>
           {/* 👨‍🏫 TUTOR DASHBOARD WITH LAYOUT */}
           <Route path="/tutor" element={<TutorLayout />}>
             <Route index element={<TutorDashboard />} />
@@ -86,7 +85,7 @@ const App = () => {
             <Route path="settings" element={<Settings />} />
             <Route path="courses" element={<Courses />} />
           </Route>
-        </Route>
+
 
         {/* 🎓 STUDENT DASHBOARD */}
         <Route

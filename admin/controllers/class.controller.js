@@ -37,6 +37,7 @@ exports.renderCreateClass = async (req, res) => {
 // CREATE CLASS
 exports.createClass = async (req, res) => {
   try {
+    console.log(req.body);
     await Class.create(req.body);
     res.redirect("/admin/classes", {});
   } catch (err) {
