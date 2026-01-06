@@ -1,44 +1,111 @@
 <%- include('layouts/header') %>
-<!-- Sidebar -->
 <%- include('layouts/sidebar') %>
 
-<!-- Main Content -->
-<main class="main-content">
-  <!-- Topbar -->
-  <header class="topbar">
-    <button class="menu-btn">☰</button>
+<main
+  class="bg-gray-50 min-h-screen px-3 sm:px-4 md:px-6 py-6
+         w-full md:ml-64 transition-all duration-300"
+>
+  <div class="w-full max-w-7xl mx-auto">
 
-    <h1>Dashboard</h1>
-    <div class="admin-profile">
-      <span>Admin</span>
-      
-    </div>
-  </header>
+    <!-- ================= MOBILE HEADER ================= -->
+    <div class="flex items-center justify-between mb-6 md:hidden">
+      <button
+        id="menuBtn"
+        class="bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600
+               text-white px-3 py-2 rounded-lg shadow text-xl"
+      >
+        ☰
+      </button>
 
-  <!-- Dashboard Cards -->
-  <section class="cards">
-    <div class="card">
-      <h3>Total Users</h3>
-      <p>2,450</p>
-    </div>
-    <div class="card">
-      <h3>Active Today</h3>
-      <p>320</p>
-    </div>
-    <div class="card">
-      <h3>Total Courses</h3>
-      <p>35</p>
-    </div>
-    <div class="card">
-      <h3>Pass Rate</h3>
-      <p>78%</p>
-    </div>
-  </section>
+      <h1 class="text-lg font-semibold text-gray-800">
+        Dashboard
+      </h1>
 
-  <!-- Content Area -->
-  <section class="content-box">
-    <h2>Welcome to the Admin Panel</h2>
-    <p>Use the sidebar to manage users, courses, tests, and results.</p>
-  </section>
+      <span
+        class="bg-gray-200 text-gray-700 px-3 py-2 rounded-lg text-sm font-semibold"
+      >
+        Admin
+      </span>
+    </div>
+
+    <!-- ================= DESKTOP HEADER ================= -->
+    <div class="hidden md:flex items-center justify-between mb-8">
+      <h1 class="text-2xl font-bold text-gray-800">
+        Dashboard
+      </h1>
+
+      <div class="flex items-center gap-3">
+        <span class="text-sm font-semibold text-gray-600">
+          Welcome, Admin
+        </span>
+      </div>
+    </div>
+
+    <!-- ================= STATS CARDS ================= -->
+    <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+
+      <div class="bg-white rounded-2xl shadow p-5 border">
+        <h3 class="text-sm font-semibold text-gray-500">
+          Total Users
+        </h3>
+        <p class="text-3xl font-bold text-gray-800 mt-2">
+          2,450
+        </p>
+      </div>
+
+      <div class="bg-white rounded-2xl shadow p-5 border">
+        <h3 class="text-sm font-semibold text-gray-500">
+          Active Today
+        </h3>
+        <p class="text-3xl font-bold text-green-600 mt-2">
+          320
+        </p>
+      </div>
+
+      <div class="bg-white rounded-2xl shadow p-5 border">
+        <h3 class="text-sm font-semibold text-gray-500">
+          Total Courses
+        </h3>
+        <p class="text-3xl font-bold text-blue-600 mt-2">
+          35
+        </p>
+      </div>
+
+      <div class="bg-white rounded-2xl shadow p-5 border">
+        <h3 class="text-sm font-semibold text-gray-500">
+          Pass Rate
+        </h3>
+        <p class="text-3xl font-bold text-purple-600 mt-2">
+          78%
+        </p>
+      </div>
+
+    </section>
+
+    <!-- ================= CONTENT BOX ================= -->
+    <section class="bg-white rounded-2xl shadow border p-6">
+      <h2 class="text-xl font-semibold text-gray-800 mb-2">
+        Welcome to the Admin Panel 👋
+      </h2>
+
+      <p class="text-gray-600">
+        Use the sidebar to manage users, courses, classes, tests, and results.
+      </p>
+    </section>
+
+  </div>
 </main>
+
+<!-- ================= SCRIPTS ================= -->
+<script>
+  const menuBtn = document.getElementById("menuBtn");
+  const sidebar = document.querySelector(".sidebar");
+
+  if (menuBtn && sidebar) {
+    menuBtn.addEventListener("click", () => {
+      sidebar.classList.toggle("hidden");
+    });
+  }
+</script>
+
 <%- include('layouts/footer') %>

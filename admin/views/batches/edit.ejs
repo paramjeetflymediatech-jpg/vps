@@ -1,16 +1,46 @@
- 
- 
-<%- include('../layouts/header') %> 
-<%- include('../layouts/sidebar') %> 
+<%- include('../layouts/header') %>
+<%- include('../layouts/sidebar') %>
 
-<div class="md:ml-64 min-h-screen w-full bg-gray-50 p-4 sm:p-6">
-  <!-- Page Header -->
-  <div class="mb-6">
-    <h2 class="text-2xl sm:text-3xl font-bold text-gray-800">Create Class</h2>
-    <p class="text-sm text-gray-500 mt-1">
-      Fill in the details to publish a new class
-    </p>
-  </div>
+<!-- MAIN CONTENT -->
+<main
+  class="bg-gray-50 min-h-screen px-3 sm:px-4 md:px-6 py-6
+         w-full md:ml-64 transition-all duration-300"
+>
+
+  <div class="w-full max-w-4xl mx-auto">
+
+    <!-- ================= MOBILE HEADER ================= -->
+    <div class="flex items-center justify-between mb-6 md:hidden">
+      <button
+        id="menuBtn"
+        class="bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600
+               text-white px-3 py-2 rounded-lg shadow text-xl"
+      >
+        ☰
+      </button>
+
+      <h1 class="text-lg font-semibold text-gray-800">
+        Edit Class
+      </h1>
+
+      <a
+        href="/admin/classes"
+        class="bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600
+               text-white px-3 py-2 rounded-lg text-sm shadow"
+      >
+        Back
+      </a>
+    </div>
+
+    <!-- ================= DESKTOP HEADER ================= -->
+    <div class="hidden md:block mb-6">
+      <h2 class="text-2xl sm:text-3xl font-bold text-gray-800">
+        Edit Class
+      </h2>
+      <p class="text-sm text-gray-500 mt-1">
+        Update the details of your class
+      </p>
+    </div>
 
   <!-- Form Card -->
   <div class="max-w-2xl bg-white rounded-2xl shadow border p-6 sm:p-8">
@@ -19,104 +49,155 @@
 
   <form method="POST" action="/admin/classes/edit/<%= classdata._id %>" class="space-y-4">
 
-    <!-- COURSE -->
-    <label>Course</label>
-    <select name="courseId" required>
-      <% data.forEach(c => { %>
-        <option
-          value="<%= c._id %>"
-          <%= c._id.toString() === classdata.courseId._id.toString() ? 'selected' : '' %>
-        >
-          <%= c.title %>
-        </option>
-      <% }) %>
-    </select>
+        <!-- COURSE -->
+        <div>
+          <label class="block text-sm font-semibold mb-1">Course</label>
+          <select
+            name="courseId"
+            required
+            class="w-full border rounded-lg px-3 py-2"
+          >
+            <% data.forEach(c => { %>
+              <option
+                value="<%= c._id %>"
+                <%= c._id.toString() === classdata.courseId._id.toString()
+                  ? 'selected' : '' %>
+              >
+                <%= c.title %>
+              </option>
+            <% }) %>
+          </select>
+        </div>
 
-    <!-- TITLE -->
-    <label>Class Title</label>
-    <input
-      name="title"
-      value="<%= classdata.title %>"
-      required
-    />
+        <!-- TITLE -->
+        <div>
+          <label class="block text-sm font-semibold mb-1">Class Title</label>
+          <input
+            name="title"
+            value="<%= classdata.title %>"
+            required
+            class="w-full border rounded-lg px-3 py-2"
+          />
+        </div>
 
-    <!-- DESCRIPTION -->
-    <label>Description</label>
-    <textarea name="description"><%= classdata.description %></textarea>
+        <!-- DESCRIPTION -->
+        <div>
+          <label class="block text-sm font-semibold mb-1">Description</label>
+          <textarea
+            name="description"
+            rows="3"
+            class="w-full border rounded-lg px-3 py-2"
+          ><%= classdata.description %></textarea>
+        </div>
 
-    <!-- MEETING LINK -->
-    <label>Meeting Link</label>
-    <input
-      name="meetingLink"
-      value="<%= classdata.meetingLink %>"
-    />
+        <!-- MEETING LINK -->
+        <div>
+          <label class="block text-sm font-semibold mb-1">Meeting Link</label>
+          <input
+            name="meetingLink"
+            value="<%= classdata.meetingLink %>"
+            class="w-full border rounded-lg px-3 py-2"
+          />
+        </div>
 
-    <!-- DATES -->
-    <label>Start Date</label>
-    <input
-      type="date"
-      name="startDate"
-      value="<%= classdata.startDate.toISOString().slice(0,10) %>"
-      required
-    />
+        <!-- DATES -->
+        <div class="grid sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-semibold mb-1">Start Date</label>
+            <input
+              type="date"
+              name="startDate"
+              value="<%= classdata.startDate.toISOString().slice(0,10) %>"
+              required
+              class="w-full border rounded-lg px-3 py-2"
+            />
+          </div>
 
-    <label>End Date</label>
-    <input
-      type="date"
-      name="endDate"
-      value="<%= classdata.endDate.toISOString().slice(0,10) %>"
-      required
-    />
+          <div>
+            <label class="block text-sm font-semibold mb-1">End Date</label>
+            <input
+              type="date"
+              name="endDate"
+              value="<%= classdata.endDate.toISOString().slice(0,10) %>"
+              required
+              class="w-full border rounded-lg px-3 py-2"
+            />
+          </div>
+        </div>
 
-    <!-- SCHEDULE -->
-    <label>Schedule</label>
-    <% classdata.schedule.forEach((s, i) => { %>
-      <div class="schedule-row">
-        <select name="schedule[<%= i %>][day]">
-          <% ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].forEach(d => { %>
-            <option <%= d === s.day ? 'selected' : '' %>><%= d %></option>
+        <!-- SCHEDULE -->
+        <div>
+          <label class="block text-sm font-semibold mb-2">Schedule</label>
+
+          <% classdata.schedule.forEach((s, i) => { %>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-2">
+              <select
+                name="schedule[<%= i %>][day]"
+                class="border rounded-lg px-3 py-2"
+              >
+                <% ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].forEach(d => { %>
+                  <option <%= d === s.day ? 'selected' : '' %>>
+                    <%= d %>
+                  </option>
+                <% }) %>
+              </select>
+
+              <input
+                type="time"
+                name="schedule[<%= i %>][startTime]"
+                value="<%= s.startTime %>"
+                class="border rounded-lg px-3 py-2"
+              />
+
+              <input
+                type="time"
+                name="schedule[<%= i %>][endTime]"
+                value="<%= s.endTime %>"
+                class="border rounded-lg px-3 py-2"
+              />
+            </div>
           <% }) %>
-        </select>
+        </div>
 
-        <input
-          type="time"
-          name="schedule[<%= i %>][startTime]"
-          value="<%= s.startTime %>"
-        />
+        <!-- PRICE & MAX STUDENTS -->
+        <div class="grid sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-semibold mb-1">Price</label>
+            <input
+              type="number"
+              name="price"
+              value="<%= classdata.price %>"
+              class="w-full border rounded-lg px-3 py-2"
+            />
+          </div>
 
-        <input
-          type="time"
-          name="schedule[<%= i %>][endTime]"
-          value="<%= s.endTime %>"
-        />
-      </div>
-    <% }) %>
+          <div>
+            <label class="block text-sm font-semibold mb-1">
+              Max Students
+            </label>
+            <input
+              type="number"
+              name="maxStudents"
+              value="<%= classdata.maxStudents %>"
+              class="w-full border rounded-lg px-3 py-2"
+            />
+          </div>
+        </div>
 
-    <!-- PRICE -->
-    <label>Price</label>
-    <input
-      type="number"
-      name="price"
-      value="<%= classdata.price %>"
-    />
-
-    <!-- MAX STUDENTS -->
-    <label>Max Students</label>
-    <input
-      type="number"
-      name="maxStudents"
-      value="<%= classdata.maxStudents %>"
-    />
-
-    <!-- STATUS -->
-    <label>Status</label>
-    <select name="status">
-      <% ['UPCOMING','ONGOING','COMPLETED'].forEach(s => { %>
-        <option <%= s === classdata.status ? 'selected' : '' %>>
-          <%= s %>
-        </option>
-      <% }) %>
-    </select>
+        <!-- STATUS -->
+        <div>
+          <label class="block text-sm font-semibold mb-1">Status</label>
+          <select
+            name="status"
+            class="w-full border rounded-lg px-3 py-2"
+          >
+            <% ['UPCOMING','ONGOING','COMPLETED'].forEach(s => { %>
+              <option <%= s === classdata.status ? 'selected' : '' %>>
+                <%= s %>
+              </option>
+            <% }) %>
+          </select>
+        </div>
 
     <!-- INSTRUCTOR (READ ONLY) -->
     <label>Instructor</label>
@@ -129,7 +210,19 @@
   </form>
   </div>
 
-</div>
+  </div>
+</main>
 
+<!-- ================= SIDEBAR TOGGLE SCRIPT ================= -->
+<script>
+  const menuBtn = document.getElementById("menuBtn");
+  const sidebar = document.querySelector(".sidebar");
+
+  if (menuBtn && sidebar) {
+    menuBtn.addEventListener("click", () => {
+      sidebar.classList.toggle("hidden");
+    });
+  }
+</script>
 
 <%- include('../layouts/footer') %>

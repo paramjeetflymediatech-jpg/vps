@@ -1,98 +1,192 @@
- 
-<%- include('../layouts/header') %> 
+<%- include('../layouts/header') %>
 <%- include('../layouts/sidebar') %>
 
-<div class="md:ml-64 p-6 bg-gray-50 min-h-screen w-full">
+<!-- MAIN CONTENT -->
+<main
+  id="mainContent"
+  class="bg-gray-100 min-h-screen px-3 sm:px-4 md:px-6 py-6
+         w-full md:ml-64 transition-all duration-300"
+>
 
-  <!-- Header -->
-  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
-    <h2 class="text-2xl font-bold text-gray-800">My Classes</h2>
+  <div class="w-full max-w-7xl mx-auto">
 
-    <a
-      href="/admin/classes/create"
-      class="mt-3 sm:mt-0 inline-flex items-center gap-2 bg-blue-600 text-white px-5 py-2 rounded-lg font-semibold shadow hover:bg-blue-700 transition"
-    >
-      + Create Class
-    </a>
-  </div>
+    <!-- ================= MOBILE HEADER ================= -->
+    <div class="flex items-center justify-between mb-6 md:hidden">
+      <button
+        id="menuBtn"
+        class="bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600
+               text-white px-3 py-2 rounded-lg shadow text-xl"
+      >
+        ☰
+      </button>
 
-  <!-- Table Wrapper -->
-  <div class="overflow-x-auto bg-white rounded-xl shadow border">
-    <table class="min-w-full text-sm text-left">
-      <thead class="bg-gray-100 text-gray-700 uppercase text-xs tracking-wider">
-        <tr>
-          <th class="px-6 py-3">Title</th>
-          <th class="px-6 py-3">Course</th>
-          <th class="px-6 py-3">Instructor</th>
-          <th class="px-6 py-3">Price</th>
-          <th class="px-6 py-3">Status</th>
-          <th class="px-6 py-3 text-center">Actions</th>
-        </tr>
-      </thead>
+      <h1 class="text-lg font-semibold text-gray-800">
+        My Classes
+      </h1>
 
-      <tbody class="divide-y">
-        <% data.forEach(c => { %>
-          <tr class="hover:bg-gray-50">
-            <td class="px-6 py-4 font-medium text-gray-800">
-              <%= c.title %>
-            </td>
+      <a
+        href="/admin/classes/create"
+        class="bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600
+               text-white px-3 py-2 rounded-lg text-sm shadow"
+      >
+        + Create
+      </a>
+    </div>
 
-            <td class="px-6 py-4">
-              <%= (c.courseId && c.courseId.title) || '—' %>
-            </td>
+    <!-- ================= DESKTOP HEADER ================= -->
+    <div class="hidden md:flex items-center justify-between mb-6">
+      <h2 class="text-2xl font-bold text-gray-800">
+        My Classes
+      </h2>
+
+      <a
+        href="/admin/classes/create"
+        class="bg-blue-600 text-white px-5 py-2 rounded-lg
+               font-semibold shadow hover:bg-blue-700 transition"
+      >
+        + Create Class
+      </a>
+    </div>
+
+    <!-- ================= DESKTOP / TABLET TABLE ================= -->
+    <div class="hidden md:block bg-white rounded-xl shadow border overflow-x-auto">
+      <table class="min-w-full text-sm text-left">
+        <thead class="bg-gray-100 text-gray-600 uppercase text-xs">
+          <tr>
+            <th class="px-6 py-3">Title</th>
+            <th class="px-6 py-3">Course</th>
+            <th class="px-6 py-3">Instructor</th>
+            <th class="px-6 py-3">Price</th>
+            <th class="px-6 py-3">Status</th>
+            <th class="px-6 py-3 text-center">Actions</th>
+          </tr>
+        </thead>
+
+        <tbody class="divide-y">
+          <% data.forEach(c => { %>
+            <tr class="hover:bg-gray-50">
+              <td class="px-6 py-4 font-medium text-gray-800">
+                <%= c.title %>
+              </td>
+
+              <td class="px-6 py-4">
+                <%= c.courseId?.title || '—' %>
+              </td>
 
             <td class="px-6 py-4">
               <%= (c.tutorId && c.tutorId.name) || '—' %>
             </td>
 
-            <td class="px-6 py-4 font-semibold text-green-600">
-              ₹<%= c.price %>
-            </td>
+              <td class="px-6 py-4 font-semibold text-green-600">
+                ₹<%= c.price %>
+              </td>
 
-            <td class="px-6 py-4">
-              <span class="px-3 py-1 rounded-full text-xs font-semibold
-                <%= c.status === 'Active'
-                  ? 'bg-green-100 text-green-700'
-                  : 'bg-gray-200 text-gray-600' %>">
-                <%= c.status %>
-              </span>
-            </td>
+              <td class="px-6 py-4">
+                <span
+                  class="px-3 py-1 rounded-full text-xs font-semibold
+                  <%= c.status === 'Active'
+                    ? 'bg-green-100 text-green-700'
+                    : 'bg-gray-200 text-gray-600' %>">
+                  <%= c.status %>
+                </span>
+              </td>
 
-            <td class="px-6 py-4 flex justify-center gap-3">
-              <a
-                href="/admin/classes/edit/<%= c._id %>"
-                class="text-blue-600 hover:underline font-semibold"
-              >
-                Edit
-              </a>
-
-              <form
-                action="/admin/classes/delete/<%= c._id %>"
-                method="POST"
-                onsubmit="return confirm('Delete class?')"
-              >
-                <button
-                  type="submit"
-                  class="text-red-600 hover:underline font-semibold"
+              <td class="px-6 py-4 text-center space-x-4">
+                <a
+                  href="/admin/classes/edit/<%= c._id %>"
+                  class="text-blue-600 font-semibold hover:underline"
                 >
-                  Delete
-                </button>
-              </form>
-            </td>
-          </tr>
-        <% }) %>
+                  Edit
+                </a>
 
-        <% if (data.length === 0) { %>
-          <tr>
-            <td colspan="6" class="text-center py-10 text-gray-400">
-              No classes found
-            </td>
-          </tr>
-        <% } %>
-      </tbody>
-    </table>
+                <form
+                  action="/admin/classes/delete/<%= c._id %>"
+                  method="POST"
+                  class="inline"
+                  onsubmit="return confirm('Delete class?')"
+                >
+                  <button class="text-red-600 font-semibold hover:underline">
+                    Delete
+                  </button>
+                </form>
+              </td>
+            </tr>
+          <% }) %>
+
+          <% if (data.length === 0) { %>
+            <tr>
+              <td colspan="6" class="py-10 text-center text-gray-400">
+                No classes found
+              </td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ================= MOBILE VIEW ================= -->
+    <div class="md:hidden space-y-4">
+      <% data.forEach(c => { %>
+        <div class="bg-white rounded-xl shadow border p-4">
+          <h3 class="text-lg font-semibold text-gray-800">
+            <%= c.title %>
+          </h3>
+
+          <p class="text-sm text-gray-600 mt-1">
+            Course: <%= c.courseId?.title || '—' %>
+          </p>
+
+          <p class="text-sm text-gray-600">
+            Instructor: <%= c.instructorId?.name || '—' %>
+          </p>
+
+          <p class="text-sm font-semibold text-green-600 mt-2">
+            ₹<%= c.price %>
+          </p>
+
+          <span
+            class="inline-block mt-2 px-3 py-1 rounded-full text-xs font-semibold
+            <%= c.status === 'Active'
+              ? 'bg-green-100 text-green-700'
+              : 'bg-gray-200 text-gray-600' %>">
+            <%= c.status %>
+          </span>
+
+          <div class="flex gap-4 mt-4">
+            <a
+              href="/admin/classes/edit/<%= c._id %>"
+              class="text-blue-600 font-semibold"
+            >
+              Edit
+            </a>
+
+            <form
+              action="/admin/classes/delete/<%= c._id %>"
+              method="POST"
+              onsubmit="return confirm('Delete class?')"
+            >
+              <button class="text-red-600 font-semibold">
+                Delete
+              </button>
+            </form>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+
   </div>
-</div>
+</main>
 
+<!-- ================= SIDEBAR TOGGLE SCRIPT ================= -->
+<script>
+  const menuBtn = document.getElementById("menuBtn");
+  const sidebar = document.querySelector(".sidebar");
+
+  if (menuBtn && sidebar) {
+    menuBtn.addEventListener("click", () => {
+      sidebar.classList.toggle("hidden");
+    });
+  }
+</script>
 
 <%- include('../layouts/footer') %>
