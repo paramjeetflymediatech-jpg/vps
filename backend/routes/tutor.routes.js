@@ -1,7 +1,6 @@
 import express from "express";
 import { applyTutor } from "../controllers/tutor.controller.js";
-import { auth } from "../middlewares/auth.middleware.js";
-import { role } from "../middlewares/role.middleware.js";
+import { auth ,role} from "../middlewares/auth.middleware.js"; 
 import { createClass, createBatch } from "../controllers/tutor.controller.js";
 const router = express.Router();
 
