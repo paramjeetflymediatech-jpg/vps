@@ -9,7 +9,7 @@ require("dotenv").config(); // Load .env (if present) into process.env
 const express = require("express");
 const mongoose = require("mongoose");
 // Load .env (if present) into process.env
-
+const flash = require("connect-flash");
 const session = require("express-session");
 const passport = require("passport");
 const path = require("path");
@@ -35,6 +35,7 @@ app.use(passport.session());
 
 // Parse cookies on incoming requests (used by some auth/session flows)
 app.use(cookieParser());
+app.use(flash()); // Flash messages for success/error feedback
 // Configure view engine (EJS) and views directory
 
 // Static assets and body parsing middleware
@@ -76,6 +77,7 @@ app.get("/admin", (req, res) => {
 // Make `user` available in all templates via `res.locals.user`
 app.use((req, res, next) => {
   res.locals.user = req.user;
+
   next();
 });
 
@@ -84,6 +86,8 @@ app.use((req, res, next) => {
 // This handler checks for a token expiry special-case and otherwise renders
 // a simple error page. Adjust behavior as needed for your app.
 app.use((err, req, res, next) => {
+  res.success = req.flash("success");
+  res.error = req.flash("error");
   if (err && err.message === "TOKEN_EXPIRED") {
     return req.render("layouts/alert-redirect", {
       type: "error",
