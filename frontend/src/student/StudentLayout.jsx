@@ -1,94 +1,38 @@
-// import { Outlet } from "react-router-dom";
-// import { useState } from "react";
-// import Sidebar from "./components/layout/Sidebar.jsx";
-// import Header from "./components/layout/Header.jsx";
-
-// const StudentLayout = () => {
-//   const [sidebarOpen, setSidebarOpen] = useState(false);
-
-//   return (
-//     <div className="min-h-screen bg-gray-100 flex overflow-hidden">
-      
-//       {/* Mobile Overlay */}
-//       {sidebarOpen && (
-//         <div
-//           onClick={() => setSidebarOpen(false)}
-//           className="fixed inset-0 bg-black/40 z-30 md:hidden"
-//         />
-//       )}
-
-//       {/* Sidebar */}
-//       <aside
-//         className={`
-//           fixed md:static z-40
-//           transform transition-transform duration-300 ease-in-out
-//           ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
-//           md:translate-x-0
-//         `}
-//       >
-//         <Sidebar
-//           sidebarOpen={sidebarOpen}
-//           setSidebarOpen={setSidebarOpen}
-//         />
-//       </aside>
-
-//       {/* Main Content */}
-//       <div className="flex-1 flex flex-col md:ml-64 min-h-screen">
-//         <Header setSidebarOpen={setSidebarOpen} />
-
-//         <main className="flex-1 w-full max-w-[1600px] mx-auto p-4 sm:p-5 md:p-6">
-//           <Outlet />
-//         </main>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default StudentLayout;
-
-
-
 import { Outlet } from "react-router-dom";
 import { useState } from "react";
-import Sidebar from "./components/layout/Sidebar";
 import Header from "./components/layout/Header";
+import Sidebar from "./components/layout/Sidebar";
 import Footer from "./components/layout/Footer";
 
 const StudentLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-gray-100 flex overflow-hidden">
+    <div className="flex min-h-screen bg-gray-100">
       
-      {/* Mobile Overlay */}
+      {/* MOBILE OVERLAY: Sidebar ke piche ka dhundla parda */}
       {sidebarOpen && (
-        <div
-          className="fixed inset-0 bg-black/40 z-30 md:hidden"
+        <div 
+          className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 md:hidden transition-opacity"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
-      {/* Sidebar */}
-      <aside
-        className={`
-          fixed md:static z-40
-          w-64 h-screen
-          transform transition-transform duration-300
-          ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
-          md:translate-x-0
-        `}
-      >
-        <Sidebar setSidebarOpen={setSidebarOpen} />
-      </aside>
+      {/* SIDEBAR: Passes states for mobile toggling */}
+      <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
 
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col md:ml-64 min-h-screen">
+      {/* MAIN CONTENT AREA */}
+      <div className="flex flex-col flex-1 md:ml-72 transition-all duration-300">
+        
+        {/* HEADER: Passing setSidebarOpen to the menu button */}
         <Header setSidebarOpen={setSidebarOpen} />
-
-        <main className="flex-1 w-full max-w-[1600px] mx-auto p-4 sm:p-5 md:p-6">
+        
+        {/* SCROLLABLE CONTENT */}
+        <main className="flex-1 p-4 md:p-8 w-full max-w-[1600px] mx-auto">
           <Outlet />
         </main>
 
+        {/* FOOTER: Layout ke bottom mein hamesha rahega */}
         <Footer />
       </div>
     </div>

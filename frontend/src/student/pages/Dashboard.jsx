@@ -7,8 +7,6 @@ import {
   Clock,
   Trophy,
   Star,
-  Calendar,
-  ArrowUpRight,
   Menu
 } from "lucide-react";
 
@@ -23,54 +21,70 @@ const Dashboard = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Sidebar */}
+    <div className="min-h-screen bg-gray-50 flex">
+      {/* Sidebar - Overlay logic usually handled inside Sidebar component */}
       <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} />
 
-      {/* Main Content */}
-      <div className="md:ml-64 p-4 md:p-8 space-y-8">
-
-        {/* Mobile Header */}
-        <div className="flex items-center justify-between md:hidden">
-          <button
-            onClick={() => setSidebarOpen(true)}
-            className="p-2 rounded-lg bg-[#0852A1] text-white"
-          >
-            <Menu />
-          </button>
-          <h1 className="font-bold">Dashboard</h1>
+      {/* Main Container */}
+      <div className="flex-1 md:ml-64 flex flex-col min-h-screen">
+        
+        {/* Top Header */}
+        <div className="flex items-center md:block">
+           {/* Mobile Menu Trigger (Only visible on mobile) */}
+           <button 
+             onClick={() => setSidebarOpen(true)}
+             className="ml-4 md:hidden p-2 rounded-lg bg-[#0852A1] text-white"
+           >
+             <Menu size={20} />
+           </button>
+           <Header />
         </div>
 
-        {/* Welcome */}
-        <div>
-          <h1 className="text-3xl font-black text-slate-900">
-            Welcome, Rahul 👋
-          </h1>
-          <p className="text-slate-500 mt-1">
-            You've reached <b className="text-[#0852A1]">85%</b> of your weekly goal.
-          </p>
-        </div>
+        {/* Dashboard Content Area */}
+        <main className="p-4 md:p-8 space-y-8 flex-1">
+          {/* Welcome Section */}
+          <div>
+            <h1 className="text-3xl font-black text-slate-900 tracking-tight">
+              Welcome, Rahul 👋
+            </h1>
+            <p className="text-slate-500 mt-1 font-medium">
+              You've reached <b className="text-[#0852A1] font-black">85%</b> of your weekly goal. Keep it up!
+            </p>
+          </div>
 
-        {/* Stats */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          {stats.map((s, i) => (
-            <div
-              key={i}
-              className="bg-white p-5 rounded-2xl shadow-sm border"
-            >
-              <div className={`w-12 h-12 ${s.bg} rounded-xl flex items-center justify-center mb-3`}>
-                {s.icon}
+          {/* Stats Grid */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+            {stats.map((s, i) => (
+              <div
+                key={i}
+                className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow group"
+              >
+                <div className={`w-12 h-12 ${s.bg} rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
+                  {s.icon}
+                </div>
+                <p className="text-[10px] uppercase text-gray-400 font-black tracking-widest mb-1">
+                  {s.label}
+                </p>
+                <h3 className="text-2xl font-black text-slate-800">
+                  {s.value}
+                </h3>
               </div>
-              <p className="text-xs uppercase text-gray-400 font-bold">
-                {s.label}
-              </p>
-              <h3 className="text-2xl font-black text-slate-800">
-                {s.value}
-              </h3>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
 
+          {/* Placeholders for future sections like Recent Activity or My Courses */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+             <div className="lg:col-span-2 bg-white h-64 rounded-[2rem] border border-gray-100 shadow-sm flex items-center justify-center text-gray-300 font-bold border-dashed">
+                Weekly Progress Chart
+             </div>
+             <div className="bg-white h-64 rounded-[2rem] border border-gray-100 shadow-sm flex items-center justify-center text-gray-300 font-bold border-dashed">
+                Upcoming Classes
+             </div>
+          </div>
+        </main>
+
+        {/* Footer */}
+        <Footer />
       </div>
     </div>
   );
