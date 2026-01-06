@@ -2,40 +2,97 @@
 <%- include('../layouts/header') %> 
 <%- include('../layouts/sidebar') %>
 
+<div class="md:ml-64 p-6 bg-gray-50 min-h-screen w-full">
 
-<h2>My Classes</h2>
-<a href="/admin/classes/create" class="btn">+ Create Class</a>
+  <!-- Header -->
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
+    <h2 class="text-2xl font-bold text-gray-800">My Classes</h2>
 
-<table border="1" cellpadding="10">
-  <tr>
-    <th>Title</th>
-    <th>Course</th>
-    <th>Instructor</th>
-    <th>Price</th>
-    <th>Status</th>
-    <th>Actions</th>
-  </tr>
+    <a
+      href="/admin/classes/create"
+      class="mt-3 sm:mt-0 inline-flex items-center gap-2 bg-blue-600 text-white px-5 py-2 rounded-lg font-semibold shadow hover:bg-blue-700 transition"
+    >
+      + Create Class
+    </a>
+  </div>
 
-  <% data.forEach(c => { %>
-    <tr>
-      <td><%= c.title %></td>
-    <td><%= (c.courseId && c.courseId.title) || '—' %></td>
-    <td><%= (c.instructorId && c.instructorId.name) || '—' %></td>
-      <td>₹<%= c.price %></td>
-      <td><%= c.status %></td>
-      <td>
-        <a href="/admin/classes/edit/<%= c._id %>">Edit</a>
-      <form
-        action="/admin/classes/delete/<%= c._id %>"
-        method="POST"
-        style="display: inline"
-      >
-          <button onclick="return confirm('Delete class?')">Delete</button>
-        </form>
-      </td>
-    </tr>
-  <% }) %>
-</table>
- 
+  <!-- Table Wrapper -->
+  <div class="overflow-x-auto bg-white rounded-xl shadow border">
+    <table class="min-w-full text-sm text-left">
+      <thead class="bg-gray-100 text-gray-700 uppercase text-xs tracking-wider">
+        <tr>
+          <th class="px-6 py-3">Title</th>
+          <th class="px-6 py-3">Course</th>
+          <th class="px-6 py-3">Instructor</th>
+          <th class="px-6 py-3">Price</th>
+          <th class="px-6 py-3">Status</th>
+          <th class="px-6 py-3 text-center">Actions</th>
+        </tr>
+      </thead>
+
+      <tbody class="divide-y">
+        <% data.forEach(c => { %>
+          <tr class="hover:bg-gray-50">
+            <td class="px-6 py-4 font-medium text-gray-800">
+              <%= c.title %>
+            </td>
+
+            <td class="px-6 py-4">
+              <%= (c.courseId && c.courseId.title) || '—' %>
+            </td>
+
+            <td class="px-6 py-4">
+              <%= (c.instructorId && c.instructorId.name) || '—' %>
+            </td>
+
+            <td class="px-6 py-4 font-semibold text-green-600">
+              ₹<%= c.price %>
+            </td>
+
+            <td class="px-6 py-4">
+              <span class="px-3 py-1 rounded-full text-xs font-semibold
+                <%= c.status === 'Active'
+                  ? 'bg-green-100 text-green-700'
+                  : 'bg-gray-200 text-gray-600' %>">
+                <%= c.status %>
+              </span>
+            </td>
+
+            <td class="px-6 py-4 flex justify-center gap-3">
+              <a
+                href="/admin/classes/edit/<%= c._id %>"
+                class="text-blue-600 hover:underline font-semibold"
+              >
+                Edit
+              </a>
+
+              <form
+                action="/admin/classes/delete/<%= c._id %>"
+                method="POST"
+                onsubmit="return confirm('Delete class?')"
+              >
+                <button
+                  type="submit"
+                  class="text-red-600 hover:underline font-semibold"
+                >
+                  Delete
+                </button>
+              </form>
+            </td>
+          </tr>
+        <% }) %>
+
+        <% if (data.length === 0) { %>
+          <tr>
+            <td colspan="6" class="text-center py-10 text-gray-400">
+              No classes found
+            </td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
 
 <%- include('../layouts/footer') %>

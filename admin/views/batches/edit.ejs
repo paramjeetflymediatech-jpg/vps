@@ -2,28 +2,118 @@
  
 <%- include('../layouts/header') %> 
 <%- include('../layouts/sidebar') %> 
-<h2>Edit Class</h2>
 
-<form method="POST">
-  <input name="title" value="<%= classdata.title %>" required />
+<div class="md:ml-64 p-4 sm:p-6 bg-gray-50 min-h-screen w-full">
 
-  <select name="courseId">
-    <% data.forEach(c => { %>
-      <option value="<%= c._id %>" <%= c._id.equals(classdata.courseId) ? "selected" : "" %>>
-        <%= c.title %>
-      </option>
-    <% }) %>
-  </select>
+  <!-- Page Header -->
+  <div class="mb-6">
+    <h2 class="text-2xl sm:text-3xl font-bold text-gray-800">Edit Class</h2>
+    <p class="text-sm text-gray-500 mt-1">
+      Update class information below
+    </p>
+  </div>
 
-  <select name="instructorId">
-    <% tutors.forEach(i => { %>
-      <option value="<%= i._id %>" <%= i._id.equals(classdata.instructorId) ? "selected" : "" %>>
-        <%= i.name %>
-      </option>
-    <% }) %>
-  </select>
+  <!-- Form Card -->
+  <div class="max-w-2xl bg-white rounded-2xl shadow border p-6 sm:p-8">
 
-  <input name="price" value="<%= classdata.price %>" type="number" />
-  <button type="submit">Update</button>
-</form>
+    <form method="POST" class="space-y-5">
+
+      <!-- Title -->
+      <div>
+        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1">
+          Class Title
+        </label>
+        <input
+          name="title"
+          value="<%= classdata.title %>"
+          required
+          class="w-full rounded-xl border border-gray-300 px-4 py-3
+                 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+          placeholder="Enter class title"
+        />
+      </div>
+
+      <!-- Course -->
+      <div>
+        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1">
+          Course
+        </label>
+        <select
+          name="courseId"
+          required
+          class="w-full rounded-xl border border-gray-300 px-4 py-3
+                 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+        >
+          <% data.forEach(c => { %>
+            <option
+              value="<%= c._id %>"
+              <%= c._id.equals(classdata.courseId) ? "selected" : "" %>
+            >
+              <%= c.title %>
+            </option>
+          <% }) %>
+        </select>
+      </div>
+
+      <!-- Instructor -->
+      <div>
+        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1">
+          Instructor
+        </label>
+        <select
+          name="instructorId"
+          required
+          class="w-full rounded-xl border border-gray-300 px-4 py-3
+                 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+        >
+          <% tutors.forEach(i => { %>
+            <option
+              value="<%= i._id %>"
+              <%= i._id.equals(classdata.instructorId) ? "selected" : "" %>
+            >
+              <%= i.name %>
+            </option>
+          <% }) %>
+        </select>
+      </div>
+
+      <!-- Price -->
+      <div>
+        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1">
+          Price (₹)
+        </label>
+        <input
+          type="number"
+          name="price"
+          value="<%= classdata.price %>"
+          class="w-full rounded-xl border border-gray-300 px-4 py-3
+                 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+        />
+      </div>
+
+      <!-- Buttons -->
+      <div class="flex flex-col sm:flex-row gap-4 pt-4">
+        <a
+          href="/admin/classes"
+          class="w-full sm:w-auto text-center px-6 py-3 rounded-xl border
+                 font-semibold text-gray-600 hover:bg-gray-50 transition"
+        >
+          Cancel
+        </a>
+
+        <button
+          type="submit"
+          class="w-full sm:w-auto px-6 py-3 rounded-xl
+                 bg-blue-600 text-white font-semibold
+                 hover:bg-blue-700 transition shadow"
+        >
+          Update Class
+        </button>
+      </div>
+
+    </form>
+  </div>
+</div>
+
+
 <%- include('../layouts/footer') %>
