@@ -3,6 +3,7 @@ import { motion } from "framer-motion"; // Optional: For smooth animations
 import { CheckCircle, Globe, DollarSign, Clock, BookOpen, Star } from "lucide-react"; // Icons
 import { applyTutorApi } from "../api/tutorApi";
 import { role } from "../../../backend/middlewares/role.middleware";
+import tutorHeroImg from "../assets/tutor-teaching.jpg"; // Path apne folder ke hisaab se check kar lein
 
 const BecomeTutor = () => {
   const [form, setForm] = useState({
@@ -199,7 +200,7 @@ const BecomeTutor = () => {
       </section>
 
       {/* ================= PROCESS SECTION ================= */}
-      <section className="py-24">
+      {/* <section className="py-24">
         <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
           <div className="relative">
              <div className="aspect-square bg-slate-100 rounded-3xl overflow-hidden shadow-inner">
@@ -209,7 +210,7 @@ const BecomeTutor = () => {
                    className="w-full h-full object-cover grayscale-[20%] hover:scale-105 transition-transform duration-700"
                 />
              </div>
-             {/* Decorative label */}
+
              <div className="absolute -bottom-6 -right-6 bg-gradient-to-r from-[#0B3C66] to-[#0852A1] p-6 rounded-2xl hidden md:block">
                 <p className="font-bold text-slate-900 italic text-white">"Teaching at The English Raj is the best career move I ever made."</p>
                 <p className="text-sm mt-2 font-medium text-white">— Sarah M., Senior Tutor</p>
@@ -236,7 +237,61 @@ const BecomeTutor = () => {
             </div>
           </div>
         </div>
-      </section>
+      </section> */}
+
+     <section className="py-16 md:py-24 overflow-hidden">
+  <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+    
+    {/* LEFT SIDE - IMAGE SECTION */}
+    <div className="relative order-2 lg:order-1">
+      <div className="aspect-square bg-slate-100 rounded-2xl md:rounded-3xl overflow-hidden shadow-inner border border-slate-200">
+        <img 
+          src={tutorHeroImg} // Local imported image yahan use karein
+          alt="Teacher coaching student" 
+          className="w-full h-full object-cover grayscale-[20%] hover:scale-105 transition-transform duration-700"
+        />
+      </div>
+
+      {/* Decorative label - Mobile par hidden ya chota rakhein */}
+      <div className="absolute -bottom-4 -right-4 md:-bottom-8 md:-right-8 bg-gradient-to-r from-[#0B3C66] to-[#0852A1] p-5 md:p-8 rounded-2xl shadow-2xl max-w-[85%] sm:max-w-xs z-10 hidden sm:block">
+        <p className="font-bold italic text-white text-sm md:text-lg leading-relaxed">
+          "Teaching at The English Raj is the best career move I ever made."
+        </p>
+        <p className="text-xs md:text-sm mt-3 font-medium text-blue-100 opacity-90">
+          — Sarah Senior Tutor
+        </p>
+      </div>
+    </div>
+
+    {/* RIGHT SIDE - CONTENT SECTION */}
+    <div className="order-1 lg:order-2">
+      <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-slate-900 mb-8 md:mb-12 leading-tight">
+        Simple Hiring Process
+      </h2>
+      
+      <div className="space-y-6 md:space-y-10">
+        {[
+          { step: "01", title: "Submit Application", desc: "Fill out the form with your details and experience." },
+          { step: "02", title: "Video Interview", desc: "A brief conversation with our recruitment leads." },
+          { step: "03", title: "Demo Session", desc: "Showcase your teaching style in a 15-minute demo." },
+          { step: "04", title: "Onboarding", desc: "Get trained on our platform and start teaching!" },
+        ].map((item, i) => (
+          <div key={i} className="flex gap-5 md:gap-8 group">
+            <span className="text-2xl md:text-4xl font-black text-slate-200 group-hover:text-[#0852A1] transition-colors duration-300">
+              {item.step}
+            </span>
+            <div className="border-l-2 border-slate-100 pl-6 group-hover:border-[#0852A1] transition-colors">
+              <h4 className="text-lg md:text-xl font-bold text-slate-800 mb-1">{item.title}</h4>
+              <p className="text-slate-500 text-sm md:text-base leading-relaxed">{item.desc}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+
+  </div>
+</section>
+
 
       {/* ================= FINAL CTA ================= */}
       <section className="py-20 bg-gradient-to-r from-[#0B3C66] to-[#0852A1] text-center text-white">

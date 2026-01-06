@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { HiMenu, HiX } from "react-icons/hi";
 import { FaUserCircle } from "react-icons/fa";
 import Logo from "../assets/logo/logo.webp";
+import { NavLink } from "react-router-dom";
 
 const Header = () => {
   const [open, setOpen] = useState(false);
@@ -37,12 +38,34 @@ const Header = () => {
 
         {/* ================= DESKTOP NAV ================= */}
         <nav className="hidden lg:flex items-center gap-8 text-lg font-medium text-gray-800">
-          <Link to="/" className="text-[#0852A1]">Home</Link>
-          <Link to="/tutors">Meet your tutor</Link>
-          <Link to="/organizations">For Organizations</Link>
-          <Link to="/become-tutor">Become a tutor</Link>
-        </nav>
+  <NavLink 
+    to="/" 
+    className={({ isActive }) => isActive ? "text-[#0852A1]" : "hover:text-[#0852A1] transition-colors"}
+  >
+    Home
+  </NavLink>
 
+  <NavLink 
+    to="/tutors" 
+    className={({ isActive }) => isActive ? "text-[#0852A1]" : "hover:text-[#0852A1] transition-colors"}
+  >
+    Meet your tutor
+  </NavLink>
+
+  <NavLink 
+    to="/organizations" 
+    className={({ isActive }) => isActive ? "text-[#0852A1]" : "hover:text-[#0852A1] transition-colors"}
+  >
+    For Organizations
+  </NavLink>
+
+  <NavLink 
+    to="/become-tutor" 
+    className={({ isActive }) => isActive ? "text-[#0852A1]" : "hover:text-[#0852A1] transition-colors"}
+  >
+    Become a tutor
+  </NavLink>
+</nav>
         {/* ================= DESKTOP RIGHT ================= */}
         <div className="hidden lg:flex items-center gap-4 relative">
 
