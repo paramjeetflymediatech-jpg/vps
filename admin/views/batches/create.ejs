@@ -1,154 +1,240 @@
-<%- include('../layouts/header') %> <%- include('../layouts/sidebar') %>
+<%- include('../layouts/header') %>
+<%- include('../layouts/sidebar') %>
 
-<div class="md:ml-64 min-h-screen w-full bg-gray-50 p-4 sm:p-6">
-  <!-- Page Header -->
-  <div class="mb-6">
-    <h2 class="text-2xl sm:text-3xl font-bold text-gray-800">Create Class</h2>
-    <p class="text-sm text-gray-500 mt-1">
-      Fill in the details to publish a new class
-    </p>
-  </div>
+<!-- MAIN CONTENT -->
+<main
+  class="bg-gray-50 min-h-screen px-3 sm:px-4 md:px-6 py-6
+         w-full md:ml-64 transition-all duration-300"
+>
+  <div class="w-full max-w-4xl mx-auto">
 
-  <!-- Form Card -->
-  <div class="max-w-2xl bg-white rounded-2xl shadow border p-6 sm:p-8">
-    <form method="POST" action="/admin/classes/create" class="space-y-4">
-      <!-- Title -->
-      <input
-        type="text"
-        name="title"
-        placeholder="Class Title"
-        required
-        class="w-full border rounded-xl px-4 py-3"
-      />
-
-      <!-- Description -->
-      <textarea
-        name="description"
-        placeholder="Class Description"
-        class="w-full border rounded-xl px-4 py-3"
-      ></textarea>
-
-      <!-- Course -->
-      <select
-        name="courseId"
-        required
-        class="w-full border rounded-xl px-4 py-3"
+    <!-- ================= MOBILE HEADER ================= -->
+    <div class="flex items-center justify-between mb-6 md:hidden">
+      <button
+        id="menuBtn"
+        class="bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600
+               text-white px-3 py-2 rounded-lg shadow text-xl"
       >
-        <option value="">Select Course</option>
-          <% data.forEach(c => { %>
-            <option value="<%= c._id %>"><%= c.title %></option>
-          <% }) %>
-        </select>
-      
-      <!-- Instructor -->
-      <div>
-        <label class="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-1">
-          Instructor
-        </label>
-        <select
-          name="instructorId"
-          required
-          class="w-full rounded-xl border border-gray-300 px-4 py-3
-                 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-        >
-          <option value="">Select Instructor</option>
-          <% tutors.forEach(i => { %>
-            <option value="<%= i._id %>"><%= i.name %></option>
-        <% }) %>
-      </select>
-  
-      </div>
-      <!-- Price -->
-      <input
-        type="number"
-        name="price"
-        placeholder="Price"
-        required
-        class="w-full border rounded-xl px-4 py-3"
-      />
+        ☰
+      </button>
 
-      <!-- Max Students -->
-      <input
-        type="number"
-        name="maxStudents"
-        placeholder="Max Students"
-        class="w-full border rounded-xl px-4 py-3"
-      />
+      <h1 class="text-lg font-semibold text-gray-800">
+        Create Class
+      </h1>
 
-      <!-- Dates -->
-      <div class="grid grid-cols-2 gap-4">
-        <input
-          type="date"
-          name="startDate"
-          required
-          class="border rounded-xl px-4 py-3"
-        />
-        <input
-          type="date"
-          name="endDate"
-          required
-          class="border rounded-xl px-4 py-3"
-        />
-      </div>
+      <a
+        href="/admin/classes"
+        class="bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600
+               text-white px-3 py-2 rounded-lg text-sm shadow"
+      >
+        Back
+      </a>
+    </div>
 
-      <!-- Schedule -->
-      <div id="schedule-container">
-        <label>Schedule</label>
-        <div class="schedule-item">
-          <select
-            name="schedule[0][day]"
-            class="w-full border rounded-xl px-4 py-3"
-          >
-            <option value="Mon">Monday</option>
-            <option value="Tue">Tuesday</option>
-            <option value="Wed">Wednesday</option>
-            <option value="Thu">Thursday</option>
-            <option value="Fri">Friday</option>
-            <option value="Sat">Saturday</option>
-            <option value="Sun">Sunday</option>
-          </select>
+    <!-- ================= DESKTOP HEADER ================= -->
+    <div class="hidden md:block mb-6">
+      <h2 class="text-2xl sm:text-3xl font-bold text-gray-800">
+        Create Class
+      </h2>
+      <p class="text-sm text-gray-500 mt-1">
+        Fill in the details to publish a new class
+      </p>
+    </div>
+
+    <!-- ================= FORM CARD ================= -->
+    <div class="bg-white rounded-2xl shadow border p-4 sm:p-6 md:p-8">
+
+      <form
+        method="POST"
+        action="/admin/classes/create"
+        class="space-y-5"
+      >
+
+        <!-- TITLE -->
+        <div>
+          <label class="block text-sm font-semibold mb-1">Class Title</label>
           <input
-            type="time"
-            name="schedule[0][startTime]"
-            placeholder="Start Time"
-            class="w-full border rounded-xl px-4 py-3"
-          />
-          <input
-            type="time"
-            name="schedule[0][endTime]"
-            placeholder="End Time"
+            type="text"
+            name="title"
+            required
+            placeholder="Enter class title"
             class="w-full border rounded-xl px-4 py-3"
           />
         </div>
-      </div>
 
-      <button
-        type="button"
-        id="add-schedule"
-        class="bg-blue-600 text-white px-6 py-3 rounded-xl"
-      >
-        Add Schedule
-      </button>
+        <!-- DESCRIPTION -->
+        <div>
+          <label class="block text-sm font-semibold mb-1">Description</label>
+          <textarea
+            name="description"
+            rows="3"
+            placeholder="Class description"
+            class="w-full border rounded-xl px-4 py-3"
+          ></textarea>
+        </div>
 
-      <!-- Submit -->
-      <button
-        type="submit"
-        class="w-full bg-[#0852A1] text-white py-4 rounded-2xl font-bold"
-      >
-        Create Class
-      </button>
-    </form>
+        <!-- COURSE + INSTRUCTOR -->
+        <div class="grid sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-semibold mb-1">Course</label>
+            <select
+              name="courseId"
+              required
+              class="w-full border rounded-xl px-4 py-3"
+            >
+              <option value="">Select Course</option>
+              <% data.forEach(c => { %>
+                <option value="<%= c._id %>"><%= c.title %></option>
+              <% }) %>
+            </select>
+          </div>
 
-    <script>
-      document
-        .getElementById("add-schedule")
-        .addEventListener("click", function () {
-          const scheduleContainer =
-            document.getElementById("schedule-container");
-          const scheduleItem = document.createElement("div");
-          scheduleItem.classList.add("schedule-item");
-          scheduleItem.innerHTML = `
-      <select name="schedule[][day]" class="w-full border rounded-xl px-4 py-3">
+          <div>
+            <label class="block text-sm font-semibold mb-1">Instructor</label>
+            <select
+              name="instructorId"
+              required
+              class="w-full border rounded-xl px-4 py-3"
+            >
+              <option value="">Select Instructor</option>
+              <% tutors.forEach(i => { %>
+                <option value="<%= i._id %>"><%= i.name %></option>
+              <% }) %>
+            </select>
+          </div>
+        </div>
+
+        <!-- PRICE + MAX STUDENTS -->
+        <div class="grid sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-semibold mb-1">Price (₹)</label>
+            <input
+              type="number"
+              name="price"
+              required
+              placeholder="Price"
+              class="w-full border rounded-xl px-4 py-3"
+            />
+          </div>
+
+          <div>
+            <label class="block text-sm font-semibold mb-1">
+              Max Students
+            </label>
+            <input
+              type="number"
+              name="maxStudents"
+              placeholder="Max students"
+              class="w-full border rounded-xl px-4 py-3"
+            />
+          </div>
+        </div>
+
+        <!-- DATES -->
+        <div class="grid sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-semibold mb-1">Start Date</label>
+            <input
+              type="date"
+              name="startDate"
+              required
+              class="w-full border rounded-xl px-4 py-3"
+            />
+          </div>
+
+          <div>
+            <label class="block text-sm font-semibold mb-1">End Date</label>
+            <input
+              type="date"
+              name="endDate"
+              required
+              class="w-full border rounded-xl px-4 py-3"
+            />
+          </div>
+        </div>
+
+        <!-- ================= SCHEDULE ================= -->
+        <div>
+          <label class="block text-sm font-semibold mb-2">
+            Schedule
+          </label>
+
+          <div id="schedule-container" class="space-y-3">
+            <div class="grid sm:grid-cols-3 gap-3">
+              <select
+                name="schedule[0][day]"
+                class="border rounded-xl px-4 py-3"
+              >
+                <option value="Mon">Monday</option>
+                <option value="Tue">Tuesday</option>
+                <option value="Wed">Wednesday</option>
+                <option value="Thu">Thursday</option>
+                <option value="Fri">Friday</option>
+                <option value="Sat">Saturday</option>
+                <option value="Sun">Sunday</option>
+              </select>
+
+              <input
+                type="time"
+                name="schedule[0][startTime]"
+                class="border rounded-xl px-4 py-3"
+              />
+
+              <input
+                type="time"
+                name="schedule[0][endTime]"
+                class="border rounded-xl px-4 py-3"
+              />
+            </div>
+          </div>
+
+          <button
+            type="button"
+            id="add-schedule"
+            class="mt-3 text-blue-600 font-semibold text-sm"
+          >
+            + Add another schedule
+          </button>
+        </div>
+
+        <!-- SUBMIT -->
+        <div class="pt-4">
+          <button
+            type="submit"
+            class="w-full bg-blue-600 text-white py-4 rounded-2xl
+                   font-bold hover:bg-blue-700 transition"
+          >
+            Create Class
+          </button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+</main>
+
+<!-- ================= SCRIPTS ================= -->
+<script>
+  // Sidebar toggle
+  const menuBtn = document.getElementById("menuBtn");
+  const sidebar = document.querySelector(".sidebar");
+
+  if (menuBtn && sidebar) {
+    menuBtn.addEventListener("click", () => {
+      sidebar.classList.toggle("hidden");
+    });
+  }
+
+  // Add schedule rows
+  document.getElementById("add-schedule").addEventListener("click", () => {
+    const container = document.getElementById("schedule-container");
+    const index = container.children.length;
+
+    const row = document.createElement("div");
+    row.className = "grid sm:grid-cols-3 gap-3";
+
+    row.innerHTML = `
+      <select name="schedule[${index}][day]" class="border rounded-xl px-4 py-3">
         <option value="Mon">Monday</option>
         <option value="Tue">Tuesday</option>
         <option value="Wed">Wednesday</option>
@@ -157,13 +243,18 @@
         <option value="Sat">Saturday</option>
         <option value="Sun">Sunday</option>
       </select>
-      <input type="time" name="schedule[][startTime]" placeholder="Start Time" class="w-full border rounded-xl px-4 py-3"/>
-      <input type="time" name="schedule[][endTime]" placeholder="End Time" class="w-full border rounded-xl px-4 py-3"/>
+
+      <input type="time"
+             name="schedule[${index}][startTime]"
+             class="border rounded-xl px-4 py-3"/>
+
+      <input type="time"
+             name="schedule[${index}][endTime]"
+             class="border rounded-xl px-4 py-3"/>
     `;
-          scheduleContainer.appendChild(scheduleItem);
-        });
-    </script>
-  </div>
-</div>
+
+    container.appendChild(row);
+  });
+</script>
 
 <%- include('../layouts/footer') %>
