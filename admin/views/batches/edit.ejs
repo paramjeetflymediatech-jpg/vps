@@ -17,7 +17,7 @@
     
   <h2>Edit Class</h2>
 
-  <form method="POST" action="/tutor/classes/<%= classdata._id %>" class="space-y-4">
+  <form method="POST" action="/admin/classes/edit/<%= classdata._id %>" class="space-y-4">
 
     <!-- COURSE -->
     <label>Course</label>
@@ -121,7 +121,7 @@
     <!-- INSTRUCTOR (READ ONLY) -->
     <label>Instructor</label>
     <input
-      value="<%= classdata.instructorId.name %> (<%= classdata.instructorId.email %>)"
+      value="<%= classdata.tutorId.name %> (<%= classdata.tutorId.email %>)"
       disabled
     />
 

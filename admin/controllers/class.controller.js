@@ -8,7 +8,7 @@ exports.renderClasses = async (req, res) => {
     const data = await Class.find({})
       .populate({ path: "courseId", select: "title", strictPopulate: false })
       .populate({
-        path: "instructorId",
+        path: "tutorId",
         select: "name email",
         strictPopulate: false,
       });
@@ -51,7 +51,7 @@ exports.renderEditClass = async (req, res) => {
   const classData = await Class.findById(req.params.id)
     .populate({ path: "courseId", select: "title", strictPopulate: false })
     .populate({
-      path: "instructorId",
+      path: "tutorId",
       select: "name email",
       strictPopulate: false,
     })
@@ -70,12 +70,20 @@ exports.renderEditClass = async (req, res) => {
 
 // UPDATE CLASS
 exports.updateClass = async (req, res) => {
-  await Class.findByIdAndUpdate(req.params.id, req.body);
-  res.redirect("/admin/classes");
+  console.log(req.body);
+
+  try {
+    await Class.findByIdAndUpdate(req.params.id, req.body);
+    res.redirect("/admin/classes");
+  } catch (error) {
+    cnsole.log(error);
+    req.flash("error", error.message);
+  }
 };
 
 // DELETE CLASS (SOFT)
 exports.deleteClass = async (req, res) => {
-  await Class.findByIdAndUpdate(req.params.id, { isDeleted: true });
+  console.log(req.params.id);
+  await Class.deleteOne({ _id: req.params.id });
   res.redirect("/admin/classes");
 };

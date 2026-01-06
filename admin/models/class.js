@@ -16,7 +16,7 @@ const classSchema = new mongoose.Schema(
 
     description: String,
 
-    instructorId: {
+    tutorId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,

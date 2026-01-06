@@ -67,7 +67,7 @@ const Classes = () => {
 
     const payload = {
       ...form,
-      instructorId: user._id,
+      tutorId: user._id,
       price: Number(form.price),
       maxStudents: Number(form.maxStudents),
     };
