@@ -12,34 +12,40 @@ exports.renderClasses = async (req, res) => {
         select: "name email",
         strictPopulate: false,
       });
-
     res.render("batches/index", {
       data: data,
     });
   } catch (error) {
     console.log(error);
-    res.send(error.message);
+    req.flash("error", error.message);
   }
 };
 
 // CREATE FORM
 exports.renderCreateClass = async (req, res) => {
-  const data = await Course.find();
-  const instructors = await User.find({ role: "TUTOR" });
-
-  res.render("batches/create", {
-    title: "Create Class",
-    data: data,
-    tutors: instructors,
-  });
+  try {
+    const data = await Course.find();
+    const instructors = await User.find({ role: "TUTOR" });
+    res.render("batches/create", {
+      title: "Create Class",
+      data: data,
+      tutors: instructors,
+    });
+  } catch (error) {
+    console.log(error);
+    req.flash("error", error.message);
+  }
 };
 
 // CREATE CLASS
 exports.createClass = async (req, res) => {
   try {
-    console.log(req.body);
-    await Class.create(req.body);
-    res.redirect("/admin/classes", {});
+    let data = await Class.create(req.body);
+    if (data.insertedId) {
+      console.log(error);
+      req.flash("succes", "Class created successfully");
+      res.redirect("/admin/classes");
+    }
   } catch (err) {
     res.send(err.message);
   }
