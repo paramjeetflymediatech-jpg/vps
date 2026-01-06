@@ -1,38 +1,22 @@
-import axios from "axios";
-
-// ✅ Correct Base URL
-const API = axios.create({
-  baseURL: "http://localhost:8000/api/classes",
-    withCredentials: true, 
-});
-
-// ✅ Attach token automatically
-API.interceptors.request.use((req) => {
-  const token = localStorage.getItem("token");
-  if (token) {
-    req.headers.Authorization = `Bearer ${token}`;
-  }
-  return req;
-});
-
+import API from "./axios.instance";
 /**
  * CLASSES API
  */
 
 // Get all classes
-export const getAllClasses = (params) => API.get("/", { params });
+export const getAllClasses = (params) => API.get("/classes", { params });
 
 // Get single class
-export const getClassById = (id) => API.get(`/${id}`);
+export const getClassById = (id) => API.get(`/classes/${id}`);
 
 // Create class
-export const createClass = (data) => API.post("/", data);
+export const createClass = (data) => API.post("/classes", data);
 
 // Update class
-export const updateClass = (id, data) => API.put(`/${id}`, data);
+export const updateClass = (id, data) => API.put(`/classes/${id}`, data);
 
 // Delete class
-export const deleteClass = (id) => API.delete(`/${id}`);
+export const deleteClass = (id) => API.delete(`/classes/${id}`);
 
 export default {
   getAllClasses,

@@ -27,6 +27,7 @@ const Login = () => {
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("user", JSON.stringify(res.data.user));
 
+      console.log("Login response:", res.data);
       if (!res.data?.token) {
         throw new Error("Token not received");
       }

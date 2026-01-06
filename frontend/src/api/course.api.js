@@ -1,9 +1,4 @@
-import axios from "axios";
-
-const API = axios.create({ 
-    baseURL: "http://localhost:8000/api",
-    withCredentials: true 
-});
+import API from "./axios.instance";
 
 export const getCourses = () => API.get("/courses");
 
