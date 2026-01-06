@@ -45,28 +45,24 @@ exports.renderCreateClass = async (req, res) => {
  */
 exports.createClass = async (req, res) => {
   try {
-    const {
-      courseId,
+    const { 
       title,
-      description,
-      meetingLink,
-      startDate,
-      endDate,
-      schedule,
-      price,
+      description,  
+      schedule, 
       maxStudents,
       status,
     } = req.body;
 
     await Class.create({
-      courseId,
+      courseId: req.body.courseId,
+      tutorId: req.body.tutorId,
+      startDate: req.body.startDate,
+      endDate: req.body.endDate,
+      price: req.body.price,
+      meetLink: req.body.meetLink,
       title,
       description,
-      meetingLink,
-      startDate,
-      endDate,
       schedule,
-      price: Number(price),
       maxStudents: Number(maxStudents),
       status,
     });
@@ -79,7 +75,6 @@ exports.createClass = async (req, res) => {
     res.redirect("back");
   }
 };
-
 
 /**
  * EDIT FORM
@@ -119,8 +114,6 @@ exports.updateClass = async (req, res) => {
   try {
     const {
       courseId,
-      title,
-      description,
       meetingLink,
       startDate,
       endDate,
@@ -134,8 +127,6 @@ exports.updateClass = async (req, res) => {
       req.params.id,
       {
         courseId,
-        title,
-        description,
         meetingLink,
         startDate,
         endDate,
@@ -143,6 +134,9 @@ exports.updateClass = async (req, res) => {
         price: Number(price),
         maxStudents: Number(maxStudents),
         status,
+        title: req.body.title,
+        description: req.body.description,
+        tutorId: req.body.tutorId,
       },
       { new: true, runValidators: true }
     );
@@ -160,7 +154,6 @@ exports.updateClass = async (req, res) => {
     res.redirect("back");
   }
 };
-
 
 /**
  * DELETE CLASS (HARD DELETE)
