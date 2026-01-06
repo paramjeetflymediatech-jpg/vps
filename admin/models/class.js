@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+const mongoose = require("mongoose");
 
 const classSchema = new mongoose.Schema(
   {
@@ -14,10 +14,7 @@ const classSchema = new mongoose.Schema(
       trim: true,
     },
 
-    description: {
-      type: String,
-      trim: true,
-    },
+    description: String,
 
     instructorId: {
       type: mongoose.Schema.Types.ObjectId,
@@ -45,16 +42,13 @@ const classSchema = new mongoose.Schema(
         day: {
           type: String,
           enum: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
-          required: true,
         },
-        startTime: { type: String, required: true }, // "18:00"
-        endTime: { type: String, required: true },   // "19:00"
+        startTime: String,
+        endTime: String,
       },
     ],
 
-    meetingLink: {
-      type: String,
-    },
+    meetingLink: String,
 
     maxStudents: {
       type: Number,
@@ -66,8 +60,18 @@ const classSchema = new mongoose.Schema(
       enum: ["UPCOMING", "ONGOING", "COMPLETED"],
       default: "UPCOMING",
     },
+
+    isPublished: {
+      type: Boolean,
+      default: false,
+    },
+
+    isDeleted: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );
 
-export default mongoose.model("Class", classSchema);
+module.exports = mongoose.model("Class", classSchema);

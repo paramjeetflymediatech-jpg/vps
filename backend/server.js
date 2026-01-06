@@ -11,7 +11,7 @@ import tutorRoutes from "./routes/tutor.routes.js";
 import adminRoutes from "./routes/admin.routes.js"; 
 import studentRoutes from "./routes/student.routes.js";
 import courseRoutes from "./routes/course.routes.js";
-
+import classRoutes from "./routes/class.routes.js";
 
 // ES Modules mein __dirname setup (Zaroori hai uploads folder access karne ke liye)
 const __filename = fileURLToPath(import.meta.url);
@@ -54,6 +54,7 @@ app.use("/api/admin", adminRoutes);
 app.use("/api/tutor", tutorRoutes);
 app.use("/api/student", studentRoutes);
 app.use("/api/courses", courseRoutes);
+app.use("/api/classes", classRoutes);
 
 /* ================= START SERVER ================= */
 const startServer = async () => {

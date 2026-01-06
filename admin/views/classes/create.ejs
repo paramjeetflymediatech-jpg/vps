@@ -1,0 +1,26 @@
+ 
+
+<h2>Create Class</h2>
+
+<form method="POST">
+  <input name="title" placeholder="Class Title" required />
+
+  <select name="courseId" required>
+    <% courses.forEach(c => { %>
+      <option value="<%= c._id %>"><%= c.title %></option>
+    <% }) %>
+  </select>
+
+  <select name="instructorId" required>
+    <% instructors.forEach(i => { %>
+      <option value="<%= i._id %>"><%= i.name %></option>
+    <% }) %>
+  </select>
+
+  <input name="price" type="number" placeholder="Price" />
+  <input name="startDate" type="date" required />
+  <input name="endDate" type="date" required />
+
+  <button type="submit">Create</button>
+</form>
+ 

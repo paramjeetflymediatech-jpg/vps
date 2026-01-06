@@ -15,4 +15,5 @@ const CourseSchema = new mongoose.Schema({
 });
 
 // Export as "Class" so admin and backend use the same collection name/Model
-module.exports = mongoose.model("course", CourseSchema);
+const course = mongoose.model("course", CourseSchema);
+module.exports = course;

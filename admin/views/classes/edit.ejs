@@ -1,0 +1,26 @@
+ 
+<h2>Edit Class</h2>
+
+<form method="POST">
+  <input name="title" value="<%= classData.title %>" required />
+
+  <select name="courseId">
+    <% courses.forEach(c => { %>
+      <option value="<%= c._id %>" <%= c._id.equals(classData.courseId) ? "selected" : "" %>>
+        <%= c.title %>
+      </option>
+    <% }) %>
+  </select>
+
+  <select name="instructorId">
+    <% instructors.forEach(i => { %>
+      <option value="<%= i._id %>" <%= i._id.equals(classData.instructorId) ? "selected" : "" %>>
+        <%= i.name %>
+      </option>
+    <% }) %>
+  </select>
+
+  <input name="price" value="<%= classData.price %>" type="number" />
+  <button type="submit">Update</button>
+</form>
+ 

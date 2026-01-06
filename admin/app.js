@@ -62,7 +62,7 @@ app.set("views", path.join(__dirname, "views"));
 app.use("/admin/users", require("./routes/userRoutes"));
 app.use("/admin/courses", require("./routes/courseRoutes"));
 app.use("/admin/", require("./routes/admin.routes"));
-
+app.use("/admin/classes", require("./routes/class.routes"));
 // Dashboard route (simple authentication check)
 app.get("/admin", (req, res) => {
   if (!req.user) {

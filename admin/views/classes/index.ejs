@@ -1,0 +1,32 @@
+ 
+
+<h2>My Classes</h2>
+<a href="/admin/classes/create" class="btn">+ Create Class</a>
+
+<table border="1" cellpadding="10">
+  <tr>
+    <th>Title</th>
+    <th>Course</th>
+    <th>Instructor</th>
+    <th>Price</th>
+    <th>Status</th>
+    <th>Actions</th>
+  </tr>
+
+  <% classes.forEach(c => { %>
+    <tr>
+      <td><%= c.title %></td>
+      <td><%= c.courseId?.title %></td>
+      <td><%= c.instructorId?.name %></td>
+      <td>₹<%= c.price %></td>
+      <td><%= c.status %></td>
+      <td>
+        <a href="/admin/classes/edit/<%= c._id %>">Edit</a>
+        <form action="/admin/classes/delete/<%= c._id %>" method="POST" style="display:inline">
+          <button onclick="return confirm('Delete class?')">Delete</button>
+        </form>
+      </td>
+    </tr>
+  <% }) %>
+</table>
+ 
