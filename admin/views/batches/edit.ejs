@@ -196,15 +196,29 @@
           </select>
         </div>
 
-        <!-- INSTRUCTOR -->
-        <div>
-          <label class="block text-sm font-semibold mb-1">Instructor</label>
-          <input
-            value="<%= classdata.tutorId.name %> (<%= classdata.tutorId.email %>)"
-            disabled
-            class="w-full bg-gray-100 border rounded-lg px-3 py-2 text-gray-600"
-          />
-        </div>
+       <!-- INSTRUCTOR -->
+<div>
+  <label class="block text-sm font-semibold mb-1">Instructor</label>
+
+  <select
+    name="tutorId"
+    required
+    class="w-full border rounded-lg px-3 py-2 bg-white
+           focus:ring-2 focus:ring-blue-500 focus:outline-none"
+  >
+    <% tutors.forEach(t => { %>
+      <option
+        value="<%= t._id %>"
+        <%= t._id.toString() === classdata.tutorId._id.toString()
+          ? "selected"
+          : "" %>
+      >
+        <%= t.name %> (<%= t.email %>)
+      </option>
+    <% }) %>
+  </select>
+</div>
+
 
         <!-- SUBMIT -->
         <button
