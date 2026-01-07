@@ -21,6 +21,7 @@ const Header = () => {
   /* 🚪 Logout */
   const handleLogout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("user");
     setIsLoggedIn(false);
     setShowProfileMenu(false);
     setOpen(false);

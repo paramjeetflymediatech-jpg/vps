@@ -8,6 +8,7 @@ const TutorLayout = () => {
 
   const handleLogout = () => {
     localStorage.removeItem("tutorToken");
+    localStorage.removeItem("user");
     navigate("/tutor/login");
   };
 

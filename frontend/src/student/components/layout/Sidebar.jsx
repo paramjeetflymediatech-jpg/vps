@@ -25,9 +25,9 @@ const StudentSidebar = ({ isOpen, setIsOpen }) => {
   const menuItems = [
     { name: "My Dashboard", path: "/student/dashboard", icon: <Home size={20} /> },
     { name: "My Courses", path: "/student/courses", icon: <BookOpen size={20} /> },
-    { name: "Live Sessions", path: "/student/live", icon: <PlayCircle size={20} /> },
-    { name: "Schedule", path: "/student/schedule", icon: <Clock size={20} /> },
-    { name: "Settings", path: "/student/settings", icon: <Settings size={20} /> },
+    { name: "Live Sessions", path: "#", icon: <PlayCircle size={20} /> },
+    { name: "Schedule", path: "#", icon: <Clock size={20} /> },
+    { name: "Settings", path: "#", icon: <Settings size={20} /> },
   ];
 
   const activeStyle =
