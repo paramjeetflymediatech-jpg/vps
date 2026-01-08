@@ -1,6 +1,9 @@
+"use client";
+
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { forgotPassword } from "@/api/auth.api";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { forgotPassword } from "../api/auth.api";
  
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
@@ -8,7 +11,7 @@ const ForgotPassword = () => {
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
  
-  const navigate = useNavigate();
+  const router = useRouter();
  
   const handleSendOtp = async (e) => {
     e.preventDefault();
@@ -28,7 +31,7 @@ const ForgotPassword = () => {
       setSuccess("OTP has been sent to your email");
  
       setTimeout(() => {
-        navigate("/verify-otp", { state: { email, purpose: "forgot" } });
+        router.push(`/verify-otp?email=${encodeURIComponent(email)}&purpose=forgot`);
       }, 800);
     } catch (err) {
       setError(
@@ -117,7 +120,7 @@ const ForgotPassword = () => {
           <p className="text-sm text-neutral-600 mt-6 text-center">
             Remember your password?{" "}
             <Link
-              to="/login"
+              href="/login"
               className="text-neutral-900 font-medium hover:underline"
             >
               Log in

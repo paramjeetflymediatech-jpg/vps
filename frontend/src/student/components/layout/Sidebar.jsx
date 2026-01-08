@@ -1,7 +1,9 @@
+"use client";
+
 import React from "react";
-import { NavLink, useNavigate } from "react-router-dom";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
 import logo from "@/assets/logo/logo.webp";
-import { Link } from "react-router-dom";
 
 import {
   Home,
@@ -13,13 +15,17 @@ import {
   X,
 } from "lucide-react";
 
-const StudentSidebar = ({ sidebarOpen, setSidebarOpen }) => {
-  const navigate = useNavigate();
+const StudentSidebar = ({ sidebarOpen, setSidebarOpen, open, setOpen }) => {
+  const router = useRouter();
+  const pathname = usePathname();
   const user = JSON.parse(localStorage.getItem("user")) || {};
+
+  const isOpen = typeof open === "boolean" ? open : sidebarOpen;
+  const setIsOpen = typeof setOpen === "function" ? setOpen : setSidebarOpen;
 
   const handleLogout = () => {
     localStorage.clear();
-    navigate("/login");
+    router.push("/login");
   };
 
   const menuItems = [
@@ -67,7 +73,7 @@ const StudentSidebar = ({ sidebarOpen, setSidebarOpen }) => {
       className={`fixed inset-y-0 left-0 z-[70] w-72
       bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600
       transform transition-transform duration-300
-      ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
+      ${isOpen ? "translate-x-0" : "-translate-x-full"}
       md:translate-x-0 flex flex-col shadow-2xl`}
     >
       {/* LOGO */}
@@ -95,12 +101,12 @@ const StudentSidebar = ({ sidebarOpen, setSidebarOpen }) => {
       {/* LOGO */}
 <div className="p-6 flex items-center justify-between">
   <Link
-    to="/"
+    href="/"
     className="flex items-center gap-3"
-    onClick={() => setSidebarOpen(false)}
+    onClick={() => setIsOpen(false)}
   >
     <img
-      src={logo}
+      src={logo.src}
       alt="Logo"
       className="w-10 h-10 bg-white p-1 rounded-lg"
     />
@@ -115,19 +121,17 @@ const StudentSidebar = ({ sidebarOpen, setSidebarOpen }) => {
       <nav className="flex-1 px-4 space-y-2">
         {menuItems.map((item, index) =>
           item.path ? (
-            <NavLink
+            <Link
               key={index}
-              to={item.path}
-              onClick={() => setSidebarOpen(false)}
-              className={({ isActive }) =>
-                `${baseStyle} ${
-                  isActive ? activeStyle : inactiveStyle
-                }`
-              }
+              href={item.path}
+              onClick={() => setIsOpen(false)}
+              className={`${baseStyle} ${
+                pathname.startsWith(item.path) ? activeStyle : inactiveStyle
+              }`}
             >
               {item.icon}
               <span className="text-sm">{item.name}</span>
-            </NavLink>
+            </Link>
           ) : (
             <div
               key={index}

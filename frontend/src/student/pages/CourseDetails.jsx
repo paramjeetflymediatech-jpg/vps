@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import Sidebar from "../components/layout/Sidebar";
 
 import { 
   PlayCircle, 
@@ -13,7 +12,7 @@ import {
   Lock
 } from 'lucide-react';
 
-const CourseDetails = () => {
+const CourseDetails = ({ courseId }) => {
   const [activeTab, setActiveTab] = useState('overview');
 
   const syllabus = [

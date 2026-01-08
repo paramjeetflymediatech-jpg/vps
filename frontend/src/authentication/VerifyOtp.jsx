@@ -1,5 +1,8 @@
+"use client";
+
 import { useEffect, useState } from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import toast from "react-hot-toast";
 import { verifyOtp, resendOtp } from "@/api/otp.api";
 
@@ -7,19 +10,20 @@ const VerifyOtp = () => {
   const [otp, setOtp] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [resending, setResending] = useState(false);
 
-  const navigate = useNavigate();
-  const { state } = useLocation();
+  const router = useRouter();
+  const searchParams = useSearchParams();
 
-  const email = state?.email;
-  const purpose = state?.purpose || "register";
+  const email = searchParams.get("email");
+  const purpose = searchParams.get("purpose") || "register";
 
   // ✅ HARD GUARD
   useEffect(() => {
     if (!email) {
-      navigate("/register");
+      router.push("/register");
     }
-  }, [email, navigate]);
+  }, [email, router]);
 
   const handleVerify = async (e) => {
     e.preventDefault();
@@ -39,16 +43,14 @@ const VerifyOtp = () => {
         purpose,
       });
 
-      // REGISTER FLOW → LOGIN
       if (purpose === "register") {
-        navigate("/login");
+        toast.success("Email verified successfully. You can now log in.");
+        router.push("/login");
       }
 
-      // FORGOT FLOW → RESET PASSWORD
       if (purpose === "forgot") {
-        navigate("/reset-password", {
-          state: { email, otp },
-        });
+        toast.success("OTP verified. Please set your new password.");
+        router.push(`/reset-password?email=${encodeURIComponent(email)}&otp=${encodeURIComponent(otp)}`);
       }
 
     } catch (err) {
@@ -59,11 +61,15 @@ const VerifyOtp = () => {
   };
 
   const handleResend = async () => {
+    if (!email) return;
     try {
+      setResending(true);
       await resendOtp({ email });
       toast.success("OTP resent successfully");
     } catch (err) {
       toast.error(err?.response?.data?.message || "Failed to resend OTP");
+    } finally {
+      setResending(false);
     }
   };
 
@@ -104,15 +110,17 @@ const VerifyOtp = () => {
         <p className="text-center text-sm mt-6">
           Didn’t receive OTP?{" "}
           <button
+            type="button"
             onClick={handleResend}
-            className="text-[#0852A1] font-medium"
+            disabled={resending}
+            className="text-[#0852A1] font-medium disabled:opacity-50"
           >
-            Resend
+            {resending ? "Sending..." : "Resend"}
           </button>
         </p>
 
         <p className="text-center text-sm mt-4">
-          <Link to="/login" className="text-[#0852A1] font-medium">
+          <Link href="/login" className="text-[#0852A1] font-medium">
             Back to Login
           </Link>
         </p>

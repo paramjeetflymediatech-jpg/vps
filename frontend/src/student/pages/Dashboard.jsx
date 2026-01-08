@@ -1,17 +1,16 @@
-import { useState } from "react";
-import Sidebar from "../components/layout/Sidebar";
-import Header from "../components/layout/Header";
-import Footer from "../components/layout/Footer";
-import {
-  BookOpen,
-  Clock,
-  Trophy,
-  Star,
-  Menu
-} from "lucide-react";
+"use client";
+
+import { useEffect, useState } from "react";
+import { BookOpen, Clock, Trophy, Star } from "lucide-react";
 
 const Dashboard = () => {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const raw = localStorage.getItem("user");
+    setUser(raw ? JSON.parse(raw) : null);
+  }, []);
 
   const stats = [
     { label: "Completed", value: "12", icon: <BookOpen />, bg: "bg-blue-50 text-blue-600" },
@@ -22,20 +21,13 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 flex w-full">
-      {/* Sidebar - Overlay logic usually handled inside Sidebar component */}
-      <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} />
-
-      {/* Main Container */}
-      <div className="flex-1  flex flex-col min-h-screen">
-        
-      
-
-        {/* Dashboard Content Area */}
+      {/* StudentLayout wraps this with sidebar/header/footer; this is just inner content */}
+      <div className="flex-1 flex flex-col min-h-screen">
         <main className="p-4 md:p-8 space-y-8 flex-1">
           {/* Welcome Section */}
           <div>
             <h1 className="text-3xl font-black text-slate-900 tracking-tight">
-              Welcome, Rahul 👋
+              Welcome, {user?.name || "Student"} 👋
             </h1>
             <p className="text-slate-500 mt-1 font-medium">
               You've reached <b className="text-[#0852A1] font-black">85%</b> of your weekly goal. Keep it up!

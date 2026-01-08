@@ -5,12 +5,12 @@ import AuthLayout from "./components/AuthLayout";
 import ScrollToTop from "./common/ScrollToTop";
 
 /* ================= PUBLIC PAGES ================= */
-import Home from "./pages/Home";
-import Tutors from "./pages/Tutors";
-import BecomeTutor from "./pages/BecomeTutor";
-import Organizations from "./pages/Organizations";
-import Contact from "./pages/contact";
-import Demo from "./pages/demo";
+import Home from "./views/Home";
+import Tutors from "./views/Tutors";
+import BecomeTutor from "./views/BecomeTutor";
+import Organizations from "./views/Organizations";
+import Contact from "./views/contact";
+import Demo from "./views/demo";
 
 /* ================= AUTH PAGES ================= */
 import Login from "./authentication/Login";
@@ -38,10 +38,11 @@ import StudentProfile from "./student/pages/Profile";
 import StudentSettings from "./student/pages/Settings";
 
 /* ================= DASHBOARD ================= */
-import DashboardRedirect from "./pages/DashboardRedirect";
+import DashboardRedirect from "./views/DashboardRedirect";
 
 /* ================= ADMIN ================= */
 import ProtectedRoute from "./common/ProtectedRoute";
+import Dashboard from "./tutor/pages/Dashboard";
 
 const App = () => {
   return (
@@ -76,24 +77,18 @@ const App = () => {
         <Route path="/tutor/login" element={<TutorLogin />} />
 
         {/* Tutor */}
-          {/* 👨‍🏫 TUTOR DASHBOARD WITH LAYOUT */}
-          <Route path="/tutor" element={<TutorLayout />}>
-            <Route index element={<TutorDashboard />} />
-            <Route path="dashboard" element={<TutorDashboard />} />
-            <Route path="classes" element={<Classes />} />
-            <Route path="classes/:id" element={<ClassDeatail />} />
-            <Route path="settings" element={<Settings />} />
-            <Route path="courses" element={<Courses />} />
-          </Route>
-
+        {/* 👨‍🏫 TUTOR DASHBOARD WITH LAYOUT */}
+        <Route path="/tutor" element={<TutorLayout />}>
+          <Route index element={<TutorDashboard />} />
+          <Route path="dashboard" element={<TutorDashboard />} />
+          <Route path="classes" element={<Classes />} />
+          <Route path="classes/:id" element={<ClassDeatail />} />
+          <Route path="settings" element={<Settings />} />
+          <Route path="courses" element={<Courses />} />
+        </Route>
 
         {/* 🎓 STUDENT DASHBOARD */}
-        <Route
-  path="/student"
-  element={
-      <StudentLayout />
-  }
->
+        <Route path="/student" element={<StudentLayout />}>
           <Route index element={<StudentDashboard />} />
           <Route path="dashboard" element={<StudentDashboard />} />
           <Route path="courses" element={<MyCourses />} />

@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect, useState } from "react";
 import {
   Plus,
@@ -20,7 +22,7 @@ import {
 const IMAGE_BASE_URL = "http://localhost:5000/uploads/";
 
 const Courses = () => {
-  const user = JSON.parse(localStorage.getItem("user") || "{}");
+  const [user, setUser] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [courses, setCourses] = useState([]);
   const [editCourse, setEditCourse] = useState(null);
@@ -41,8 +43,15 @@ const Courses = () => {
   };
 
   useEffect(() => {
-    fetchCourses();
+    const userData = JSON.parse(localStorage.getItem("user") || "{}");
+    setUser(userData);
   }, []);
+
+  useEffect(() => {
+    if (user?.id) {
+      fetchCourses();
+    }
+  }, [user]);
 
   const handleFileUpload = (e) => {
     const file = e.target.files[0];

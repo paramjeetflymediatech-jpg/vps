@@ -1,8 +1,10 @@
+"use client";
+
 import axios from "axios";
 import { toast } from "react-hot-toast";
 
 const API = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || "http://localhost:8000/api",
+  baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api",
   withCredentials: true,
 });
 

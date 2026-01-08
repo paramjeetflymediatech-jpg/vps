@@ -1,4 +1,6 @@
-import { Link } from "react-router-dom";
+"use client";
+
+import Link from "next/link";
 import {
   FaWhatsapp,
   FaLinkedin,
@@ -20,7 +22,7 @@ const Footer = () => {
         {/* Brand + Description + Social Icons */}
         <div className="lg:col-span-2">
           <img
-            src={Logo}
+            src={Logo.src}
             alt="The English Raj Logo"
             className="h-14 sm:h-10 lg:h-20 mb-4"
           />
@@ -89,11 +91,11 @@ const Footer = () => {
         <div>
           <h4 className="font-bold mb-4 text-lg">Company</h4>
           <ul className="space-y-2 text-md text-black/80">
-            <li><Link to="/#goal">Goal</Link></li>
-            <li><Link to="/#pricing">Pricing</Link></li>
-            <li><Link to="/#review">Review</Link></li>
-            <li><Link to="/#book-a-session">Book a Session</Link></li>
-            <li><Link to="/#contact">Contact</Link></li>
+            <li><Link href="/#goal">Goal</Link></li>
+            <li><Link href="/#pricing">Pricing</Link></li>
+            <li><Link href="/#review">Review</Link></li>
+            <li><Link href="/#book-a-session">Book a Session</Link></li>
+            <li><Link href="/#contact">Contact</Link></li>
           </ul>
         </div>
 
@@ -101,11 +103,11 @@ const Footer = () => {
         <div>
           <h4 className="font-bold mb-4 text-lg">Support</h4>
           <ul className="space-y-2 text-md text-black/80">
-            <li><Link to="/support">Help & Support</Link></li>
-            <li><Link to="/become-tutor">Become Instructor</Link></li>
-            <li><Link to="/app">Get the App</Link></li>
-            <li><Link to="/faq">FAQ</Link></li>
-            <li><Link to="/tutorial">Tutorial</Link></li>
+            <li><Link href="/support">Help & Support</Link></li>
+            <li><Link href="/become-tutor">Become Instructor</Link></li>
+            <li><Link href="/app">Get the App</Link></li>
+            <li><Link href="/faq">FAQ</Link></li>
+            <li><Link href="/tutorial">Tutorial</Link></li>
           </ul>
         </div>
 
@@ -138,11 +140,11 @@ const Footer = () => {
           
         {/* Legal Links */}
         <div className="text-center text-xs text-black/60 pb-6">
-          <Link to="/privacy" className="mx-2 hover:underline">Privacy</Link>
+          <Link href="/privacy" className="mx-2 hover:underline">Privacy</Link>
           |
-          <Link to="/terms" className="mx-2 hover:underline">Terms</Link>
+          <Link href="/terms" className="mx-2 hover:underline">Terms</Link>
           |
-          <Link to="/cookies" className="mx-2 hover:underline">Cookies</Link>
+          <Link href="/cookies" className="mx-2 hover:underline">Cookies</Link>
         </div>
       </div>
     </footer>

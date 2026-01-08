@@ -1,16 +1,19 @@
-import { Link, useNavigate } from "react-router-dom";
+"use client";
+
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { HiMenu, HiX } from "react-icons/hi";
 import { FaUserCircle } from "react-icons/fa";
 import Logo from "../assets/logo/logo.webp";
-import { NavLink } from "react-router-dom";
 
 const Header = () => {
   const [open, setOpen] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  const navigate = useNavigate();
+  const router = useRouter();
+  const pathname = usePathname();
 
   /* 🔐 Check token */
   useEffect(() => {
@@ -25,75 +28,75 @@ const Header = () => {
     setIsLoggedIn(false);
     setShowProfileMenu(false);
     setOpen(false);
-    navigate("/login");
+    router.push("/login");
   };
 
   return (
     <header className="bg-white sticky top-0 z-50 shadow-md">
       <div className="max-w-7xl mx-auto px-4 h-20 flex items-center justify-between">
         {/* Logo */}
-        <Link to="/" className="flex items-center gap-2">
-          <img src={Logo} alt="Logo" className="h-12" />
+        <Link href="/" className="flex items-center gap-2">
+          <img src={Logo.src} alt="Logo" className="h-12" />
         </Link>
 
         {/* ================= DESKTOP NAV ================= */}
         <nav className="hidden lg:flex items-center gap-8 text-lg font-medium text-gray-800">
-          <NavLink
-            to="/"
-            className={({ isActive }) =>
-              isActive
+          <Link
+            href="/"
+            className={
+              pathname === "/"
                 ? "text-[#0852A1]"
                 : "hover:text-[#0852A1] transition-colors"
             }
           >
             Home
-          </NavLink>
+          </Link>
 
-          <NavLink
-            to="/tutors"
-            className={({ isActive }) =>
-              isActive
+          <Link
+            href="/tutors"
+            className={
+              pathname === "/tutors"
                 ? "text-[#0852A1]"
                 : "hover:text-[#0852A1] transition-colors"
             }
           >
             Meet your tutor
-          </NavLink>
+          </Link>
 
-          <NavLink
-            to="/organizations"
-            className={({ isActive }) =>
-              isActive
+          <Link
+            href="/organizations"
+            className={
+              pathname === "/organizations"
                 ? "text-[#0852A1]"
                 : "hover:text-[#0852A1] transition-colors"
             }
           >
             For Organizations
-          </NavLink>
+          </Link>
 
-          <NavLink
-            to="/become-tutor"
-            className={({ isActive }) =>
-              isActive
+          <Link
+            href="/become-tutor"
+            className={
+              pathname === "/become-tutor"
                 ? "text-[#0852A1]"
                 : "hover:text-[#0852A1] transition-colors"
             }
           >
             Become a tutor
-          </NavLink>
+          </Link>
         </nav>
         {/* ================= DESKTOP RIGHT ================= */}
         <div className="hidden lg:flex items-center gap-4 relative">
           {!isLoggedIn ? (
             <>
               <Link
-                to="/register"
+                href="/register"
                 className="bg-[#0852A1] text-white px-5 py-2 rounded-full"
               >
                 Register
               </Link>
               <Link
-                to="/login"
+                href="/login"
                 className="border border-[#0852A1] text-[#0852A1] px-5 py-2 rounded-full"
               >
                 Login
@@ -111,7 +114,7 @@ const Header = () => {
               {showProfileMenu && (
                 <div className="absolute right-0 mt-2 w-40 bg-white border rounded-lg shadow-md">
                   <Link
-                    to="/student/dashboard"
+                    href="/student/dashboard"
                     className="block px-4 py-2 hover:bg-gray-100"
                     onClick={() => setShowProfileMenu(false)}
                   >
@@ -142,30 +145,30 @@ const Header = () => {
       {open && (
         <div className="lg:hidden bg-white shadow-md border-t animate-slide-down">
           <nav className="flex flex-col px-6 py-4 space-y-4 text-lg">
-            <Link to="/" onClick={() => setOpen(false)}>
+            <Link href="/" onClick={() => setOpen(false)}>
               Home
             </Link>
-            <Link to="/tutors" onClick={() => setOpen(false)}>
+            <Link href="/tutors" onClick={() => setOpen(false)}>
               Meet your tutor
             </Link>
-            <Link to="/organizations" onClick={() => setOpen(false)}>
+            <Link href="/organizations" onClick={() => setOpen(false)}>
               For Organizations
             </Link>
-            <Link to="/become-tutor" onClick={() => setOpen(false)}>
+            <Link href="/become-tutor" onClick={() => setOpen(false)}>
               Become a tutor
             </Link>
 
             {!isLoggedIn ? (
               <>
                 <Link
-                  to="/register"
+                  href="/register"
                   onClick={() => setOpen(false)}
                   className="bg-[#0852A1] text-white py-2 rounded text-center"
                 >
                   Register
                 </Link>
                 <Link
-                  to="/login"
+                  href="/login"
                   onClick={() => setOpen(false)}
                   className="border border-[#0852A1] text-[#0852A1] py-2 rounded text-center"
                 >
@@ -174,7 +177,7 @@ const Header = () => {
               </>
             ) : (
               <>
-                <Link to="/student/dashboard" onClick={() => setOpen(false)}>
+                <Link href="/student/dashboard" onClick={() => setOpen(false)}>
                   Dashboard
                 </Link>
                 <button

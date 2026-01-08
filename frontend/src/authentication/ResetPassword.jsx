@@ -1,7 +1,9 @@
+"use client";
+
 import { useState } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
-import { useNavigate, useLocation } from "react-router-dom";
-import { resetPassword } from "@/api/auth.api";
+import { useRouter, useSearchParams } from "next/navigation";
+import { resetPassword } from "../api/auth.api";
  
 const ResetPassword = () => {
   const [password, setPassword] = useState("");
@@ -11,10 +13,10 @@ const ResetPassword = () => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
  
-  const navigate = useNavigate();
-  const { state } = useLocation();
-  const email = state?.email;
-  const otp = state?.otp;
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const email = searchParams.get("email");
+  const otp = searchParams.get("otp");
  
   const handleReset = async (e) => {
     e.preventDefault();
@@ -23,7 +25,7 @@ const ResetPassword = () => {
  
     if (!email || !otp) {
       setError("Session expired. Please start over.");
-      setTimeout(() => navigate("/forgot-password"), 2000);
+      setTimeout(() => router.push("/forgot-password"), 2000);
       return;
     }
  
@@ -43,7 +45,7 @@ const ResetPassword = () => {
       setSuccess("Password updated successfully. Redirecting to login...");
       setPassword("");
       setConfirmPassword("");
-      setTimeout(() => navigate("/login"), 2000);
+      setTimeout(() => router.push("/login"), 2000);
     } catch (err) {
       setError(err?.response?.data?.message || "Failed to reset password");
     } finally {
@@ -153,7 +155,7 @@ const ResetPassword = () => {
           <p className="text-center text-sm text-neutral-600 mt-6">
             Remembered your password?{" "}
             <button
-              onClick={() => navigate("/login")}
+              onClick={() => router.push("/login")}
               className="font-medium text-neutral-900 hover:underline"
             >
               Login

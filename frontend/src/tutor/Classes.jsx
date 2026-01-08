@@ -1,3 +1,5 @@
+"use client";
+
 import { useState, useEffect } from "react";
 import {
   Plus,
@@ -21,7 +23,7 @@ import { getCourses } from "../api/course.api";
 const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
 const Classes = () => {
-  const user = JSON.parse(localStorage.getItem("user") || "{}");
+  const [user, setUser] = useState(null);
   const [classes, setClasses] = useState([]);
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -42,15 +44,27 @@ const Classes = () => {
 
   /* ================= FETCH ================= */
   useEffect(() => {
-    fetchClasses();
-    fetchCourses();
+    const userData = JSON.parse(localStorage.getItem("user") || "{}");
+    setUser(userData);
   }, []);
 
+  useEffect(() => {
+    if (user?.id) {
+      fetchClasses();
+      fetchCourses();
+    }
+  }, [user]);
+
   const fetchClasses = async () => {
+    if (!user?.id && !user?._id) return;
+
     try {
       setLoading(true);
-      const res = await getAllClasses({tutorId:user.id});
+      const res = await getAllClasses({ tutorId: user.id || user._id });
       if (res?.data?.success) setClasses(res.data.data);
+    } catch (err) {
+      console.error("Failed to load classes", err);
+      // Optional: show a friendlier message later
     } finally {
       setLoading(false);
     }

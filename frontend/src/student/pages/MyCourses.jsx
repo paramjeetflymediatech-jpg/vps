@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import Link from "next/link";
 import { PlayCircle, CheckCircle, Clock, BookOpen, Search, Filter } from 'lucide-react';
 
 const MyCourses = () => {
@@ -113,13 +114,17 @@ const MyCourses = () => {
                 <div className="flex items-center gap-3 text-gray-400 text-xs font-medium">
                   <span className="flex items-center gap-1"><BookOpen size={14} /> {course.lessons} Lessons</span>
                 </div>
-                <button className={`p-3 rounded-xl transition-all ${
-                  course.status === 'completed' 
-                  ? 'bg-green-50 text-green-600 hover:bg-green-600 hover:text-white' 
-                  : 'bg-blue-50 text-[#0852A1] hover:bg-[#0852A1] hover:text-white'
-                }`}>
-                  <PlayCircle size={20} fill="currentColor" fillOpacity={0.1} />
-                </button>
+                <Link href={`/student/courses/${course.id}`}>
+                  <button
+                    className={`p-3 rounded-xl transition-all ${
+                      course.status === 'completed'
+                        ? 'bg-green-50 text-green-600 hover:bg-green-600 hover:text-white'
+                        : 'bg-blue-50 text-[#0852A1] hover:bg-[#0852A1] hover:text-white'
+                    }`}
+                  >
+                    <PlayCircle size={20} fill="currentColor" fillOpacity={0.1} />
+                  </button>
+                </Link>
               </div>
             </div>
           </div>

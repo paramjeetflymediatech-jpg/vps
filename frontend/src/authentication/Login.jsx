@@ -1,23 +1,28 @@
-import { Link, useNavigate } from "react-router-dom";
+"use client";
+
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import toast from "react-hot-toast";
-import { loginUser } from "@/api/auth.api";
+import { loginUser } from "../api/auth.api";
 
 const Login = () => {
-  const navigate = useNavigate();
+  const router = useRouter();
 
   const role = "STUDENT"; // ✅ ADD THIS
-
+ 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-
+  const [error, setError] = useState("");
+ 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-
+    setError("");
+ 
     try {
       const res = await loginUser({
         email,
@@ -33,16 +38,21 @@ const Login = () => {
       }
 
       setTimeout(() => {
-        navigate("/");
+        router.push("/student/dashboard");
       }, 100);
     } catch (err) {
       if (
         err.response?.status === 403 &&
         err.response?.data?.message === "Please verify your email first"
       ) {
-        navigate("/register-otp", { state: { email } });
+        router.push(`/register-otp?email=${encodeURIComponent(email)}`);
         return;
       }
+
+      const message =
+        err?.response?.data?.message || err?.message || "Login failed";
+      setError(message);
+      toast.error(message);
     } finally {
       setLoading(false);
     }
@@ -73,6 +83,13 @@ const Login = () => {
           <p className="text-sm text-neutral-500 mt-1">
             Enter your credentials to continue
           </p>
+
+          {/* ERROR MESSAGE */}
+          {error && (
+            <div className="mt-5 rounded-md border border-red-200 bg-red-50 px-4 py-2 text-sm text-red-600">
+              {error}
+            </div>
+          )}
 
           {/* FORM */}
           <form onSubmit={handleSubmit} className="mt-7 space-y-5">
@@ -121,7 +138,7 @@ const Login = () => {
 
             <div className="flex justify-between items-center">
               <Link
-                to="/forgot-password"
+                href="/forgot-password"
                 className="text-sm text-neutral-600 hover:text-neutral-900"
               >
                 Forgot password?
@@ -145,7 +162,7 @@ const Login = () => {
           <p className="text-sm text-neutral-600 mt-6 text-center">
             Don’t have an account?{" "}
             <Link
-              to="/register"
+              href="/register"
               className="font-medium text-neutral-900 hover:underline"
             >
               Create account
@@ -153,7 +170,7 @@ const Login = () => {
           </p>
 
           <button
-            onClick={() => navigate("/tutor/login")}
+            onClick={() => router.push("/tutor/login")}
             className="block mx-auto mt-4 text-lg font-bold text-neutral-500 hover:text-neutral-900 cursor-pointer"
           >
             Login as Tutor

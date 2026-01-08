@@ -1,28 +1,27 @@
 <%- include('layouts/header') %> <%- include('layouts/sidebar') %>
 
-<main class="bg-gray-100 min-h-screen flex justify-center px-3 sm:px-4 md:px-6 py-6
-             w-full md:ml-64 transition-all">
-
+<main
+  class="bg-gray-100 min-h-screen flex justify-center px-3 sm:px-4 md:px-6 py-6 w-full md:ml-64 transition-all"
+>
   <!-- CONTENT WRAPPER -->
   <div class="w-full max-w-7xl">
-
     <!-- ================= MOBILE HEADER ================= -->
-<div class="flex items-center justify-between mb-6 md:hidden">
-  <button
-    class="menu-btn bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600
-           text-white px-3 py-2 rounded-lg shadow">
-    ☰
-  </button>
+    <div class="flex items-center justify-between mb-6 md:hidden">
+      <button
+        class="menu-btn bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600 text-white px-3 py-2 rounded-lg shadow"
+      >
+        ☰
+      </button>
 
-  <h1 class="text-lg font-semibold text-gray-800">User List</h1>
+      <h1 class="text-lg font-semibold text-gray-800">User List</h1>
 
-  <a
-    href="/admin/users/adduser"
-    class="bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600
-           text-white px-3 py-2 rounded-lg text-sm shadow">
-    + Add
-  </a>
-</div>
+      <a
+        href="/admin/users/adduser"
+        class="bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600 text-white px-3 py-2 rounded-lg text-sm shadow"
+      >
+        + Add
+      </a>
+    </div>
 
     <!-- ================= DESKTOP HEADER ================= -->
     <div class="hidden md:flex items-center justify-between mb-6">
@@ -30,18 +29,15 @@
 
       <a
         href="/admin/users/adduser"
-        class="text-sm bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600
-               text-white px-4 py-2 rounded-lg hover:opacity-90 transition">
+        class="text-sm bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600 text-white px-4 py-2 rounded-lg hover:opacity-90 transition"
+      >
         + Add User
       </a>
     </div>
 
     <!-- ================= CARD ================= -->
     <div class="bg-white p-4 sm:p-5 md:p-6 rounded-2xl shadow-md">
-
-      <h2 class="text-lg md:text-xl font-semibold mb-4 text-gray-700">
-        Users
-      </h2>
+      <h2 class="text-lg md:text-xl font-semibold mb-4 text-gray-700">Users</h2>
 
       <% if (data && data.length > 0) { %>
 
@@ -62,34 +58,32 @@
           <tbody>
             <% data.forEach(item => { %>
             <tr class="border-b hover:bg-gray-50 transition">
-              <td class="py-3 px-4 font-medium uppercase">
-                <%= item.name %>
-              </td>
-              <td class="py-3 px-4 break-all">
-                <%= item.email %>
-              </td>
+              <td class="py-3 px-4 font-medium uppercase"><%= item.name %></td>
+              <td class="py-3 px-4 break-all"><%= item.email %></td>
+              <td class="py-3 px-4"><%= item.role %></td>
+              <td class="py-3 px-4"><%= item.phone %></td>
               <td class="py-3 px-4">
-                <%= item.role %>
-              </td>
-              <td class="py-3 px-4">
-                <%= item.phone %>
-              </td>
-              <td class="py-3 px-4">
-                 <span
-                class="status-toggle cursor-pointer px-3 py-1 rounded-full text-sm font-semibold <%= item.status==='ACTIVE' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700' %>"
-                data-id="<%= item._id %>"
-                data-status="<%= item.status %>"
-              >
-                <%= item.status==="ACTIVE" ? "Active" : "Pending" %>
-              </span>
-                 
+                <span
+                  class="status-toggle cursor-pointer px-3 py-1 rounded-full text-sm font-semibold <%= item.status==='ACTIVE' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700' %>"
+                  data-id="<%= item._id %>"
+                  data-status="<%= item.status %>"
+                >
+                  <%= item.status==="ACTIVE" ? "Active" : "Pending" %>
+                </span>
               </td>
               <td class="py-3 px-4">
                 <a
                   href="/admin/users/<%= item._id %>"
-                  class="text-blue-600 hover:underline">
+                  class="text-blue-600 hover:underline"
+                >
                   View
                 </a>
+
+                <span
+                  class="delete-btn cursor-pointer px-3 py-1 rounded-full text-sm font-semibold text-red-500"
+                  data-id="<%= item._id %>"
+                  >Delete</span
+                >
               </td>
             </tr>
             <% }) %>
@@ -101,9 +95,7 @@
       <div class="md:hidden grid grid-cols-1 sm:grid-cols-2 gap-4">
         <% data.forEach(item => { %>
         <div class="border rounded-xl p-4 shadow-sm bg-gray-50">
-          <p class="font-semibold uppercase text-gray-800">
-            <%= item.name %>
-          </p>
+          <p class="font-semibold uppercase text-gray-800"><%= item.name %></p>
 
           <p class="text-sm break-all text-gray-600 mt-1">
             <strong>Email:</strong> <%= item.email %>
@@ -118,17 +110,16 @@
           </p>
 
           <span
-            class="inline-block mt-2 px-3 py-1 rounded-full text-xs font-semibold
-            <%= item.status === 'ACTIVE'
-              ? 'bg-green-100 text-green-700'
-              : 'bg-yellow-100 text-yellow-700' %>">
+            class="inline-block mt-2 px-3 py-1 rounded-full text-xs font-semibold <%= item.status === 'ACTIVE' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700' %>"
+          >
             <%= item.status === "ACTIVE" ? "Active" : "Pending" %>
           </span>
 
           <div class="mt-4">
             <a
               href="/admin/users/<%= item._id %>"
-              class="inline-block text-blue-600 font-medium">
+              class="inline-block text-blue-600 font-medium"
+            >
               View Details →
             </a>
           </div>
@@ -137,15 +128,10 @@
       </div>
 
       <% } else { %>
-      <p class="text-gray-500 text-center py-10">
-        No users found.
-      </p>
+      <p class="text-gray-500 text-center py-10">No users found.</p>
       <% } %>
-
     </div>
   </div>
 </main>
-
-
 
 <%- include('layouts/footer') %>

@@ -1,3 +1,6 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import { Users, BookOpen, Calendar, Star, Clock } from "lucide-react";
 
 const stats = [
@@ -13,6 +16,14 @@ const sessions = [
 ];
 
 const Dashboard = () => {
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const raw = localStorage.getItem("user");
+    setUser(raw ? JSON.parse(raw) : null);
+  }, []);
+
   return (
     <div className="space-y-6">
       {/* STATS CARDS */}
@@ -27,7 +38,9 @@ const Dashboard = () => {
 
       {/* WELCOME SECTION */}
       <section className="bg-white rounded-xl shadow p-6">
-        <h2 className="text-xl font-semibold mb-2">Welcome to Tutor Panel 👋</h2>
+        <h2 className="text-xl font-semibold mb-2">
+          Welcome, {user?.name || "Tutor"} 👋
+        </h2>
         <p className="text-gray-600">
           Manage your classes, track student progress, and build your teaching profile.
         </p>

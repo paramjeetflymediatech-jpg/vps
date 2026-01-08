@@ -58,7 +58,7 @@ const LearningGoal = () => {
         {/* ================= LEFT STATIC IMAGE ================= */}
         <div className="flex justify-center">
           <img
-            src={phoneImg}
+            src={phoneImg.src}
             alt="Learning App"
             className="h-[480px] object-contain"
           />
@@ -95,7 +95,7 @@ const LearningGoal = () => {
               className="w-full"
             >
               <img
-                src={activeGoal.image}
+                src={activeGoal.image.src}
                 alt={activeGoal.label}
                 className="rounded-2xl shadow-lg w-full h-[360px] object-cover"
               />

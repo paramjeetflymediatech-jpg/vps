@@ -21,7 +21,7 @@ const app = express();
 
 /* ================= CORS ================= */
 const allowedOrigins = [
-  process.env.CLIENT_URL || "http://localhost:5173",
+  process.env.CLIENT_URL || "http://localhost:3000",
   process.env.BACKEND_URL || "http://localhost:8000",
 ].filter(Boolean);
 

@@ -1,10 +1,13 @@
+"use client";
+
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { FiEye, FiEyeOff } from "react-icons/fi";
 import { tutorLogin } from "@/api/tutorApi";
 
 const TutorLogin = () => {
-  const navigate = useNavigate();
+  const router = useRouter();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -19,15 +22,20 @@ const TutorLogin = () => {
 
     try {
       const res = await tutorLogin({ email, password, role: "TUTOR" });
+
+      // Store token in a common key so all APIs (axios.instance) can use it
+      localStorage.setItem("token", res.data.token);
+      // Optionally keep a tutor-specific token as well
       localStorage.setItem("tutorToken", res.data.token);
+
       localStorage.setItem("user", JSON.stringify(res.data.user));
-      navigate("/tutor/dashboard");
+      router.push("/tutor/dashboard");
     } catch (err) {
       if (
         err.response?.status === 403 &&
         err.response?.data?.message === "Please verify your email first"
       ) {
-        navigate("/register-otp", { state: { email } });
+        router.push(`/register-otp?email=${encodeURIComponent(email)}`);
         return;
       }
       setError(err.response?.data?.message || "Login failed");
@@ -123,10 +131,10 @@ const TutorLogin = () => {
           </form>
 
           {/* FOOTER LINK */}
-          <p className="text-center text-sm text-neutral-600 mt-6">
+        <p className="text-center text-sm text-neutral-600 mt-6">
             Want to become a tutor?{" "}
             <Link
-              to="/become-tutor"
+              href="/become-tutor"
               className="font-medium text-neutral-900 hover:underline"
             >
               Apply here

@@ -1,4 +1,6 @@
-import React from "react";
+"use client";
+
+import React, { useEffect, useState } from "react";
 import {
   Search,
   Bell,
@@ -8,6 +10,13 @@ import {
 } from "lucide-react";
 
 const Header = ({ setSidebarOpen }) => {
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const raw = localStorage.getItem("user");
+    setUser(raw ? JSON.parse(raw) : null);
+  }, []);
   return (
     <header className="sticky top-0 z-40 w-full bg-white/90 backdrop-blur border-b border-gray-100">
       <div className="mx-auto max-w-[1600px] px-3 sm:px-5 lg:px-8">
@@ -59,10 +68,10 @@ const Header = ({ setSidebarOpen }) => {
             <div className="flex items-center gap-2 cursor-pointer group">
               <div className="hidden sm:block text-right">
                 <p className="text-sm font-semibold text-gray-800 group-hover:text-[#0852A1]">
-                  Rahul Sharma
+                  {user?.name || "Student"}
                 </p>
                 <p className="text-[10px] uppercase font-bold text-blue-600">
-                  Lvl 5 Learner
+                  {user?.role || "STUDENT"}
                 </p>
               </div>
 

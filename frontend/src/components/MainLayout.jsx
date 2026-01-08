@@ -1,7 +1,7 @@
 import Header from "./Header";
 import Footer from "./Footer";
 import CoursesPricing from "./CoursesPricing";
-import Testimonials from "../pages/Testimonials";
+import Testimonials from "../views/Testimonials";
 import LearningGoal from "../components/LearningGoal"; // 👈 add this
 
 import { Outlet, useLocation } from "react-router-dom";

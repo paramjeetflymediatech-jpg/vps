@@ -1,5 +1,7 @@
+"use client";
+
 import { useState, useRef } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useRouter, useSearchParams } from "next/navigation";
 import toast from "react-hot-toast";
 import { verifyOtp, resendOtp } from "@/api/otp.api";
  
@@ -9,10 +11,10 @@ const RegisterOtp = () => {
   const [error, setError] = useState("");
  
   const inputsRef = useRef([]);
-  const navigate = useNavigate();
-  const { state } = useLocation();
+  const router = useRouter();
+  const searchParams = useSearchParams();
  
-  const email = state?.email;
+  const email = searchParams.get("email");
  
   const handleChange = (value, index) => {
     if (!/^\d?$/.test(value)) return;
@@ -50,7 +52,7 @@ const RegisterOtp = () => {
     try {
       setLoading(true);
       await verifyOtp({ email, otp: finalOtp });
-      navigate("/login");
+      router.push("/login");
     } catch (err) {
       setError(err?.response?.data?.message || "Invalid OTP");
     } finally {

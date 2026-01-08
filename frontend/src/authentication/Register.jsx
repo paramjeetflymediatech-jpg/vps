@@ -1,11 +1,14 @@
-import { Link, useNavigate } from "react-router-dom";
+"use client";
+
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { FiEye, FiEyeOff } from "react-icons/fi";
 import toast from "react-hot-toast";
-import { registerUser } from "@/api/auth.api";
+import { registerUser } from "../api/auth.api";
  
 const Register = () => {
-  const navigate = useNavigate();
+  const router = useRouter();
  
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -28,9 +31,7 @@ const Register = () => {
     try {
       await registerUser(form);
  
-      navigate("/register-otp", {
-        state: { email: form.email },
-      });
+      router.push(`/register-otp?email=${encodeURIComponent(form.email)}`);
     } catch (err) {
       toast.error(err.response?.data?.message || "Registration failed");
     } finally {
@@ -175,7 +176,7 @@ const Register = () => {
           <p className="text-sm text-neutral-600 mt-6 text-center">
             Already have an account?{" "}
             <Link
-              to="/login"
+              href="/login"
               className="font-medium text-neutral-900 hover:underline"
             >
               Sign in
