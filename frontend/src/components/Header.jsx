@@ -31,7 +31,6 @@ const Header = () => {
   return (
     <header className="bg-white sticky top-0 z-50 shadow-md">
       <div className="max-w-7xl mx-auto px-4 h-20 flex items-center justify-between">
-
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2">
           <img src={Logo} alt="Logo" className="h-12" />
@@ -39,37 +38,52 @@ const Header = () => {
 
         {/* ================= DESKTOP NAV ================= */}
         <nav className="hidden lg:flex items-center gap-8 text-lg font-medium text-gray-800">
-  <NavLink 
-    to="/" 
-    className={({ isActive }) => isActive ? "text-[#0852A1]" : "hover:text-[#0852A1] transition-colors"}
-  >
-    Home
-  </NavLink>
+          <NavLink
+            to="/"
+            className={({ isActive }) =>
+              isActive
+                ? "text-[#0852A1]"
+                : "hover:text-[#0852A1] transition-colors"
+            }
+          >
+            Home
+          </NavLink>
 
-  <NavLink 
-    to="/tutors" 
-    className={({ isActive }) => isActive ? "text-[#0852A1]" : "hover:text-[#0852A1] transition-colors"}
-  >
-    Meet your tutor
-  </NavLink>
+          <NavLink
+            to="/tutors"
+            className={({ isActive }) =>
+              isActive
+                ? "text-[#0852A1]"
+                : "hover:text-[#0852A1] transition-colors"
+            }
+          >
+            Meet your tutor
+          </NavLink>
 
-  <NavLink 
-    to="/organizations" 
-    className={({ isActive }) => isActive ? "text-[#0852A1]" : "hover:text-[#0852A1] transition-colors"}
-  >
-    For Organizations
-  </NavLink>
+          <NavLink
+            to="/organizations"
+            className={({ isActive }) =>
+              isActive
+                ? "text-[#0852A1]"
+                : "hover:text-[#0852A1] transition-colors"
+            }
+          >
+            For Organizations
+          </NavLink>
 
-  <NavLink 
-    to="/become-tutor" 
-    className={({ isActive }) => isActive ? "text-[#0852A1]" : "hover:text-[#0852A1] transition-colors"}
-  >
-    Become a tutor
-  </NavLink>
-</nav>
+          <NavLink
+            to="/become-tutor"
+            className={({ isActive }) =>
+              isActive
+                ? "text-[#0852A1]"
+                : "hover:text-[#0852A1] transition-colors"
+            }
+          >
+            Become a tutor
+          </NavLink>
+        </nav>
         {/* ================= DESKTOP RIGHT ================= */}
         <div className="hidden lg:flex items-center gap-4 relative">
-
           {!isLoggedIn ? (
             <>
               <Link
@@ -128,11 +142,18 @@ const Header = () => {
       {open && (
         <div className="lg:hidden bg-white shadow-md border-t animate-slide-down">
           <nav className="flex flex-col px-6 py-4 space-y-4 text-lg">
-
-            <Link to="/" onClick={() => setOpen(false)}>Home</Link>
-            <Link to="/tutors" onClick={() => setOpen(false)}>Meet your tutor</Link>
-            <Link to="/organizations" onClick={() => setOpen(false)}>For Organizations</Link>
-            <Link to="/become-tutor" onClick={() => setOpen(false)}>Become a tutor</Link>
+            <Link to="/" onClick={() => setOpen(false)}>
+              Home
+            </Link>
+            <Link to="/tutors" onClick={() => setOpen(false)}>
+              Meet your tutor
+            </Link>
+            <Link to="/organizations" onClick={() => setOpen(false)}>
+              For Organizations
+            </Link>
+            <Link to="/become-tutor" onClick={() => setOpen(false)}>
+              Become a tutor
+            </Link>
 
             {!isLoggedIn ? (
               <>
@@ -153,10 +174,7 @@ const Header = () => {
               </>
             ) : (
               <>
-                <Link
-                  to="/dashboard"
-                  onClick={() => setOpen(false)}
-                >
+                <Link to="/student/dashboard" onClick={() => setOpen(false)}>
                   Dashboard
                 </Link>
                 <button

@@ -49,7 +49,7 @@ const Classes = () => {
   const fetchClasses = async () => {
     try {
       setLoading(true);
-      const res = await getAllClasses();
+      const res = await getAllClasses({tutorId:user.id});
       if (res?.data?.success) setClasses(res.data.data);
     } finally {
       setLoading(false);

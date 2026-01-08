@@ -1,5 +1,7 @@
 import Course from "../models/course.js";
 import cloudinary from "../middlewares/index.js";
+import mongoose from "mongoose";
+const isValidObjectId = (id) => mongoose.Types.ObjectId.isValid(id);
 // @desc    Create a new course
 // @route   POST /api/courses
 export const createCourse = async (req, res) => {
@@ -81,7 +83,17 @@ export const updateCourse = async (req, res) => {
 
 export const getCourses = async (req, res) => {
   try {
-    const courses = await Course.find()
+    const { tutorId } = req.query;
+    const filter = {};
+
+    if (tutorId) {
+      if (!isValidObjectId(tutorId)) {
+        return res.status(400).json({ message: "Invalid tutorId" });
+      }
+      filter.tutorId = tutorId;
+    }
+
+    const courses = await Course.find(filter)
       .populate("tutorId", "name email")
       .populate("organizationId", "name")
       .sort({ createdAt: -1 });

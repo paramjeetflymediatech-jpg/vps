@@ -27,7 +27,7 @@ const Login = () => {
 
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("user", JSON.stringify(res.data.user));
- 
+
       if (!res.data?.token) {
         throw new Error("Token not received");
       }
@@ -37,7 +37,7 @@ const Login = () => {
       }, 100);
     } catch (err) {
       if (
-        err.response?.status === 401 &&
+        err.response?.status === 403 &&
         err.response?.data?.message === "Please verify your email first"
       ) {
         navigate("/register-otp", { state: { email } });

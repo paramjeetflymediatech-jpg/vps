@@ -20,6 +20,7 @@ import {
 const IMAGE_BASE_URL = "http://localhost:5000/uploads/";
 
 const Courses = () => {
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
   const [showModal, setShowModal] = useState(false);
   const [courses, setCourses] = useState([]);
   const [editCourse, setEditCourse] = useState(null);
@@ -30,9 +31,11 @@ const Courses = () => {
   /* ================= FETCH COURSES ================= */
   const fetchCourses = async () => {
     try {
-      const res = await getCourses();
+      const res = await getCourses({tutorId:user.id});
+      console.log(res,'ress')
       setCourses(res.data);
     } catch (err) {
+      console.log(err)
       toast.error("Failed to load courses");
     }
   };

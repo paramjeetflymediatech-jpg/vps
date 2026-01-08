@@ -1,6 +1,6 @@
 import API from "./axios.instance";
 
-export const getCourses = () => API.get("/courses");
+export const getCourses = (params) => API.get("/courses",{params});
 
 // Create: FormData pass karein
 export const createCourse = (formData) => API.post("/courses", formData);

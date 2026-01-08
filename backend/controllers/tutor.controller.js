@@ -16,15 +16,25 @@ export const applyTutor = async (req, res) => {
     }
 
     // 2️⃣ Prevent duplicate applications
+
+    // 2️⃣ Check email or phone already exists
     const existingTutor = await User.findOne({
-      $or: [{ email }, { phone }],
+      $or: [{ email: email }, { phone }],
     });
-    console.log("Existing tutor application check:", existingTutor);
+
     if (existingTutor) {
-      return res.status(409).json({
-        success: false,
-        message: "You have already applied. We will contact you soon.",
-      });
+      if (existingTutor.email === email) {
+        return res
+          .status(409)
+          .json({ success: false, message: "Email already registered" });
+      }
+
+      if (existingTutor.phone === phone) {
+        return res.status(409).json({
+          success: false,
+          message: "Try to use a different phone number",
+        });
+      }
     }
 
     // 3️⃣ Save application
@@ -33,8 +43,10 @@ export const applyTutor = async (req, res) => {
       email,
       phone,
       expertise,
+      password: "",
       experience,
       role: "TUTOR",
+      status: "INACTIVE",
     });
 
     // 4️⃣ Success response

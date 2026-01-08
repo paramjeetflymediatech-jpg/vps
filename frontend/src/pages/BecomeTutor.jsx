@@ -160,7 +160,7 @@ const BecomeTutor = () => {
                     </div>
                     <h3 className="text-3xl font-bold text-slate-900 mb-4">Application Received!</h3>
                     <p className="text-slate-600">
-                      Thank you for your interest in <strong>The English Raj</strong>. <br /> Our HR team will review your profile and contact you within 48 business hours.
+                      Thank you for your interest in <strong>The English Raj</strong>. <br /> Our HR team will review your profile and send a mail on your e-mail id within 48 business hours.
                     </p>
                   </div>
                 )}

@@ -11,49 +11,66 @@ export const register = async (req, res) => {
     const { name, email, phone, password } = req.body;
     const emailLower = String(email).toLowerCase();
 
-    // Basic validation
+    // 1️⃣ Basic validation
     if (!name || !email || !phone || !password) {
       return res.status(400).json({ message: "All fields are required" });
     }
-    // Check if user already exists
-    const userExists = await User.findOne({ email: emailLower });
+
+    // 2️⃣ Check email or phone already exists
+    const userExists = await User.findOne({
+      $or: [{ email: emailLower }, { phone }],
+    });
 
     if (userExists) {
-      return res.status(400).json({ message: "Email already registered" });
+      if (userExists.email === emailLower) {
+        return res.status(400).json({ message: "Email already registered" });
+      }
+
+      if (userExists.phone === phone) {
+        return res
+          .status(400)
+          .json({ message: "Try to use a different phone number" });
+      }
     }
 
-    const hashed = await bcrypt.hash(password, 10);
+    // 3️⃣ Hash password
+    const hashedPassword = await bcrypt.hash(password, 10);
 
+    // 4️⃣ Create user
     await User.create({
       name,
       email: emailLower,
       phone,
-      password: hashed,
+      password: hashedPassword,
       isVerified: false,
     });
 
+    // 5️⃣ Generate OTP
     const otp = generateOtp();
 
     await Otp.create({
       email: emailLower,
       otp,
-      expiresAt: Date.now() + 5 * 60 * 1000, // 5 min
+      expiresAt: Date.now() + 5 * 60 * 1000, // 5 minutes
     });
-    // Sending email shouldn't block registration — handle failure gracefully
+
+    // 6️⃣ Send OTP (non-blocking)
     try {
       await sendOtpEmail(emailLower, otp);
-      return res
-        .status(201)
-        .json({ success: true, message: "OTP sent to email" });
+      return res.status(201).json({
+        success: true,
+        message: "OTP sent to email",
+      });
     } catch (emailErr) {
       console.error("Email send error:", emailErr);
-      return res
-        .status(201)
-        .json({ success: true, message: "Registered — failed to send OTP" });
+      return res.status(201).json({
+        success: true,
+        message: "Registered, but failed to send OTP",
+      });
     }
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Server error" });
+    console.error("Register error:", error);
+    return res.status(500).json({ message: "Server error" });
   }
 };
 
@@ -291,19 +308,18 @@ export const login = async (req, res) => {
       });
     }
 
-    // 5️⃣ Email verification check
-    if (!user.isVerified) {
-      return res.status(401).json({
-        success: false,
-        message: "Please verify your email first",
-      });
-    }
-
     // Inactive account check - block any non-ACTIVE account
     if (user.status !== "ACTIVE") {
       return res.status(403).json({
         success: false,
         message: "Your account is inactive. Please contact support.",
+      });
+    }
+    // 5️⃣ Email verification check
+    if (!user.isVerified) {
+      return res.status(403).json({
+        success: false,
+        message: "Please verify your email first",
       });
     }
 

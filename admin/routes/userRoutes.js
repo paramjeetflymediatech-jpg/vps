@@ -189,9 +189,30 @@ router.post("/toggle-status", auth, role("ADMIN"), async (req, res) => {
     if (!user) return res.status(404).json({ message: "User not found" });
 
     user.status = user.status === "ACTIVE" ? "INACTIVE" : "ACTIVE";
-
+    console.log(user, "user");
     if (user.status === "ACTIVE" && !user.isVerified) {
       user.isVerified = true;
+    }
+    console.log(user.password == "", "usr");
+    if (user.password == "") {
+      user.isVerified = false;
+    }
+    if (user.status === "ACTIVE") {
+      const token = crypto.randomBytes(32).toString("hex");
+      user.resetToken = token;
+      user.resetTokenExpiry = Date.now() + 1000 * 60 * 30; // 30 mins
+      const link = `${process.env.BASE_URL}/admin/users/setup-password/${token}`;
+
+      await sendMail({
+        to: user.email,
+        subject: "Set your password",
+        html: `
+          <p>Your tutor account has been created.</p>
+          <p>Click below to set your password:</p>
+          <a href="${link}">Set Password</a>
+          <p>This link expires in 30 minutes.</p>
+        `,
+      });
     }
 
     await user.save();

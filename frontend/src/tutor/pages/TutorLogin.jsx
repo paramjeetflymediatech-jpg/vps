@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { FiEye, FiEyeOff } from "react-icons/fi";
-import { tutorLogin } from "@/api/tutorApi"; 
+import { tutorLogin } from "@/api/tutorApi";
 
 const TutorLogin = () => {
   const navigate = useNavigate();
@@ -23,6 +23,13 @@ const TutorLogin = () => {
       localStorage.setItem("user", JSON.stringify(res.data.user));
       navigate("/tutor/dashboard");
     } catch (err) {
+      if (
+        err.response?.status === 403 &&
+        err.response?.data?.message === "Please verify your email first"
+      ) {
+        navigate("/register-otp", { state: { email } });
+        return;
+      }
       setError(err.response?.data?.message || "Login failed");
     } finally {
       setLoading(false);
