@@ -1,0 +1,169 @@
+<%- include('../layouts/header') %>
+<%- include('../layouts/sidebar') %>
+<main class="flex-1 md:ml-64 p-4 md:p-6 bg-gray-100 min-h-screen">
+  <!-- MOBILE HEADER -->
+  <div class="flex items-center justify-between mb-6 md:hidden">
+    <button class="menu-btn bg-blue-600 text-white px-3 py-2 rounded">☰</button>
+    <h1 class="text-xl font-semibold">Edit Package</h1>
+  </div>
+
+  <!-- DESKTOP HEADER -->
+  <div class="hidden md:flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-semibold">Edit Package</h1>
+  </div>
+
+  <div class="mx-auto p-3 bg-white rounded-xl shadow max-w-3xl">
+    <% if (error) { %>
+      <div class="bg-red-100 text-red-700 p-3 rounded mb-4">
+        <%= error %>
+      </div>
+    <% } %>
+
+    <form
+      action="/admin/packages/edit/<%= pkg._id %>"
+      method="POST"
+      class="space-y-5"
+    >
+      <!-- TITLE -->
+      <div>
+        <label class="block text-sm font-medium mb-1">Title</label>
+        <input
+          type="text"
+          name="title"
+          value="<%= pkg.title %>"
+          required
+          class="w-full border rounded px-4 py-2"
+        />
+      </div>
+
+      <!-- DESCRIPTION -->
+      <div>
+        <label class="block text-sm font-medium mb-1">Description</label>
+        <textarea
+          name="description"
+          rows="4"
+          required
+          class="w-full border rounded px-4 py-2"
+        ><%= pkg.description %></textarea>
+      </div>
+
+      <!-- LEVEL -->
+      <div>
+        <label class="block text-sm font-medium mb-1">Level</label>
+        <select
+          name="level"
+          class="w-full border rounded px-4 py-2"
+        >
+          <option value="" <%= !pkg.level ? 'selected' : '' %>>-- Select Level --</option>
+          <option value="BEGINNER" <%= pkg.level === 'BEGINNER' ? 'selected' : '' %>>Beginner</option>
+          <option value="INTERMEDIATE" <%= pkg.level === 'INTERMEDIATE' ? 'selected' : '' %>>Intermediate</option>
+          <option value="ADVANCED" <%= pkg.level === 'ADVANCED' ? 'selected' : '' %>>Advanced</option>
+        </select>
+      </div>
+
+      <!-- CATEGORY -->
+      <div>
+        <label class="block text-sm font-medium mb-1">Category</label>
+        <select
+          name="category"
+          class="w-full border rounded px-4 py-2"
+        >
+          <option value="" <%= !pkg.category ? 'selected' : '' %>>-- Select Category --</option>
+          <option value="GENERAL_ENGLISH" <%= pkg.category === 'GENERAL_ENGLISH' ? 'selected' : '' %>>General English</option>
+          <option value="SPOKEN_ENGLISH" <%= pkg.category === 'SPOKEN_ENGLISH' ? 'selected' : '' %>>Spoken English</option>
+          <option value="EXAM_PREP" <%= pkg.category === 'EXAM_PREP' ? 'selected' : '' %>>Exam Prep (IELTS/TOEFL)</option>
+          <option value="BUSINESS_ENGLISH" <%= pkg.category === 'BUSINESS_ENGLISH' ? 'selected' : '' %>>Business English</option>
+        </select>
+      </div>
+
+      <!-- COURSES MULTISELECT -->
+      <div>
+        <label class="block text-sm font-medium mb-1">Include Courses</label>
+        <p class="text-xs text-gray-500 mb-1">
+          Hold Ctrl (Windows) or Cmd (Mac) to select multiple courses.
+        </p>
+        <select
+          name="courses"
+          multiple
+          required
+          class="w-full border rounded px-4 py-2 min-h-[120px]"
+        >
+          <% const selectedIds = (pkg.courses || []).map(c => c.toString()); %>
+          <% courses.forEach(course => { %>
+            <option
+              value="<%= course._id %>"
+              <%= selectedIds.includes(course._id.toString()) ? 'selected' : '' %>
+            >
+              <%= course.title %> (₹<%= course.price %>)
+            </option>
+          <% }) %>
+        </select>
+      </div>
+
+      <!-- PRICING -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium mb-1">Price (₹)</label>
+          <input
+            type="number"
+            name="price"
+            min="0"
+            value="<%= pkg.price %>"
+            class="w-full border rounded px-4 py-2"
+          />
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">Discount Price (₹)</label>
+          <input
+            type="number"
+            name="discountPrice"
+            min="0"
+            value="<%= pkg.discountPrice || '' %>"
+            class="w-full border rounded px-4 py-2"
+          />
+        </div>
+      </div>
+
+      <!-- ACCESS DURATION -->
+      <div>
+        <label class="block text-sm font-medium mb-1">Access Duration (days)</label>
+        <input
+          type="number"
+          name="accessDurationDays"
+          min="0"
+          value="<%= pkg.accessDurationDays || '' %>"
+          class="w-full border rounded px-4 py-2"
+        />
+      </div>
+
+      <!-- PUBLISHED -->
+      <div class="flex items-center gap-2">
+        <input
+          type="checkbox"
+          name="published"
+          id="published"
+          <%= pkg.published ? 'checked' : '' %>
+        />
+        <label for="published">Published</label>
+      </div>
+
+      <!-- ACTIONS -->
+      <div class="flex gap-3">
+        <button
+          type="submit"
+          class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700"
+        >
+          Update Package
+        </button>
+        <a
+          href="/admin/packages"
+          class="bg-gray-200 px-6 py-2 rounded"
+        >
+          Cancel
+        </a>
+      </div>
+    </form>
+  </div>
+</main>
+
+<%- include('../layouts/footer') %>

@@ -1,0 +1,161 @@
+<%- include('../layouts/header') %>
+<%- include('../layouts/sidebar') %>
+
+<body class="bg-gray-100 text-gray-800">
+<main class="w-full md:ml-64 px-3 sm:px-6 py-6">
+  <div class="max-w-7xl mx-auto">
+    <!-- MOBILE HEADER -->
+    <div class="flex items-center justify-between mb-6 md:hidden">
+      <button class="menu-btn bg-blue-600 text-white px-4 py-2 rounded-lg shadow">
+        ☰
+      </button>
+      <h1 class="text-lg font-semibold">Packages</h1>
+      <a
+        href="/admin/packages/add"
+        class="bg-blue-600 text-white px-3 py-2 rounded-lg text-sm"
+      >
+        + Add
+      </a>
+    </div>
+
+    <!-- DESKTOP HEADER -->
+    <div class="hidden md:flex items-center justify-between mb-6">
+      <h1 class="text-2xl font-semibold">Course Packages</h1>
+      <a
+        href="/admin/packages/add"
+        class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition text-sm"
+      >
+        + Add Package
+      </a>
+    </div>
+
+    <!-- DESKTOP TABLE -->
+    <div class="hidden md:block bg-white rounded-xl shadow overflow-x-auto">
+      <table class="min-w-full text-sm border-collapse">
+        <thead>
+          <tr class="border-b bg-gray-50 text-gray-600">
+            <th class="py-3 px-4 text-left">Title</th>
+            <th class="py-3 px-4 text-left">Courses</th>
+            <th class="py-3 px-4 text-left">Level</th>
+            <th class="py-3 px-4 text-left">Price</th>
+            <th class="py-3 px-4 text-left">Status</th>
+            <th class="py-3 px-4 text-left">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if (!packages || packages.length === 0) { %>
+            <tr>
+              <td colspan="6" class="text-center py-6 text-gray-500">
+                No packages found
+              </td>
+            </tr>
+          <% } %>
+
+          <% packages.forEach(pkg => { %>
+            <tr class="border-b hover:bg-gray-50 transition">
+              <td class="py-3 px-4 font-medium">
+                <%= pkg.title %>
+              </td>
+              <td class="py-3 px-4 text-xs text-gray-700">
+                <% if (pkg.courses && pkg.courses.length) { %>
+                  <%= pkg.courses.map(c => c.title).join(', ') %>
+                <% } else { %>
+                  -
+                <% } %>
+              </td>
+              <td class="py-3 px-4">
+                <%= pkg.level || '-' %>
+              </td>
+              <td class="py-3 px-4">
+                ₹<%= pkg.price %>
+                <% if (pkg.discountPrice) { %>
+                  <span class="text-xs text-gray-500 line-through ml-1">
+                    ₹<%= pkg.discountPrice %>
+                  </span>
+                <% } %>
+              </td>
+              <td class="py-3 px-4">
+                <span
+                  class="px-3 py-1 rounded-full text-xs font-semibold
+                  <%= pkg.published
+                    ? 'bg-green-100 text-green-700'
+                    : 'bg-yellow-100 text-yellow-700' %>"
+                >
+                  <%= pkg.published ? 'Published' : 'Draft' %>
+                </span>
+              </td>
+              <td class="py-3 px-4 space-x-4">
+                <a
+                  href="/admin/packages/edit/<%= pkg._id %>"
+                  class="text-blue-600 hover:underline"
+                >
+                  Edit
+                </a>
+                <form
+                  method="POST"
+                  action="/admin/packages/delete/<%= pkg._id %>"
+                  class="inline"
+                  onsubmit="return confirm('Delete this package?')"
+                >
+                  <button class="text-red-600 hover:underline">
+                    Delete
+                  </button>
+                </form>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- MOBILE CARDS -->
+    <div class="md:hidden grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+      <% packages.forEach(pkg => { %>
+        <div class="bg-white border rounded-xl p-4 shadow-sm">
+          <h3 class="font-semibold text-gray-800 mb-1">
+            <%= pkg.title %>
+          </h3>
+          <p class="text-xs text-gray-600 mb-1">
+            Courses:
+            <% if (pkg.courses && pkg.courses.length) { %>
+              <%= pkg.courses.map(c => c.title).join(', ') %>
+            <% } else { %>
+              -
+            <% } %>
+          </p>
+          <p class="text-sm text-gray-700">
+            Price: ₹<%= pkg.price %>
+          </p>
+          <span
+            class="inline-block mt-2 px-3 py-1 rounded-full text-xs font-semibold
+            <%= pkg.published
+              ? 'bg-green-100 text-green-700'
+              : 'bg-yellow-100 text-yellow-700' %>"
+          >
+            <%= pkg.published ? 'Published' : 'Draft' %>
+          </span>
+          <div class="mt-4 flex justify-between">
+            <a
+              href="/admin/packages/edit/<%= pkg._id %>"
+              class="text-blue-600 font-medium"
+            >
+              Edit
+            </a>
+            <form
+              method="POST"
+              action="/admin/packages/delete/<%= pkg._id %>"
+              onsubmit="return confirm('Delete this package?')"
+            >
+              <button class="text-red-600 font-medium">
+                Delete
+              </button>
+            </form>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+  </div>
+</main>
+
+<%- include('../layouts/footer') %>
+</body>
