@@ -22,7 +22,7 @@ const MainLayout = () => {
       </main>
 
       {/* 👉 Courses Pricing ONLY on Home */}
-      {isHome && <CoursesPricing />}
+      {/* {isHome && <CoursesPricing />} */}
 
 
       {/* 👉 Learning Goal ONLY on Front Page */}
