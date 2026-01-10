@@ -123,7 +123,7 @@ const StudentSidebar = ({ sidebarOpen, setSidebarOpen }) => {
 
           <button
             onClick={handleLogout}
-            className="w-full flex items-center justify-center gap-2 py-2
+            className="w-full flex items-center justify-center gap-2 py-2 cursor-pointer
             rounded-xl bg-red-500/20 text-red-100
             hover:bg-red-500 hover:text-white
             transition-all text-xs font-bold"
