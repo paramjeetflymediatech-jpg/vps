@@ -2,28 +2,46 @@
 
 import { usePathname } from "next/navigation";
 import { Toaster } from "react-hot-toast";
+
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import LearningGoal from "@/components/LearningGoal";
+import Testimonials from "@/views/Testimonials";
 
 export default function AppShell({ children }) {
   const pathname = usePathname();
 
+  const isHome = pathname === "/";
+  const isTutors = pathname === "/tutors";
+
   const isStudent = pathname.startsWith("/student");
-  // Treat only /tutor and /tutor/... (not /tutors) as tutor dashboard area
+
+  // Only /tutor or /tutor/... (NOT /tutors)
   const isTutorSection =
     (pathname === "/tutor" || pathname.startsWith("/tutor/")) &&
     pathname !== "/tutor/login";
 
+  // Dashboards manage their own layout
   if (isStudent || isTutorSection) {
-    // Student and tutor dashboard pages manage their own layout (header/sidebar/footer)
     return children;
   }
 
   return (
     <>
       <Toaster position="top-right" reverseOrder={false} />
+
       <Header />
-      <main className="min-h-[80vh]">{children}</main>
+
+      <main className="min-h-[80vh]">
+        {children}
+      </main>
+
+      {/* 👉 Learning Goal ONLY on Home */}
+      {isHome && <LearningGoal />}
+
+      {/* 👉 Testimonials on Home + Tutors */}
+      {(isHome || isTutors) && <Testimonials />}
+
       <Footer />
     </>
   );

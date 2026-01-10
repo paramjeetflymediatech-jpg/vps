@@ -1,6 +1,6 @@
 import Header from "./Header";
 import Footer from "./Footer";
-import CoursesPricing from "./CoursesPricing";
+// import CoursesPricing from "./CoursesPricing";
 import Testimonials from "../views/Testimonials";
 import LearningGoal from "../components/LearningGoal"; // 👈 add this
 

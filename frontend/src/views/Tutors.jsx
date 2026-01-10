@@ -212,9 +212,11 @@ const Tutors = () => {
       <section className="bg-white border-t border-slate-100 py-20 text-center">
         <h2 className="text-3xl font-bold text-slate-900 mb-6">Can't find the right match?</h2>
         <p className="text-slate-500 mb-8">Our advisors can help you choose the perfect tutor for your goals.</p>
-        <button className="px-10 py-4 border-2 border-slate-900 text-slate-900 rounded-full font-bold hover:bg-slate-900 hover:text-white transition-all">
-          Contact Support
-        </button>
+        <Link href="/contact">
+  <button className="px-10 py-4 border-2  text-slate-900 rounded-full font-bold hover:bg-[#6335F8] hover:text-white transition-all cursor-pointer">
+    Contact Support
+  </button>
+</Link>
       </section>
     </div>
   );
