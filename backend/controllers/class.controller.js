@@ -9,21 +9,33 @@ import User from "../models/User.js";
 const isValidObjectId = (id) => mongoose.Types.ObjectId.isValid(id);
 
 /**
+ * Helper: normalize schedule from request body.
+ * Accepts either an array of slots or an object map (e.g. { 0: {...}, 1: {...} }).
+ */
+const normalizeSchedule = (raw) => {
+  if (!raw) return [];
+  if (Array.isArray(raw)) return raw;
+  if (typeof raw === "object") return Object.values(raw);
+  return [];
+};
+
+/**
  * Helper: sort schedule by weekday + startTime (Mon..Sun, then time)
  */
 const sortSchedule = (schedule = []) => {
   const dayOrder = { Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6, Sun: 7 };
-  return [...schedule].sort((a, b) => {
+  const normalized = normalizeSchedule(schedule);
+  return [...normalized].sort((a, b) => {
     const da = dayOrder[a.day] || 999;
     const db = dayOrder[b.day] || 999;
     if (da !== db) return da - db;
 
     const ta = (a.startTime || "").padStart(5, "0");
     const tb = (b.startTime || "").padStart(5, "0");
+    const days = normalized.map((s) => s.day);
     return ta.localeCompare(tb);
   });
 };
-
 /**
  * Helper: find if a tutor has any schedule clash (same day + overlapping time)
  * for UPCOMING / ONGOING classes (ignores date ranges).
@@ -33,11 +45,12 @@ const findTutorScheduleClash = async ({
   schedule,
   excludeClassId,
 }) => {
-  if (!tutorId || !Array.isArray(schedule) || !schedule.length) {
+  const normalized = normalizeSchedule(schedule);
+  if (!tutorId || !Array.isArray(normalized) || !normalized.length) {
     return null;
   }
 
-  const days = schedule.map((s) => s.day);
+  const days = normalized.map((s) => s.day);
 
   const query = {
     tutorId,
@@ -55,10 +68,11 @@ const findTutorScheduleClash = async ({
     if (!Array.isArray(cls.schedule)) return false;
 
     return cls.schedule.some((existingSlot) => {
-      if (!existingSlot.day || !existingSlot.startTime || !existingSlot.endTime) return false;
+      if (!existingSlot.day || !existingSlot.startTime || !existingSlot.endTime)
+        return false;
       if (!days.includes(existingSlot.day)) return false;
 
-      return schedule.some((newSlot) => {
+      return normalized.some((newSlot) => {
         if (newSlot.day !== existingSlot.day) return false;
 
         const s1 = newSlot.startTime;
@@ -123,13 +137,15 @@ export const createClass = async (req, res) => {
       });
     }
 
-    if (!Array.isArray(schedule) || schedule.length === 0) {
+    const normalizedSchedule = normalizeSchedule(schedule);
+
+    if (!Array.isArray(normalizedSchedule) || normalizedSchedule.length === 0) {
       return res.status(400).json({
         message: "Schedule is required",
       });
     }
 
-    const sortedSchedule = sortSchedule(schedule);
+    const sortedSchedule = sortSchedule(normalizedSchedule);
 
     // ObjectId validation
     if (!isValidObjectId(courseId) || !isValidObjectId(tutorId)) {
@@ -312,7 +328,9 @@ export const updateClass = async (req, res) => {
     }
 
     /* ================= SCHEDULE VALIDATION ================= */
-    const schedule = updates.schedule || existingClass.schedule;
+    const schedule = normalizeSchedule(
+      updates.schedule || existingClass.schedule
+    );
 
     if (!Array.isArray(schedule) || schedule.length === 0) {
       return res.status(400).json({

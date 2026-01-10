@@ -25,13 +25,41 @@ exports.renderPackages = async (req, res) => {
       query.organizationId = req.user.organizationId;
     }
 
-    const packages = await CoursePackage.find(query)
-      .populate("courses", "title price")
-      .populate("createdBy", "name email")
-      .sort({ createdAt: -1 })
-      .lean();
+    const page = Math.max(parseInt(req.query.page, 10) || 1, 1);
+    const limit = Math.max(parseInt(req.query.limit, 10) || 10, 1);
 
-    res.render("packages/list", { packages });
+    const sortTitle =
+      req.query.sortTitle === "asc" || req.query.sortTitle === "desc"
+        ? req.query.sortTitle
+        : "";
+
+    const sort = {};
+    if (sortTitle) {
+      sort.title = sortTitle === "asc" ? 1 : -1;
+    }
+    sort.createdAt = -1;
+
+    const [packages, total] = await Promise.all([
+      CoursePackage.find(query)
+        .populate("courses", "title price")
+        .populate("createdBy", "name email")
+        .sort(sort)
+        .skip((page - 1) * limit)
+        .limit(limit)
+        .lean(),
+      CoursePackage.countDocuments(query),
+    ]);
+
+    const totalPages = Math.max(Math.ceil(total / limit) || 1, 1);
+
+    res.render("packages/list", {
+      packages,
+      page,
+      totalPages,
+      limit,
+      total,
+      sortTitle,
+    });
   } catch (error) {
     console.error(error);
     req.flash("error", error.message);

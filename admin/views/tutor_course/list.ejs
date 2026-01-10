@@ -44,7 +44,18 @@
         <thead>
           <tr class="border-b bg-gray-50 text-gray-600">
             <th class="py-3 px-4 text-left">Image</th>
-            <th class="py-3 px-4 text-left">Title</th>
+            <th class="py-3 px-4 text-left">
+              <div class="flex items-center gap-2">
+                <span>Title</span>
+                <a
+                  href="/admin/courses?sortTitle=<%= sortTitle === 'asc' ? 'desc' : 'asc' %>"
+                  class="text-xs text-gray-500 hover:text-gray-800"
+                  title="Sort by title"
+                >
+                  <%= sortTitle === 'asc' ? '▲' : sortTitle === 'desc' ? '▼' : '↕' %>
+                </a>
+              </div>
+            </th>
             <th class="py-3 px-4 text-left">Price</th>
             <th class="py-3 px-4 text-left">Status</th>
             <th class="py-3 px-4 text-left">Action</th>
@@ -113,6 +124,34 @@
         </tbody>
       </table>
     </div>
+
+    <!-- Pagination -->
+    <% if (typeof page !== 'undefined' && typeof totalPages !== 'undefined' && totalPages > 1) { %>
+    <div class="mt-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-sm text-gray-600">
+      <div>
+        Page <span class="font-semibold"><%= page %></span> of <span class="font-semibold"><%= totalPages %></span>
+        (<%= total %> courses)
+      </div>
+      <div class="space-x-2">
+        <% if (page > 1) { %>
+          <a
+            href="/admin/courses?page=<%= page - 1 %>&limit=<%= limit %><% if (sortTitle) { %>&sortTitle=<%= sortTitle %><% } %>"
+            class="px-3 py-1 border rounded-lg bg-white hover:bg-gray-50"
+          >
+            Previous
+          </a>
+        <% } %>
+        <% if (page < totalPages) { %>
+          <a
+            href="/admin/courses?page=<%= page + 1 %>&limit=<%= limit %><% if (sortTitle) { %>&sortTitle=<%= sortTitle %><% } %>"
+            class="px-3 py-1 border rounded-lg bg-white hover:bg-gray-50"
+          >
+            Next
+          </a>
+        <% } %>
+      </div>
+    </div>
+    <% } %>
 
     <!-- ================= MOBILE / TABLET CARDS ================= -->
     <div class="md:hidden grid grid-cols-1 sm:grid-cols-2 gap-4">

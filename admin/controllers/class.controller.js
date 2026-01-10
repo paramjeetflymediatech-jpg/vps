@@ -3,21 +3,33 @@ const Course = require("../models/courseModel");
 const User = require("../models/userModel");
 
 /**
+ * Helper: normalize schedule from request body.
+ * Accepts either an array of slots or an object map (e.g. { 0: {...}, 1: {...} }).
+ */
+function normalizeSchedule(raw) {
+  if (!raw) return [];
+  if (Array.isArray(raw)) return raw;
+  if (typeof raw === "object") return Object.values(raw);
+  return [];
+}
+
+/**
  * Helper: sort schedule by weekday + startTime (Mon..Sun, then time)
  */
 function sortSchedule(schedule = []) {
   const dayOrder = { Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6, Sun: 7 };
-  return [...schedule].sort((a, b) => {
+  const normalized = normalizeSchedule(schedule);
+  return [...normalized].sort((a, b) => {
     const da = dayOrder[a.day] || 999;
     const db = dayOrder[b.day] || 999;
     if (da !== db) return da - db;
 
     const ta = (a.startTime || "").padStart(5, "0");
-    const tb = (b.startTime || "").padStart(5, "0");
-    return ta.localeCompare(tb);
+    const tb = (b.startTime || "").padStart(5, "0");  
+    const days = normalized.map((s) => s.day);
+       return ta.localeCompare(tb);
   });
 }
-
 /**
  * Helper: find if a tutor has any schedule clash (same day + overlapping time)
  * for UPCOMING / ONGOING classes (ignores date ranges).
@@ -27,11 +39,12 @@ async function findTutorScheduleClash({
   schedule,
   excludeClassId,
 }) {
-  if (!tutorId || !Array.isArray(schedule) || !schedule.length) {
+  const normalized = normalizeSchedule(schedule);
+  if (!tutorId || !Array.isArray(normalized) || !normalized.length) {
     return null;
   }
 
-  const days = schedule.map((s) => s.day);
+  const days = normalized.map((s) => s.day);
 
   const query = {
     tutorId,
@@ -53,7 +66,7 @@ async function findTutorScheduleClash({
         return false;
       if (!days.includes(existingSlot.day)) return false;
 
-      return schedule.some((newSlot) => {
+      return normalized.some((newSlot) => {
         if (newSlot.day !== existingSlot.day) return false;
 
         const s1 = newSlot.startTime;
@@ -77,12 +90,41 @@ async function findTutorScheduleClash({
  */
 exports.renderClasses = async (req, res) => {
   try {
-    const data = await Class.find()
-      .populate("courseId", "title")
-      .populate("tutorId", "name email")
-      .lean();
+    const page = Math.max(parseInt(req.query.page, 10) || 1, 1);
+    const limit = Math.max(parseInt(req.query.limit, 10) || 10, 1);
 
-    res.render("batches/index", { data });
+    const sortTitle =
+      req.query.sortTitle === "asc" || req.query.sortTitle === "desc"
+        ? req.query.sortTitle
+        : "";
+
+    const sort = {};
+    if (sortTitle) {
+      sort.title = sortTitle === "asc" ? 1 : -1;
+    }
+    sort.createdAt = -1;
+
+    const [data, total] = await Promise.all([
+      Class.find()
+        .populate("courseId", "title")
+        .populate("tutorId", "name email")
+        .sort(sort)
+        .skip((page - 1) * limit)
+        .limit(limit)
+        .lean(),
+      Class.countDocuments(),
+    ]);
+
+    const totalPages = Math.max(Math.ceil(total / limit) || 1, 1);
+
+    res.render("batches/index", {
+      data,
+      page,
+      totalPages,
+      limit,
+      total,
+      sortTitle,
+    });
   } catch (error) {
     console.error(error);
     req.flash("error", error.message);
@@ -119,9 +161,11 @@ exports.createClass = async (req, res) => {
 
     const { courseId, tutorId, startDate, endDate } = req.body;
 
+    const normalizedSchedule = normalizeSchedule(schedule);
+
     const clash = await findTutorScheduleClash({
       tutorId,
-      schedule,
+      schedule: normalizedSchedule,
     });
 
     if (clash) {
@@ -138,7 +182,7 @@ exports.createClass = async (req, res) => {
       meetLink: req.body.meetLink,
       title,
       description,
-      schedule: sortSchedule(schedule),
+      schedule: sortSchedule(normalizedSchedule),
       maxStudents: Number(maxStudents),
       status,
     });
@@ -207,9 +251,11 @@ exports.updateClass = async (req, res) => {
 
     const effectiveTutorId = req.body.tutorId || existingClass.tutorId;
 
+    const normalizedSchedule = normalizeSchedule(schedule);
+
     const clash = await findTutorScheduleClash({
       tutorId: effectiveTutorId,
-      schedule,
+      schedule: normalizedSchedule,
       excludeClassId: req.params.id,
     });
 
@@ -225,7 +271,7 @@ exports.updateClass = async (req, res) => {
         meetingLink,
         startDate,
         endDate,
-        schedule: sortSchedule(schedule),
+        schedule: sortSchedule(normalizedSchedule),
         price: Number(price),
         maxStudents: Number(maxStudents),
         status,

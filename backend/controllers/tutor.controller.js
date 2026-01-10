@@ -9,7 +9,7 @@ const isValidObjectId = (id) => mongoose.Types.ObjectId.isValid(id);
 export const listTutors = async (req, res) => {
   try {
     const { organizationId } = req.query;
-    const filter = { role: "TUTOR", status: "ACTIVE" };
+    const filter = { role: "TUTOR",isVerified:true, status: "ACTIVE" };
 
     if (organizationId) {
       filter.organizationId = organizationId;

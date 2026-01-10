@@ -15,11 +15,41 @@ const cloudinary = require("../middlewares/index");
 
 router.get("/", auth, role("ADMIN"), async (req, res) => {
   try {
-    const data = await Course.find({ _id: { $ne: req.user.id } })
-      .sort({ createdAt: -1 })
-      .lean();
+    const page = Math.max(parseInt(req.query.page, 10) || 1, 1);
+    const limit = Math.max(parseInt(req.query.limit, 10) || 10, 1);
 
-    res.render("tutor_course/list", { courses: data });
+    const sortTitle =
+      req.query.sortTitle === "asc" || req.query.sortTitle === "desc"
+        ? req.query.sortTitle
+        : "";
+
+    const query = { _id: { $ne: req.user.id } };
+
+    const sort = {};
+    if (sortTitle) {
+      sort.title = sortTitle === "asc" ? 1 : -1;
+    }
+    sort.createdAt = -1;
+
+    const [courses, total] = await Promise.all([
+      Course.find(query)
+        .sort(sort)
+        .skip((page - 1) * limit)
+        .limit(limit)
+        .lean(),
+      Course.countDocuments(query),
+    ]);
+
+    const totalPages = Math.max(Math.ceil(total / limit) || 1, 1);
+
+    res.render("tutor_course/list", {
+      courses,
+      page,
+      totalPages,
+      limit,
+      total,
+      sortTitle,
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Failed to load users" });

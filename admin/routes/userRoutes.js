@@ -12,11 +12,58 @@ const sendMail = require("../utils/sendmail");
 
 router.get("/", auth, role("ADMIN"), async (req, res) => {
   try {
-    const data = await User.find({ _id: { $ne: req.user.id } })
-      .sort({ createdAt: -1 })
-      .lean();
+    // Pagination params
+    const page = Math.max(parseInt(req.query.page, 10) || 1, 1);
+    const limit = Math.max(parseInt(req.query.limit, 10) || 10, 1);
 
-    res.render("users", { data });
+    // Optional role filter and sorting
+    const roleFilter = req.query.role ? req.query.role.trim() : "";
+    const sortRole =
+      req.query.sortRole === "asc" || req.query.sortRole === "desc"
+        ? req.query.sortRole
+        : "";
+    const sortName =
+      req.query.sortName === "asc" || req.query.sortName === "desc"
+        ? req.query.sortName
+        : "";
+
+    const query = { _id: { $ne: req.user.id } };
+    if (roleFilter) {
+      query.role = roleFilter;
+    }
+
+    const sort = {};
+    if (sortName) {
+      // Primary sort by name if requested
+      sort.name = sortName === "asc" ? 1 : -1;
+    } else if (sortRole) {
+      // Otherwise sort by role if requested
+      sort.role = sortRole === "asc" ? 1 : -1;
+    }
+    // Secondary sort by newest users
+    sort.createdAt = -1;
+
+    const [users, total] = await Promise.all([
+      User.find(query)
+        .sort(sort)
+        .skip((page - 1) * limit)
+        .limit(limit)
+        .lean(),
+      User.countDocuments(query),
+    ]);
+
+    const totalPages = Math.max(Math.ceil(total / limit) || 1, 1);
+
+    res.render("users", {
+      data: users,
+      page,
+      totalPages,
+      limit,
+      total,
+      roleFilter,
+      sortRole,
+      sortName,
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Failed to load users" });
