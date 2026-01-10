@@ -93,6 +93,7 @@ const MySessions = () => {
 
             return {
               id,
+              tutorId: t.id,
               name: t.name,
               sessions: Math.floor(Math.random() * 1000) + 100,
               time: nextAvailability,
@@ -175,9 +176,12 @@ const MySessions = () => {
               <LayoutGrid size={20} className="text-[#6335F8]" />
               Book a Trial Session
             </h2>
-            <Link href="/student/allTutors" className="text-sm font-bold text-[#6335F8] hover:underline inline-block">
-  View All
-</Link>
+            <Link
+              href="/student/allTutors"
+              className="text-sm font-bold text-[#6335F8] hover:underline inline-block"
+            >
+              View All
+            </Link>
           </div>
 
           <div className="flex gap-6 overflow-x-auto pb-6 no-scrollbar">
@@ -215,7 +219,9 @@ const MySessions = () => {
                 </div>
 
                 <button
-                  onClick={() => router.push(`/student/tutor/${tutor.id}`)}
+                  onClick={() =>
+                    router.push(`/student/book-session/${tutor.id}`)
+                  }
                   className="w-full py-3.5 rounded-xl bg-purple-50 text-[#6335F8] cursor-pointer font-black text-sm hover:bg-[#6335F8] hover:text-white transition-all shadow-sm group-hover:shadow-md"
                 >
                   Book Now
@@ -226,81 +232,80 @@ const MySessions = () => {
         </div>
       </div>
 
-     {/* ---------- MODERN PAGINATION ---------- */}
-<div className="flex flex-col items-center gap-4 mt-16">
-  <div className="flex items-center bg-white p-2 rounded-2xl border border-gray-100 shadow-sm">
-    <button
-      disabled={page === 1}
-      onClick={() => setPage(page - 1)}
-      className="p-2 text-gray-400 hover:text-[#6335F8] disabled:opacity-20 transition-colors"
-    >
-      <ChevronLeft size={24} />
-    </button>
+      {/* ---------- MODERN PAGINATION ---------- */}
+      <div className="flex flex-col items-center gap-4 mt-16">
+        <div className="flex items-center bg-white p-2 rounded-2xl border border-gray-100 shadow-sm">
+          <button
+            disabled={page === 1}
+            onClick={() => setPage(page - 1)}
+            className="p-2 text-gray-400 hover:text-[#6335F8] disabled:opacity-20 transition-colors"
+          >
+            <ChevronLeft size={24} />
+          </button>
 
-    <div className="flex items-center gap-1 mx-2">
-      {/* First page */}
-      <button
-        onClick={() => setPage(1)}
-        className={`w-10 h-10 rounded-xl text-sm font-black transition-all ${
-          page === 1
-            ? "bg-[#6335F8] text-white shadow-lg shadow-[#6335F8]/20"
-            : "text-gray-400 hover:bg-gray-50 hover:text-gray-600"
-        }`}
-      >
-        1
-      </button>
-
-      {/* Ellipsis or pages 2 to TOTAL_PAGES-1 */}
-      {TOTAL_PAGES > 3 && (
-        <>
-          {page > 2 && (
-            <span className="w-10 h-10 flex items-center justify-center text-gray-400 text-sm font-black">
-              ...
-            </span>
-          )}
-          
-          {page > 1 && page < TOTAL_PAGES && (
+          <div className="flex items-center gap-1 mx-2">
+            {/* First page */}
             <button
-              onClick={() => setPage(page)}
-              className="w-10 h-10 rounded-xl text-sm font-black bg-[#6335F8] text-white shadow-lg shadow-[#6335F8]/20"
+              onClick={() => setPage(1)}
+              className={`w-10 h-10 rounded-xl text-sm font-black transition-all ${
+                page === 1
+                  ? "bg-[#6335F8] text-white shadow-lg shadow-[#6335F8]/20"
+                  : "text-gray-400 hover:bg-gray-50 hover:text-gray-600"
+              }`}
             >
-              {page}
+              1
             </button>
-          )}
-          
-          {page < TOTAL_PAGES - 1 && (
-            <span className="w-10 h-10 flex items-center justify-center text-gray-400 text-sm font-black">
-              ...
-            </span>
-          )}
-        </>
-      )}
 
-      {/* Last page */}
-      {TOTAL_PAGES > 1 && (
-        <button
-          onClick={() => setPage(TOTAL_PAGES)}
-          className={`w-10 h-10 rounded-xl text-sm font-black transition-all ${
-            page === TOTAL_PAGES
-              ? "bg-[#6335F8] text-white shadow-lg shadow-[#6335F8]/20"
-              : "text-gray-400 hover:bg-gray-50 hover:text-gray-600"
-          }`}
-        >
-          {TOTAL_PAGES}
-        </button>
-      )}
-    </div>
+            {/* Ellipsis or pages 2 to TOTAL_PAGES-1 */}
+            {TOTAL_PAGES > 3 && (
+              <>
+                {page > 2 && (
+                  <span className="w-10 h-10 flex items-center justify-center text-gray-400 text-sm font-black">
+                    ...
+                  </span>
+                )}
 
-    <button
-      disabled={page === TOTAL_PAGES}
-      onClick={() => setPage(page + 1)}
-      className="p-2 text-gray-400 hover:text-[#6335F8] disabled:opacity-20 transition-colors"
-    >
-      <ChevronRight size={24} />
-    </button>
-  </div>
-</div>
+                {page > 1 && page < TOTAL_PAGES && (
+                  <button
+                    onClick={() => setPage(page)}
+                    className="w-10 h-10 rounded-xl text-sm font-black bg-[#6335F8] text-white shadow-lg shadow-[#6335F8]/20"
+                  >
+                    {page}
+                  </button>
+                )}
 
+                {page < TOTAL_PAGES - 1 && (
+                  <span className="w-10 h-10 flex items-center justify-center text-gray-400 text-sm font-black">
+                    ...
+                  </span>
+                )}
+              </>
+            )}
+
+            {/* Last page */}
+            {TOTAL_PAGES > 1 && (
+              <button
+                onClick={() => setPage(TOTAL_PAGES)}
+                className={`w-10 h-10 rounded-xl text-sm font-black transition-all ${
+                  page === TOTAL_PAGES
+                    ? "bg-[#6335F8] text-white shadow-lg shadow-[#6335F8]/20"
+                    : "text-gray-400 hover:bg-gray-50 hover:text-gray-600"
+                }`}
+              >
+                {TOTAL_PAGES}
+              </button>
+            )}
+          </div>
+
+          <button
+            disabled={page === TOTAL_PAGES}
+            onClick={() => setPage(page + 1)}
+            className="p-2 text-gray-400 hover:text-[#6335F8] disabled:opacity-20 transition-colors"
+          >
+            <ChevronRight size={24} />
+          </button>
+        </div>
+      </div>
     </div>
   );
 };

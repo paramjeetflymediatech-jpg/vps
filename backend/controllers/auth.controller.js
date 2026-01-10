@@ -307,7 +307,13 @@ export const login = async (req, res) => {
         message: `You are not allowed to login as ${requestedRole}`,
       });
     }
-
+    // Inactive account check - block any non-ACTIVE account
+    if (user.password == "") {
+      return res.status(403).json({
+        success: false,
+        message: "Please check your email to setup password first.",
+      });
+    }
     // Inactive account check - block any non-ACTIVE account
     if (user.status !== "ACTIVE") {
       return res.status(403).json({
