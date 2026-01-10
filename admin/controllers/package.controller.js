@@ -1,5 +1,6 @@
 const CoursePackage = require("../models/coursePackage");
 const Course = require("../models/courseModel");
+const Class = require("../models/class");
 
 // Helper to generate simple unique slug from title
 function generateSlug(title) {
@@ -49,10 +50,14 @@ exports.renderCreatePackage = async (req, res) => {
     }
 
     const courses = await Course.find(query).select("_id title price").lean();
+    const classes = await Class.find({ isDeleted: false })
+      .select("_id title startDate endDate")
+      .lean();
 
     res.render("packages/add", {
       title: "Create Package",
       courses,
+      classes,
       error: null,
       formData: {},
     });
@@ -78,22 +83,29 @@ exports.createPackage = async (req, res) => {
       accessDurationDays,
     } = req.body;
 
-    let { courses } = req.body;
-    if (!courses || (Array.isArray(courses) && courses.length === 0)) {
-      req.flash("error", "Please select at least one course for the package.");
-      return res.redirect("back");
-    }
+    let { courses, classes } = req.body;
 
-    // Ensure courses is an array
-    if (!Array.isArray(courses)) {
-      courses = [courses];
+    // Normalize to arrays
+    if (courses && !Array.isArray(courses)) courses = [courses];
+    if (classes && !Array.isArray(classes)) classes = [classes];
+
+    const courseIds = courses || [];
+    const classIds = classes || [];
+
+    if (courseIds.length === 0 && classIds.length === 0) {
+      req.flash(
+        "error",
+        "Please select at least one course or class for the package."
+      );
+      return res.redirect("back");
     }
 console.log(req.user,'us')
     await CoursePackage.create({
       title,
       slug: generateSlug(title),
       description,
-      courses,
+      courses: courseIds,
+      classes: classIds,
       level,
       category,
       price: Number(price || 0),
@@ -132,10 +144,14 @@ exports.renderEditPackage = async (req, res) => {
     }
 
     const courses = await Course.find(query).select("_id title price").lean();
+    const classes = await Class.find({ isDeleted: false })
+      .select("_id title startDate endDate")
+      .lean();
 
     res.render("packages/edit", {
       pkg,
       courses,
+      classes,
       error: null,
     });
   } catch (error) {
@@ -160,14 +176,19 @@ exports.updatePackage = async (req, res) => {
       accessDurationDays,
     } = req.body;
 
-    let { courses } = req.body;
-    if (!courses || (Array.isArray(courses) && courses.length === 0)) {
-      req.flash("error", "Please select at least one course for the package.");
-      return res.redirect("back");
-    }
+    let { courses, classes } = req.body;
+    if (courses && !Array.isArray(courses)) courses = [courses];
+    if (classes && !Array.isArray(classes)) classes = [classes];
 
-    if (!Array.isArray(courses)) {
-      courses = [courses];
+    const courseIds = courses || [];
+    const classIds = classes || [];
+
+    if (courseIds.length === 0 && classIds.length === 0) {
+      req.flash(
+        "error",
+        "Please select at least one course or class for the package."
+      );
+      return res.redirect("back");
     }
 
     const updated = await CoursePackage.findByIdAndUpdate(
@@ -175,7 +196,8 @@ exports.updatePackage = async (req, res) => {
       {
         title,
         description,
-        courses,
+        courses: courseIds,
+        classes: classIds,
         level,
         category,
         price: Number(price || 0),

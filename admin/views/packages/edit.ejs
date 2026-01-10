@@ -85,18 +85,49 @@
         <select
           name="courses"
           multiple
-          required
           class="w-full border rounded px-4 py-2 min-h-[120px]"
         >
-          <% const selectedIds = (pkg.courses || []).map(c => c.toString()); %>
+          <% const selectedCourseIds = (pkg.courses || []).map(c => c.toString()); %>
           <% courses.forEach(course => { %>
             <option
               value="<%= course._id %>"
-              <%= selectedIds.includes(course._id.toString()) ? 'selected' : '' %>
+              <%= selectedCourseIds.includes(course._id.toString()) ? 'selected' : '' %>
             >
               <%= course.title %> (₹<%= course.price %>)
             </option>
           <% }) %>
+        </select>
+      </div>
+
+      <!-- CLASSES MULTISELECT (optional) -->
+      <div>
+        <label class="block text-sm font-medium mb-1">Include Classes (optional)</label>
+        <p class="text-xs text-gray-500 mb-1">
+          Hold Ctrl (Windows) or Cmd (Mac) to select multiple classes.
+        </p>
+        <select
+          name="classes"
+          multiple
+          class="w-full border rounded px-4 py-2 min-h-[120px]"
+        >
+          <% const selectedClassIds = (pkg.classes || []).map(c => c.toString()); %>
+          <% if (typeof classes !== 'undefined') { %>
+            <% classes.forEach(cls => { %>
+              <option
+                value="<%= cls._id %>"
+                <%= selectedClassIds.includes(cls._id.toString()) ? 'selected' : '' %>
+              >
+                <%= cls.title %>
+                <% if (cls.startDate && cls.endDate) { %>
+                  (
+                  <%= new Date(cls.startDate).toLocaleDateString() %>
+                  -
+                  <%= new Date(cls.endDate).toLocaleDateString() %>
+                  )
+                <% } %>
+              </option>
+            <% }) %>
+          <% } %>
         </select>
       </div>
 

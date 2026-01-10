@@ -108,6 +108,7 @@
               name="startDate"
               value="<%= classdata.startDate.toISOString().slice(0,10) %>"
               required
+              min="<%= new Date().toISOString().slice(0,10) %>"
               class="w-full border rounded-lg px-3 py-2"
             />
           </div>
@@ -119,6 +120,7 @@
               name="endDate"
               value="<%= classdata.endDate.toISOString().slice(0,10) %>"
               required
+              min="<%= new Date().toISOString().slice(0,10) %>"
               class="w-full border rounded-lg px-3 py-2"
             />
           </div>
@@ -128,6 +130,7 @@
         <div>
           <label class="block text-sm font-semibold mb-2">Schedule</label>
 
+          <div id="schedule-container">
           <% classdata.schedule.forEach((s, i) => { %>
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-2">
               <select
@@ -148,14 +151,32 @@
                 class="border rounded-lg px-3 py-2"
               />
 
-              <input
-                type="time"
-                name="schedule[<%= i %>][endTime]"
-                value="<%= s.endTime %>"
-                class="border rounded-lg px-3 py-2"
-              />
+              <div class="flex items-center gap-2">
+                <input
+                  type="time"
+                  name="schedule[<%= i %>][endTime]"
+                  value="<%= s.endTime %>"
+                  class="border rounded-lg px-3 py-2 flex-1"
+                />
+                <button
+                  type="button"
+                  class="text-red-500 text-xs font-semibold remove-schedule"
+                  title="Remove this schedule row"
+                >
+                  Remove
+                </button>
+              </div>
             </div>
           <% }) %>
+          </div>
+
+          <button
+            type="button"
+            id="add-schedule-edit"
+            class="mt-3 text-blue-600 text-xs font-semibold"
+          >
+            + Add another schedule
+          </button>
         </div>
 
         <!-- PRICE & MAX STUDENTS -->
@@ -240,6 +261,208 @@
   if (menuBtn && sidebar) {
     menuBtn.addEventListener("click", () => {
       sidebar.classList.toggle("hidden");
+    });
+  }
+
+  // ================= FILTER SCHEDULE DAY OPTIONS BY DATE RANGE =================
+  function getAllowedWeekdays() {
+    const startInput = document.querySelector('input[name="startDate"]');
+    const endInput = document.querySelector('input[name="endDate"]');
+
+    if (!startInput || !endInput || !startInput.value || !endInput.value) {
+      return null;
+    }
+
+    const start = new Date(startInput.value);
+    const end = new Date(endInput.value);
+    if (isNaN(start) || isNaN(end) || end < start) {
+      return null;
+    }
+
+    const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    const allowed = new Set();
+    const cursor = new Date(start);
+
+    while (cursor <= end) {
+      allowed.add(dayNames[cursor.getDay()]);
+      cursor.setDate(cursor.getDate() + 1);
+    }
+
+    return allowed;
+  }
+
+  function filterScheduleDaysByDateRange() {
+    const allowed = getAllowedWeekdays();
+    const selects = document.querySelectorAll(
+      'select[name^="schedule"][name$="[day]"]'
+    );
+
+    selects.forEach((sel) => {
+      const options = sel.options;
+      for (let i = 0; i < options.length; i++) {
+        const opt = options[i];
+        if (!allowed) {
+          opt.disabled = false;
+        } else {
+          opt.disabled = !allowed.has(opt.textContent.trim());
+        }
+      }
+
+      if (sel.selectedOptions.length && sel.selectedOptions[0].disabled) {
+        for (let i = 0; i < options.length; i++) {
+          if (!options[i].disabled) {
+            sel.value = options[i].textContent.trim();
+            break;
+          }
+        }
+      }
+    });
+  }
+
+  // When start/end date is today and same day, only allow remaining time today
+  function applyTodayTimeMin() {
+    const startInput = document.querySelector('input[name="startDate"]');
+    const endInput = document.querySelector('input[name="endDate"]');
+    if (!startInput || !endInput) return;
+
+    const startVal = startInput.value;
+    const endVal = endInput.value;
+    const todayStr = new Date().toISOString().slice(0, 10);
+
+    const isTodaySingleDay =
+      startVal && endVal && startVal === endVal && startVal === todayStr;
+
+    const timeInputs = document.querySelectorAll(
+      '#schedule-container input[type="time"]'
+    );
+
+    if (isTodaySingleDay) {
+      const now = new Date();
+      const hh = String(now.getHours()).padStart(2, "0");
+      const mm = String(now.getMinutes()).padStart(2, "0");
+      const minTime = `${hh}:${mm}`;
+
+      timeInputs.forEach((input) => {
+        input.min = minTime;
+        if (input.value && input.value < minTime) {
+          input.value = minTime;
+        }
+      });
+    } else {
+      timeInputs.forEach((input) => {
+        input.min = "";
+      });
+    }
+  }
+
+  document.querySelector('input[name="startDate"]').addEventListener(
+    "change",
+    () => {
+      filterScheduleDaysByDateRange();
+      applyTodayTimeMin();
+    }
+  );
+  document.querySelector('input[name="endDate"]').addEventListener(
+    "change",
+    () => {
+      filterScheduleDaysByDateRange();
+      applyTodayTimeMin();
+    }
+  );
+
+  // Initial filter for edit page
+  filterScheduleDaysByDateRange();
+  applyTodayTimeMin();
+
+  // ================= ADD NEW SCHEDULE ROW =================
+  document.getElementById("add-schedule-edit")?.addEventListener("click", () => {
+    const container = document.getElementById("schedule-container");
+    if (!container) return;
+    const index = container.children.length;
+
+    container.insertAdjacentHTML("beforeend", `
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-2">
+        <select name="schedule[${index}][day]" class="border rounded-lg px-3 py-2">
+          <option>Mon</option><option>Tue</option><option>Wed</option>
+          <option>Thu</option><option>Fri</option><option>Sat</option><option>Sun</option>
+        </select>
+        <input
+          type="time"
+          name="schedule[${index}][startTime]"
+          class="border rounded-lg px-3 py-2"
+        />
+        <div class="flex items-center gap-2">
+          <input
+            type="time"
+            name="schedule[${index}][endTime]"
+            class="border rounded-lg px-3 py-2 flex-1"
+          />
+          <button
+            type="button"
+            class="text-red-500 text-xs font-semibold remove-schedule"
+            title="Remove this schedule row"
+          >
+            Remove
+          </button>
+        </div>
+      </div>
+    `);
+
+    filterScheduleDaysByDateRange();
+    applyTodayTimeMin();
+  });
+
+  // ================= REMOVE SCHEDULE ROWS (MARK AS DISABLED) =================
+  document.addEventListener("click", (e) => {
+    if (e.target.classList.contains("remove-schedule")) {
+      const row = e.target.closest(
+        "div.grid.grid-cols-1.sm\\:grid-cols-3.gap-3.mb-2"
+      );
+      if (!row) return;
+
+      // Physically remove the row so its fields are not submitted at all
+      row.remove();
+    }
+  });
+
+  // ================= VALIDATE SCHEDULE ROWS ON SUBMIT =================
+  const editClassForm = document.querySelector('form[action^="/admin/classes/edit/"]');
+  if (editClassForm) {
+    editClassForm.addEventListener("submit", (e) => {
+      const rows = document.querySelectorAll(
+        "div.grid.grid-cols-1.sm\\:grid-cols-3.gap-3.mb-2"
+      );
+
+      let validCount = 0;
+      let error = null;
+
+      rows.forEach((row) => {
+        const startInput = row.querySelector('input[name*="[startTime]"]');
+        const endInput = row.querySelector('input[name*="[endTime]"]');
+        if (!startInput || !endInput) return;
+
+        const startVal = (startInput.value || "").trim();
+        const endVal = (endInput.value || "").trim();
+
+        if (!startVal && !endVal) {
+          error =
+            "Each schedule row must have both start and end time filled. Remove empty rows or complete them.";
+        } else if (!startVal || !endVal) {
+          error =
+            "Each schedule row must have both start and end time filled.";
+        } else {
+          validCount += 1;
+        }
+      });
+
+      if (!error && validCount === 0) {
+        error = "Please add at least one schedule with start and end time.";
+      }
+
+      if (error) {
+        e.preventDefault();
+        alert(error);
+      }
     });
   }
 </script>

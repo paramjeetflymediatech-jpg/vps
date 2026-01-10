@@ -99,6 +99,34 @@
           />
         </div>
 
+        <!-- LINK CLASSES (OPTIONAL) -->
+        <div>
+          <label class="block text-sm font-medium mb-1">Attach Classes (optional)</label>
+          <p class="text-xs text-gray-500 mb-1">
+            Hold Ctrl (Windows) or Cmd (Mac) to select multiple classes.
+          </p>
+          <select
+            name="classes"
+            multiple
+            class="w-full px-4 py-2 border rounded-lg min-h-[120px] focus:ring-2 focus:ring-blue-500 outline-none"
+          >
+            <% if (typeof classes !== 'undefined') { %>
+              <% classes.forEach(cls => { %>
+                <option value="<%= cls._id %>">
+                  <%= cls.title %>
+                  <% if (cls.startDate && cls.endDate) { %>
+                    (
+                    <%= new Date(cls.startDate).toLocaleDateString() %>
+                    -
+                    <%= new Date(cls.endDate).toLocaleDateString() %>
+                    )
+                  <% } %>
+                </option>
+              <% }) %>
+            <% } %>
+          </select>
+        </div>
+
         <!-- COURSE IMAGE -->
         <div>
           <label class="block text-sm font-medium mb-1">Course Image</label>

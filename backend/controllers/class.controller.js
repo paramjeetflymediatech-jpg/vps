@@ -9,6 +9,75 @@ import User from "../models/User.js";
 const isValidObjectId = (id) => mongoose.Types.ObjectId.isValid(id);
 
 /**
+ * Helper: sort schedule by weekday + startTime (Mon..Sun, then time)
+ */
+const sortSchedule = (schedule = []) => {
+  const dayOrder = { Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6, Sun: 7 };
+  return [...schedule].sort((a, b) => {
+    const da = dayOrder[a.day] || 999;
+    const db = dayOrder[b.day] || 999;
+    if (da !== db) return da - db;
+
+    const ta = (a.startTime || "").padStart(5, "0");
+    const tb = (b.startTime || "").padStart(5, "0");
+    return ta.localeCompare(tb);
+  });
+};
+
+/**
+ * Helper: find if a tutor has any schedule clash (same day + overlapping time)
+ * for UPCOMING / ONGOING classes (ignores date ranges).
+ */
+const findTutorScheduleClash = async ({
+  tutorId,
+  schedule,
+  excludeClassId,
+}) => {
+  if (!tutorId || !Array.isArray(schedule) || !schedule.length) {
+    return null;
+  }
+
+  const days = schedule.map((s) => s.day);
+
+  const query = {
+    tutorId,
+    status: { $in: ["UPCOMING", "ONGOING"] },
+    "schedule.day": { $in: days },
+  };
+
+  if (excludeClassId) {
+    query._id = { $ne: excludeClassId };
+  }
+
+  const classes = await Class.find(query).lean();
+
+  const clash = classes.find((cls) => {
+    if (!Array.isArray(cls.schedule)) return false;
+
+    return cls.schedule.some((existingSlot) => {
+      if (!existingSlot.day || !existingSlot.startTime || !existingSlot.endTime) return false;
+      if (!days.includes(existingSlot.day)) return false;
+
+      return schedule.some((newSlot) => {
+        if (newSlot.day !== existingSlot.day) return false;
+
+        const s1 = newSlot.startTime;
+        const e1 = newSlot.endTime;
+        const s2 = existingSlot.startTime;
+        const e2 = existingSlot.endTime;
+
+        if (!s1 || !e1 || !s2 || !e2) return false;
+
+        // Time overlap: not (one ends before the other starts)
+        return !(e1 <= s2 || e2 <= s1);
+      });
+    });
+  });
+
+  return clash || null;
+};
+
+/**
  * CREATE CLASS
  */
 export const createClass = async (req, res) => {
@@ -33,11 +102,34 @@ export const createClass = async (req, res) => {
       });
     }
 
+    // Basic date validation: no past startDate, endDate after startDate
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    if (isNaN(start) || isNaN(end)) {
+      return res.status(400).json({ message: "Invalid startDate or endDate" });
+    }
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    if (start < today) {
+      return res.status(400).json({
+        message: "startDate cannot be in the past",
+      });
+    }
+
+    if (end < start) {
+      return res.status(400).json({
+        message: "endDate must be on or after startDate",
+      });
+    }
+
     if (!Array.isArray(schedule) || schedule.length === 0) {
       return res.status(400).json({
         message: "Schedule is required",
       });
     }
+
+    const sortedSchedule = sortSchedule(schedule);
 
     // ObjectId validation
     if (!isValidObjectId(courseId) || !isValidObjectId(tutorId)) {
@@ -73,6 +165,18 @@ export const createClass = async (req, res) => {
       }
     }
 
+    // Time clash check: tutor cannot have another class at same day/time (any UPCOMING/ONGOING class)
+    const clash = await findTutorScheduleClash({
+      tutorId,
+      schedule: sortedSchedule,
+    });
+
+    if (clash) {
+      return res.status(409).json({
+        message: "Tutor already has another class at this time",
+      });
+    }
+
     // Create class
     const newClass = await Class.create({
       title,
@@ -81,7 +185,7 @@ export const createClass = async (req, res) => {
       meetingLink,
       startDate,
       endDate,
-      schedule,
+      schedule: sortedSchedule,
       status,
       maxStudents,
       price,
@@ -247,29 +351,25 @@ export const updateClass = async (req, res) => {
     }
 
     /* ================= TIME CLASH CHECK ================= */
-    // Only check if tutorId or schedule is changed
-    if (updates.tutorId || updates.schedule) {
-      const tutorId = updates.tutorId || existingClass.tutorId;
+    const effectiveTutorId = updates.tutorId || existingClass.tutorId;
 
-      const clash = await Class.findOne({
-        _id: { $ne: id },
-        tutorId,
-        status: { $in: ["UPCOMING", "ONGOING"] },
-        schedule: {
-          $elemMatch: {
-            day: { $in: schedule.map((s) => s.day) },
-          },
-        },
+    const clash = await findTutorScheduleClash({
+      tutorId: effectiveTutorId,
+      schedule,
+      excludeClassId: id,
+    });
+
+    if (clash) {
+      return res.status(409).json({
+        message: "Tutor already has another class at this time",
       });
-
-      if (clash) {
-        return res.status(409).json({
-          message: "Tutor already has a class in this schedule",
-        });
-      }
     }
 
     /* ================= UPDATE ================= */
+    if (updates.schedule) {
+      updates.schedule = sortSchedule(schedule);
+    }
+
     const updatedClass = await Class.findByIdAndUpdate(id, updates, {
       new: true,
       runValidators: true,

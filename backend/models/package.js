@@ -22,7 +22,14 @@ const coursePackageSchema = new mongoose.Schema(
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "course",
-        required: true,
+      },
+    ],
+
+    // Optional: specific live classes included in this package
+    classes: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Class",
       },
     ],
 

@@ -3,6 +3,76 @@ const Course = require("../models/courseModel");
 const User = require("../models/userModel");
 
 /**
+ * Helper: sort schedule by weekday + startTime (Mon..Sun, then time)
+ */
+function sortSchedule(schedule = []) {
+  const dayOrder = { Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6, Sun: 7 };
+  return [...schedule].sort((a, b) => {
+    const da = dayOrder[a.day] || 999;
+    const db = dayOrder[b.day] || 999;
+    if (da !== db) return da - db;
+
+    const ta = (a.startTime || "").padStart(5, "0");
+    const tb = (b.startTime || "").padStart(5, "0");
+    return ta.localeCompare(tb);
+  });
+}
+
+/**
+ * Helper: find if a tutor has any schedule clash (same day + overlapping time)
+ * for UPCOMING / ONGOING classes (ignores date ranges).
+ */
+async function findTutorScheduleClash({
+  tutorId,
+  schedule,
+  excludeClassId,
+}) {
+  if (!tutorId || !Array.isArray(schedule) || !schedule.length) {
+    return null;
+  }
+
+  const days = schedule.map((s) => s.day);
+
+  const query = {
+    tutorId,
+    status: { $in: ["UPCOMING", "ONGOING"] },
+    "schedule.day": { $in: days },
+  };
+
+  if (excludeClassId) {
+    query._id = { $ne: excludeClassId };
+  }
+
+  const classes = await Class.find(query).lean();
+
+  const clash = classes.find((cls) => {
+    if (!Array.isArray(cls.schedule)) return false;
+
+    return cls.schedule.some((existingSlot) => {
+      if (!existingSlot.day || !existingSlot.startTime || !existingSlot.endTime)
+        return false;
+      if (!days.includes(existingSlot.day)) return false;
+
+      return schedule.some((newSlot) => {
+        if (newSlot.day !== existingSlot.day) return false;
+
+        const s1 = newSlot.startTime;
+        const e1 = newSlot.endTime;
+        const s2 = existingSlot.startTime;
+        const e2 = existingSlot.endTime;
+
+        if (!s1 || !e1 || !s2 || !e2) return false;
+
+        // Time overlap: not (one ends before the other starts)
+        return !(e1 <= s2 || e2 <= s1);
+      });
+    });
+  });
+
+  return clash || null;
+}
+
+/**
  * LIST CLASSES
  */
 exports.renderClasses = async (req, res) => {
@@ -36,7 +106,7 @@ exports.renderCreateClass = async (req, res) => {
   } catch (error) {
     console.error(error);
     req.flash("error", error.message);
-    res.redirect("back");
+    res.redirect("/admin/classes/create");
   }
 };
 
@@ -45,24 +115,30 @@ exports.renderCreateClass = async (req, res) => {
  */
 exports.createClass = async (req, res) => {
   try {
-    const { 
-      title,
-      description,  
-      schedule, 
-      maxStudents,
-      status,
-    } = req.body;
+    const { title, description, schedule, maxStudents, status } = req.body;
+
+    const { courseId, tutorId, startDate, endDate } = req.body;
+
+    const clash = await findTutorScheduleClash({
+      tutorId,
+      schedule,
+    });
+
+    if (clash) {
+      req.flash("error", "Tutor already has another class at this time");
+      return res.redirect("/admin/classes/create");
+    }
 
     await Class.create({
-      courseId: req.body.courseId,
-      tutorId: req.body.tutorId,
-      startDate: req.body.startDate,
-      endDate: req.body.endDate,
+      courseId,
+      tutorId,
+      startDate,
+      endDate,
       price: req.body.price,
       meetLink: req.body.meetLink,
       title,
       description,
-      schedule,
+      schedule: sortSchedule(schedule),
       maxStudents: Number(maxStudents),
       status,
     });
@@ -72,7 +148,7 @@ exports.createClass = async (req, res) => {
   } catch (error) {
     console.error(error);
     req.flash("error", error.message);
-    res.redirect("back");
+    res.redirect("/admin/classes/create");
   }
 };
 
@@ -123,6 +199,25 @@ exports.updateClass = async (req, res) => {
       status,
     } = req.body;
 
+    const existingClass = await Class.findById(req.params.id);
+    if (!existingClass) {
+      req.flash("error", "Class not found");
+      return res.redirect("/admin/classes");
+    }
+
+    const effectiveTutorId = req.body.tutorId || existingClass.tutorId;
+
+    const clash = await findTutorScheduleClash({
+      tutorId: effectiveTutorId,
+      schedule,
+      excludeClassId: req.params.id,
+    });
+
+    if (clash) {
+      req.flash("error", "Tutor already has another class at this time");
+      return res.redirect(`/admin/classes/edit/${req.params.id}`);
+    }
+
     const updated = await Class.findByIdAndUpdate(
       req.params.id,
       {
@@ -130,7 +225,7 @@ exports.updateClass = async (req, res) => {
         meetingLink,
         startDate,
         endDate,
-        schedule,
+        schedule: sortSchedule(schedule),
         price: Number(price),
         maxStudents: Number(maxStudents),
         status,
@@ -140,11 +235,6 @@ exports.updateClass = async (req, res) => {
       },
       { new: true, runValidators: true }
     );
-
-    if (!updated) {
-      req.flash("error", "Class not found");
-      return res.redirect("/admin/classes");
-    }
 
     req.flash("success", "Class updated successfully");
     res.redirect("/admin/classes");

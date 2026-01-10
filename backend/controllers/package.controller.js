@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import CoursePackage from "../models/package.js";
 import Course from "../models/course.js";
+import Class from "../models/class.js";
 
 const isValidObjectId = (id) => mongoose.Types.ObjectId.isValid(id);
 
@@ -35,6 +36,7 @@ export const getPackages = async (req, res) => {
 
     const packages = await CoursePackage.find(filter)
       .populate("courses", "title price image")
+      .populate("classes", "title price startDate endDate")
       .sort({ createdAt: -1 });
 
     res.json({ success: true, data: packages });
@@ -60,7 +62,9 @@ export const getPackageById = async (req, res) => {
       _id: id,
       isDeleted: false,
       published: true,
-    }).populate("courses", "title description price image");
+    })
+      .populate("courses", "title description price image")
+      .populate("classes", "title price startDate endDate");
 
     if (!pkg) {
       return res.status(404).json({ message: "Package not found" });
@@ -88,29 +92,56 @@ export const createPackage = async (req, res) => {
       discountPrice,
       accessDurationDays,
       courses,
+      classes,
     } = req.body;
 
-    if (!title || !courses || !Array.isArray(courses) || courses.length === 0) {
-      return res
-        .status(400)
-        .json({ message: "Title and at least one course are required" });
+    const courseIds = Array.isArray(courses) ? courses : courses ? [courses] : [];
+    const classIds = Array.isArray(classes) ? classes : classes ? [classes] : [];
+
+    if (!title || (courseIds.length === 0 && classIds.length === 0)) {
+      return res.status(400).json({
+        message: "Title and at least one course or class is required",
+      });
     }
 
-    // Validate course ids
-    for (const courseId of courses) {
-      if (!isValidObjectId(courseId)) {
-        return res.status(400).json({ message: "Invalid course id in courses" });
+    // Validate course ids (if provided)
+    if (courseIds.length > 0) {
+      for (const courseId of courseIds) {
+        if (!isValidObjectId(courseId)) {
+          return res
+            .status(400)
+            .json({ message: "Invalid course id in courses" });
+        }
+      }
+
+      const existingCourses = await Course.find({
+        _id: { $in: courseIds },
+      }).select("_id");
+      if (existingCourses.length !== courseIds.length) {
+        return res
+          .status(400)
+          .json({ message: "One or more courses do not exist" });
       }
     }
 
-    // Optional: ensure courses exist
-    const existingCourses = await Course.find({ _id: { $in: courses } }).select(
-      "_id"
-    );
-    if (existingCourses.length !== courses.length) {
-      return res
-        .status(400)
-        .json({ message: "One or more courses do not exist" });
+    // Validate class ids (if provided)
+    if (classIds.length > 0) {
+      for (const classId of classIds) {
+        if (!isValidObjectId(classId)) {
+          return res
+            .status(400)
+            .json({ message: "Invalid class id in classes" });
+        }
+      }
+
+      const existingClasses = await Class.find({
+        _id: { $in: classIds },
+      }).select("_id");
+      if (existingClasses.length !== classIds.length) {
+        return res
+          .status(400)
+          .json({ message: "One or more classes do not exist" });
+      }
     }
 
     const pkg = await CoursePackage.create({
@@ -124,7 +155,8 @@ export const createPackage = async (req, res) => {
       accessDurationDays: accessDurationDays
         ? Number(accessDurationDays)
         : undefined,
-      courses,
+      courses: courseIds,
+      classes: classIds,
       organizationId: req.user?.organizationId || undefined,
       createdBy: req.user?._id || req.user?.id,
       published: req.body.published === "true" || req.body.published === true,
@@ -153,6 +185,7 @@ export const updatePackage = async (req, res) => {
       discountPrice,
       accessDurationDays,
       courses,
+      classes,
       published,
     } = req.body;
 
@@ -173,17 +206,28 @@ export const updatePackage = async (req, res) => {
       updates.accessDurationDays = Number(accessDurationDays);
 
     if (courses) {
-      if (!Array.isArray(courses) || courses.length === 0) {
+      const courseIds = Array.isArray(courses) ? courses : [courses];
+      if (courseIds.length === 0) {
         return res
           .status(400)
           .json({ message: "At least one course is required" });
       }
-      for (const courseId of courses) {
+      for (const courseId of courseIds) {
         if (!isValidObjectId(courseId)) {
           return res.status(400).json({ message: "Invalid course id in courses" });
         }
       }
-      updates.courses = courses;
+      updates.courses = courseIds;
+    }
+
+    if (classes) {
+      const classIds = Array.isArray(classes) ? classes : [classes];
+      for (const classId of classIds) {
+        if (!isValidObjectId(classId)) {
+          return res.status(400).json({ message: "Invalid class id in classes" });
+        }
+      }
+      updates.classes = classIds;
     }
 
     if (published !== undefined) {
