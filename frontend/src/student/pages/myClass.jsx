@@ -1,11 +1,13 @@
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Clock, Star, Search, X, ShieldCheck } from "lucide-react";
 import toast, { Toaster } from "react-hot-toast";
 import { getStudentClasses } from "@/api/student.api";
 
 const BookSession = () => {
+  const router = useRouter();
   const [activeDate, setActiveDate] = useState(0);
   const [selectedSlot, setSelectedSlot] = useState(null);
 
@@ -76,6 +78,7 @@ const BookSession = () => {
 
         return {
           id: cls._id || index,
+          tutorId:tutor._id,
           name: tutor.name || "Tutor",
           rating: 4.8, // placeholder until rating is in backend
           sessions: Math.floor(Math.random() * 1000) + 100,
@@ -130,6 +133,7 @@ const BookSession = () => {
     }
     setSelectedTutor(tutor);
     setShowConfirm(true);
+        // router.push(`/student/book-session/${tutor.tutorId}`);
   };
 
   /* ---------------- RAZORPAY REDIRECT ---------------- */

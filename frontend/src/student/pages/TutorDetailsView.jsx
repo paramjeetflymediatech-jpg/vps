@@ -15,7 +15,6 @@ import {
 import Link from "next/link";
 import { getTutorById } from "@/api/tutorApi";
 import { getStudentClasses } from "@/api/student.api";
- 
 
 const TutorDetailsView = ({ id: propId }) => {
   const params = useParams();
@@ -60,7 +59,8 @@ const TutorDetailsView = ({ id: propId }) => {
                   const tb = b.startTime || "";
                   return ta.localeCompare(tb);
                 });
-                const slot = sortedSlots[0];
+                const slot =
+                  sortedSlots.length <= 1 ? [] : sortedSlots[0];
 
                 const dayPart = slot.day || "";
                 const timePart =
@@ -90,7 +90,8 @@ const TutorDetailsView = ({ id: propId }) => {
             // Use expertise from backend when available, otherwise default label
             subject: t.expertise || "Spoken English & Communication",
             // Use backend rating/reviews when available, otherwise fall back to defaults
-            rating: typeof t.rating === "number" && t.rating > 0 ? t.rating : 4.8,
+            rating:
+              typeof t.rating === "number" && t.rating > 0 ? t.rating : 4.8,
             reviews:
               typeof t.reviewsCount === "number" && t.reviewsCount > 0
                 ? t.reviewsCount
@@ -147,9 +148,7 @@ const TutorDetailsView = ({ id: propId }) => {
 
   if (!tutor) {
     return (
-      <div className="text-center py-20 text-gray-500">
-        Tutor not found
-      </div>
+      <div className="text-center py-20 text-gray-500">Tutor not found</div>
     );
   }
 
@@ -157,7 +156,7 @@ const TutorDetailsView = ({ id: propId }) => {
     <div className="max-w-6xl mx-auto p-4 md:p-8">
       {/* Back */}
       <Link
-        href="/student/tutors"
+        href="/student/allTutors"
         className="flex items-center text-gray-500 hover:text-blue-600 mb-6 "
       >
         <ArrowLeft size={18} className="mr-2" /> Back to Tutors
@@ -197,11 +196,12 @@ const TutorDetailsView = ({ id: propId }) => {
 
               <div className="flex flex-wrap gap-6 text-gray-600">
                 <div className="flex items-center">
-                  <Star size={18} className="text-yellow-400 fill-current mr-1" />
+                  <Star
+                    size={18}
+                    className="text-yellow-400 fill-current mr-1"
+                  />
                   <strong>{tutor.rating}</strong>
-                  <span className="ml-1">
-                    ({tutor.reviews} reviews)
-                  </span>
+                  <span className="ml-1">({tutor.reviews} reviews)</span>
                 </div>
                 <div className="flex items-center">
                   <Clock size={18} className="mr-1 text-gray-400" />
@@ -217,9 +217,7 @@ const TutorDetailsView = ({ id: propId }) => {
               <BookOpen size={22} className="mr-2 text-blue-600" />
               About Me
             </h2>
-            <p className="text-gray-600 leading-relaxed mb-6">
-              {tutor.bio}
-            </p>
+            <p className="text-gray-600 leading-relaxed mb-6">{tutor.bio}</p>
 
             <h3 className="text-sm font-bold uppercase mb-3 text-gray-700">
               Specialties
@@ -242,9 +240,7 @@ const TutorDetailsView = ({ id: propId }) => {
               <Award size={22} className="mr-2 text-blue-600" />
               Education
             </h2>
-            <p className="text-gray-700 font-medium">
-              {tutor.education}
-            </p>
+            <p className="text-gray-700 font-medium">{tutor.education}</p>
           </div>
         </div>
 
@@ -257,9 +253,7 @@ const TutorDetailsView = ({ id: propId }) => {
                   <Calendar size={18} className="mr-2" />
                   Next Available
                 </div>
-                <span className="font-bold">
-                  {tutor.availability}
-                </span>
+                <span className="font-bold">{tutor.availability}</span>
               </div>
 
               <div className="flex justify-between p-4 bg-gray-50 rounded-2xl">
@@ -267,19 +261,17 @@ const TutorDetailsView = ({ id: propId }) => {
                   <Mail size={18} className="mr-2" />
                   Response Time
                 </div>
-                <span className="font-bold">
-                  {tutor.responseTime}
-                </span>
+                <span className="font-bold">{tutor.responseTime}</span>
               </div>
             </div>
 
-            <button className="w-full bg-blue-600 text-white py-4 rounded-2xl font-bold hover:bg-blue-700 mb-4">
+            {/* <button className="w-full bg-blue-600 text-white py-4 rounded-2xl font-bold hover:bg-blue-700 mb-4">
               Book a Lesson
             </button>
 
             <button className="w-full border-2 border-blue-600 text-blue-600 py-4 rounded-2xl font-bold hover:bg-blue-50 mb-3">
               Send Message
-            </button>
+            </button> */}
 
             <div className="text-center text-gray-500 text-xs space-y-1 mt-2">
               <p>No payment required to contact the tutor</p>

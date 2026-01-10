@@ -42,7 +42,6 @@ export const getTutorById = async (req, res) => {
     }).select(
       "name email phone organizationId status isVerified createdAt expertise experience bio education specialties availability responseTime rating reviewsCount"
     );
-
     if (!tutor) {
       return res.status(404).json({ message: "Tutor not found" });
     }

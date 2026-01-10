@@ -232,7 +232,7 @@ const AllTutors = () => {
                 onClick={() => router.push(`/student/tutor/${tutor.id}`)}
                 className="w-full flex items-center justify-center gap-3 py-4 bg-[#6335F8] text-white rounded-[1.25rem] font-black text-sm transition-all hover:bg-[#4f27d4] hover:gap-5 shadow-lg shadow-[#6335F8]/20 active:scale-95"
               >
-                Book Trial Lesson <ArrowRight size={18} />
+               View Profile<ArrowRight size={18} />
               </button>
             </div>
           </div>
