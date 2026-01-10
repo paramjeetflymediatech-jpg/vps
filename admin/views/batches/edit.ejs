@@ -133,9 +133,10 @@
           <div id="schedule-container">
           <% classdata.schedule.forEach((s, i) => { %>
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-2">
+              <%console.log()%>
               <select
                 name="schedule[<%= i %>][day]"
-                class="border rounded-lg px-3 py-2"
+                class="border rounded-lg px-3 py-2 "
               >
                 <% ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].forEach(d => { %>
                   <option <%= d === s.day ? 'selected' : '' %>>
@@ -301,6 +302,7 @@
       const options = sel.options;
       for (let i = 0; i < options.length; i++) {
         const opt = options[i];
+        console.log(opt)
         if (!allowed) {
           opt.disabled = false;
         } else {
@@ -319,7 +321,8 @@
     });
   }
 
-  // When start/end date is today and same day, only allow remaining time today
+  // When start/end date is today and same day, only allow remaining time today.
+  // Also disable schedule rows that are fully in the past for today.
   function applyTodayTimeMin() {
     const startInput = document.querySelector('input[name="startDate"]');
     const endInput = document.querySelector('input[name="endDate"]');
@@ -332,47 +335,92 @@
     const isTodaySingleDay =
       startVal && endVal && startVal === endVal && startVal === todayStr;
 
-    const timeInputs = document.querySelectorAll(
-      '#schedule-container input[type="time"]'
+    const rows = document.querySelectorAll(
+      '#schedule-container .grid.grid-cols-1.sm\\:grid-cols-3.gap-3.mb-2'
     );
 
-    if (isTodaySingleDay) {
-      const now = new Date();
-      const hh = String(now.getHours()).padStart(2, "0");
-      const mm = String(now.getMinutes()).padStart(2, "0");
-      const minTime = `${hh}:${mm}`;
+    // Reset all rows/inputs to editable by default
+    rows.forEach((row) => {
+      const daySelect = row.querySelector('select[name*="[day]"]');
+      const startInput = row.querySelector('input[name*="[startTime]"]');
+      const endInput = row.querySelector('input[name*="[endTime]"]');
+      const removeBtn = row.querySelector('.remove-schedule');
 
-      timeInputs.forEach((input) => {
-        input.min = minTime;
-        if (input.value && input.value < minTime) {
-          input.value = minTime;
+      [daySelect, startInput, endInput].forEach((el) => {
+        if (el) {
+          el.disabled = false;
         }
       });
-    } else {
-      timeInputs.forEach((input) => {
-        input.min = "";
-      });
+      if (startInput) startInput.min = "";
+      if (endInput) endInput.min = "";
+      if (removeBtn) removeBtn.style.display = "";
+    });
+
+    if (!isTodaySingleDay) {
+      return;
     }
+
+    const now = new Date();
+    const hh = String(now.getHours()).padStart(2, "0");
+    const mm = String(now.getMinutes()).padStart(2, "0");
+    const currentTime = `${hh}:${mm}`;
+
+    rows.forEach((row) => {
+      const daySelect = row.querySelector('select[name*="[day]"]');
+      const startInput = row.querySelector('input[name*="[startTime]"]');
+      const endInput = row.querySelector('input[name*="[endTime]"]');
+      const removeBtn = row.querySelector('.remove-schedule');
+
+      if (!startInput || !endInput) return;
+
+      const startVal = (startInput.value || "").trim();
+      const endVal = (endInput.value || "").trim();
+
+      // If this schedule row is completely in the past for today,
+      // disable editing and hide the remove button.
+      if (startVal && endVal && endVal <= currentTime) {
+        if (daySelect) daySelect.disabled = true;
+        startInput.disabled = true;
+        endInput.disabled = true;
+        if (removeBtn) removeBtn.style.display = "none";
+        return;
+      }
+
+      // For upcoming rows today, enforce min time so they cannot be moved earlier than now.
+      startInput.min = currentTime;
+      endInput.min = currentTime;
+      if (startVal && startVal < currentTime) {
+        startInput.value = currentTime;
+      }
+      if (endVal && endVal < currentTime) {
+        endInput.value = currentTime;
+      }
+    });
   }
 
-  document.querySelector('input[name="startDate"]').addEventListener(
-    "change",
-    () => {
-      filterScheduleDaysByDateRange();
-      applyTodayTimeMin();
-    }
-  );
-  document.querySelector('input[name="endDate"]').addEventListener(
-    "change",
-    () => {
-      filterScheduleDaysByDateRange();
-      applyTodayTimeMin();
-    }
-  );
+  // Attach listeners only if the date inputs exist to avoid errors on other pages
+  const _startDateInput = document.querySelector('input[name="startDate"]');
+  const _endDateInput = document.querySelector('input[name="endDate"]');
 
-  // Initial filter for edit page
-  filterScheduleDaysByDateRange();
-  applyTodayTimeMin();
+  if (_startDateInput) {
+    _startDateInput.addEventListener("change", () => {
+      filterScheduleDaysByDateRange();
+      applyTodayTimeMin();
+    });
+  }
+
+  if (_endDateInput) {
+    _endDateInput.addEventListener("change", () => {
+      filterScheduleDaysByDateRange();
+      applyTodayTimeMin();
+    });
+  }
+
+  // Initial filter for edit page (only run if date inputs are present)
+  if (_startDateInput && _endDateInput) {
+    filterScheduleDaysByDateRange();
+    applyTodayTimeMin();
+  }
 
   // ================= ADD NEW SCHEDULE ROW =================
   document.getElementById("add-schedule-edit")?.addEventListener("click", () => {

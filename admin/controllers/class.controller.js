@@ -25,20 +25,17 @@ function sortSchedule(schedule = []) {
     if (da !== db) return da - db;
 
     const ta = (a.startTime || "").padStart(5, "0");
-    const tb = (b.startTime || "").padStart(5, "0");  
+    const tb = (b.startTime || "").padStart(5, "0");
     const days = normalized.map((s) => s.day);
-       return ta.localeCompare(tb);
+    console.log(ta.localeCompare(tb));
+    return ta.localeCompare(tb);
   });
 }
 /**
  * Helper: find if a tutor has any schedule clash (same day + overlapping time)
  * for UPCOMING / ONGOING classes (ignores date ranges).
  */
-async function findTutorScheduleClash({
-  tutorId,
-  schedule,
-  excludeClassId,
-}) {
+async function findTutorScheduleClash({ tutorId, schedule, excludeClassId }) {
   const normalized = normalizeSchedule(schedule);
   if (!tutorId || !Array.isArray(normalized) || !normalized.length) {
     return null;
