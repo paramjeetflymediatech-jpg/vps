@@ -1,229 +1,9 @@
-// "use client";
-
-// import React, { useEffect, useState } from "react";
-// import { useRouter } from "next/navigation";
-// import {
-//   Video,
-//   Bell,
-//   ChevronLeft,
-//   ChevronRight,
-// } from "lucide-react";
-
-// /* ---------------- CONSTANTS ---------------- */
-
-// // Session tabs
-// const TABS = ["Upcoming", "Completed", "Cancelled", "Missed", "Pending"];
-
-// // Total pages (API se aayega later)
-// const TOTAL_PAGES = 10;
-
-// const MySessions = () => {
-//   const router = useRouter();
-
-//   /* ---------------- STATE ---------------- */
-
-//   const [activeTab, setActiveTab] = useState("Upcoming");
-//   const [sessions, setSessions] = useState([]);
-//   const [tutors, setTutors] = useState([]);
-//   const [page, setPage] = useState(1);
-
-//   /* ---------------- EFFECTS ---------------- */
-
-//   useEffect(() => {
-//     fetchSessions(activeTab);
-//     fetchTutors();
-//   }, [activeTab, page]);
-
-//   /* ---------------- DATA FETCHING ---------------- */
-
-//   const fetchSessions = async (status) => {
-//     const data = {
-//       Upcoming: [],
-//       Completed: [],
-//       Cancelled: [],
-//       Missed: [],
-//       Pending: [],
-//     };
-//     setSessions(data[status]);
-//   };
-
-//   const fetchTutors = async () => {
-//     setTutors([
-//       {
-//         id: 1,
-//         name: "Radhika Mehta",
-//         rating: 4.8,
-//         sessions: 539,
-//         time: "04:00 PM Jan 9th",
-//         img: "https://i.pravatar.cc/150?u=radhika",
-//       },
-//       {
-//         id: 2,
-//         name: "Bela",
-//         rating: 4.9,
-//         sessions: 722,
-//         time: "05:00 PM Jan 9th",
-//         img: "https://i.pravatar.cc/150?u=bela",
-//       },
-//       {
-//         id: 3,
-//         name: "Aisha",
-//         rating: 4.8,
-//         sessions: 4139,
-//         time: "06:00 PM Jan 9th",
-//         img: "https://i.pravatar.cc/150?u=aisha",
-//       },
-//     ]);
-//   };
-
-//   /* ---------------- HANDLERS ---------------- */
-
-//   // Book now → redirect to TutorDetailsView
-//   const handleBookNow = (tutorId) => {
-//     // router.push(`/TutorDetailsView?id=${tutorId}`);
-//     router.push("/student/TutorDetailsView");
-//   };
-
-//   /* ---------------- UI ---------------- */
-
-//   return (
-//     <div className="bg-white w-full p-4 md:p-10 text-gray-800">
-
-//       {/* ---------- NOTIFICATION ---------- */}
-//       {/* <div className="flex justify-end mb-4">
-//         <button className="flex items-center gap-2 bg-yellow-100 px-4 py-2 rounded-lg text-sm font-semibold">
-//           <Bell size={18} /> Notifications
-//         </button>
-//       </div> */}
-
-//       {/* ---------- HEADER + TABS ---------- */}
-//       <div className="flex flex-col md:flex-row justify-between mb-8 gap-4">
-//         <div>
-//           <h1 className="text-xl font-bold">My Sessions</h1>
-//           <p className="text-gray-500 text-sm">View your sessions</p>
-//         </div>
-
-//         <div className="flex bg-gray-50 border rounded-lg p-1">
-//           {TABS.map((tab) => (
-//             <button
-//               key={tab}
-//               onClick={() => setActiveTab(tab)}
-//               className={`px-4 py-1.5 rounded-md text-sm transition
-//                 ${
-//                   activeTab === tab
-//                     ? "bg-white text-[#6335F8] shadow font-semibold"
-//                     : "text-gray-500"
-//                 }`}
-//             >
-//               {tab}
-//             </button>
-//           ))}
-//         </div>
-//       </div>
-
-//       {/* ---------- EMPTY SESSION STATE ---------- */}
-//       {sessions.length === 0 && (
-//         <div className="rounded-3xl border bg-purple-50 py-16 flex flex-col items-center mb-12">
-//           <div className="text-5xl mb-4">🙄</div>
-//           <h3 className="text-lg font-bold mb-6">
-//             You have no {activeTab} sessions
-//           </h3>
-//           <button
-
-//   onClick={() => router.push("/student/myClass")}
-//   className="bg-[#6335F8] text-white px-6 py-2.5 rounded-full flex items-center gap-2"
-// >
-//   Schedule a tutor <Video size={18} />
-// </button>
-//         </div>
-//       )}
-
-//       {/* ---------- BOOK A TRIAL (ROW + SCROLL) ---------- */}
-//       <h2 className="text-lg font-bold mb-4">Book a trial</h2>
-
-//       <div className="flex gap-4 overflow-x-auto pb-4 mb-12">
-//         {tutors.map((tutor) => (
-//           <div
-//             key={tutor.id}
-//             className="min-w-[260px] border rounded-2xl p-4 hover:shadow transition flex-shrink-0"
-//           >
-//             <div className="flex gap-3 mb-4">
-//               <img
-//                 src={tutor.img}
-//                 alt={tutor.name}
-//                 className="w-12 h-12 rounded-lg object-cover"
-//               />
-//               <div>
-//                 <h4 className="font-bold text-sm">{tutor.name}</h4>
-//                 <p className="text-xs text-gray-500">
-//                   ★ {tutor.rating} ({tutor.sessions}+ sessions)
-//                 </p>
-//               </div>
-//             </div>
-
-//             <p className="text-xs text-gray-400 uppercase mb-1">
-//               Next availability
-//             </p>
-//             <p className="font-bold text-sm mb-4">{tutor.time}</p>
-
-//             <button
-//               onClick={() => handleBookNow(tutor.id)}
-//               className="w-full py-2 rounded-xl bg-purple-50 text-[#6335F8] font-bold
-//                          hover:bg-[#6335F8] hover:text-white transition"
-//             >
-//               Book now
-//             </button>
-//           </div>
-//         ))}
-//       </div>
-
-//       {/* ---------- PAGINATION (NUMBERS) ---------- */}
-//       <div className="flex justify-center items-center gap-2 mt-10">
-
-//         <button
-//           disabled={page === 1}
-//           onClick={() => setPage(page - 1)}
-//           className="px-3 py-1 border rounded disabled:opacity-40"
-//         >
-//           <ChevronLeft size={16} />
-//         </button>
-
-//         {Array.from({ length: TOTAL_PAGES }).map((_, i) => {
-//           const pageNumber = i + 1;
-//           return (
-//             <button
-//               key={pageNumber}
-//               onClick={() => setPage(pageNumber)}
-//               className={`px-3 py-1 rounded font-semibold text-sm
-//                 ${
-//                   page === pageNumber
-//                     ? "bg-[#6335F8] text-white"
-//                     : "border text-gray-600 hover:bg-gray-100"
-//                 }`}
-//             >
-//               {pageNumber}
-//             </button>
-//           );
-//         })}
-
-//         <button
-//           disabled={page === TOTAL_PAGES}
-//           onClick={() => setPage(page + 1)}
-//           className="px-3 py-1 border rounded disabled:opacity-40"
-//         >
-//           <ChevronRight size={16} />
-//         </button>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default MySessions;
-
 "use client";
 
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
+
 import {
   Video,
   Calendar,
@@ -351,7 +131,7 @@ const MySessions = () => {
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`px-6 py-2 rounded-xl text-sm font-bold transition-all whitespace-nowrap ${
+              className={`px-6 py-2 rounded-xl text-sm font-bold transition-all cursor-pointer whitespace-nowrap ${
                 activeTab === tab
                   ? "bg-white text-[#6335F8] shadow-sm"
                   : "text-gray-500 hover:text-gray-700"
@@ -395,9 +175,9 @@ const MySessions = () => {
               <LayoutGrid size={20} className="text-[#6335F8]" />
               Book a Trial Session
             </h2>
-            <button className="text-sm font-bold text-[#6335F8] hover:underline">
-              View All
-            </button>
+            <Link href="/student/allTutors" className="text-sm font-bold text-[#6335F8] hover:underline inline-block">
+  View All
+</Link>
           </div>
 
           <div className="flex gap-6 overflow-x-auto pb-6 no-scrollbar">
@@ -436,7 +216,7 @@ const MySessions = () => {
 
                 <button
                   onClick={() => router.push(`/student/tutor/${tutor.id}`)}
-                  className="w-full py-3.5 rounded-xl bg-purple-50 text-[#6335F8] font-black text-sm hover:bg-[#6335F8] hover:text-white transition-all shadow-sm group-hover:shadow-md"
+                  className="w-full py-3.5 rounded-xl bg-purple-50 text-[#6335F8] cursor-pointer font-black text-sm hover:bg-[#6335F8] hover:text-white transition-all shadow-sm group-hover:shadow-md"
                 >
                   Book Now
                 </button>
@@ -446,42 +226,81 @@ const MySessions = () => {
         </div>
       </div>
 
-      {/* ---------- MODERN PAGINATION ---------- */}
-      <div className="flex flex-col items-center gap-4 mt-16">
-        <div className="flex items-center bg-white p-2 rounded-2xl border border-gray-100 shadow-sm">
-          <button
-            disabled={page === 1}
-            onClick={() => setPage(page - 1)}
-            className="p-2 text-gray-400 hover:text-[#6335F8] disabled:opacity-20 transition-colors"
-          >
-            <ChevronLeft size={24} />
-          </button>
+     {/* ---------- MODERN PAGINATION ---------- */}
+<div className="flex flex-col items-center gap-4 mt-16">
+  <div className="flex items-center bg-white p-2 rounded-2xl border border-gray-100 shadow-sm">
+    <button
+      disabled={page === 1}
+      onClick={() => setPage(page - 1)}
+      className="p-2 text-gray-400 hover:text-[#6335F8] disabled:opacity-20 transition-colors"
+    >
+      <ChevronLeft size={24} />
+    </button>
 
-          <div className="flex items-center gap-1 mx-2">
-            {[1, 2, 3, "...", TOTAL_PAGES].map((item, i) => (
-              <button
-                key={i}
-                onClick={() => typeof item === "number" && setPage(item)}
-                className={`w-10 h-10 rounded-xl text-sm font-black transition-all ${
-                  page === item
-                    ? "bg-[#6335F8] text-white shadow-lg shadow-[#6335F8]/20"
-                    : "text-gray-400 hover:bg-gray-50 hover:text-gray-600"
-                }`}
-              >
-                {item}
-              </button>
-            ))}
-          </div>
+    <div className="flex items-center gap-1 mx-2">
+      {/* First page */}
+      <button
+        onClick={() => setPage(1)}
+        className={`w-10 h-10 rounded-xl text-sm font-black transition-all ${
+          page === 1
+            ? "bg-[#6335F8] text-white shadow-lg shadow-[#6335F8]/20"
+            : "text-gray-400 hover:bg-gray-50 hover:text-gray-600"
+        }`}
+      >
+        1
+      </button>
 
-          <button
-            disabled={page === TOTAL_PAGES}
-            onClick={() => setPage(page + 1)}
-            className="p-2 text-gray-400 hover:text-[#6335F8] disabled:opacity-20 transition-colors"
-          >
-            <ChevronRight size={24} />
-          </button>
-        </div>
-      </div>
+      {/* Ellipsis or pages 2 to TOTAL_PAGES-1 */}
+      {TOTAL_PAGES > 3 && (
+        <>
+          {page > 2 && (
+            <span className="w-10 h-10 flex items-center justify-center text-gray-400 text-sm font-black">
+              ...
+            </span>
+          )}
+          
+          {page > 1 && page < TOTAL_PAGES && (
+            <button
+              onClick={() => setPage(page)}
+              className="w-10 h-10 rounded-xl text-sm font-black bg-[#6335F8] text-white shadow-lg shadow-[#6335F8]/20"
+            >
+              {page}
+            </button>
+          )}
+          
+          {page < TOTAL_PAGES - 1 && (
+            <span className="w-10 h-10 flex items-center justify-center text-gray-400 text-sm font-black">
+              ...
+            </span>
+          )}
+        </>
+      )}
+
+      {/* Last page */}
+      {TOTAL_PAGES > 1 && (
+        <button
+          onClick={() => setPage(TOTAL_PAGES)}
+          className={`w-10 h-10 rounded-xl text-sm font-black transition-all ${
+            page === TOTAL_PAGES
+              ? "bg-[#6335F8] text-white shadow-lg shadow-[#6335F8]/20"
+              : "text-gray-400 hover:bg-gray-50 hover:text-gray-600"
+          }`}
+        >
+          {TOTAL_PAGES}
+        </button>
+      )}
+    </div>
+
+    <button
+      disabled={page === TOTAL_PAGES}
+      onClick={() => setPage(page + 1)}
+      className="p-2 text-gray-400 hover:text-[#6335F8] disabled:opacity-20 transition-colors"
+    >
+      <ChevronRight size={24} />
+    </button>
+  </div>
+</div>
+
     </div>
   );
 };

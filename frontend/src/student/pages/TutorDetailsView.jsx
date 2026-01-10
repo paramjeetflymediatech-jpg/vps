@@ -158,7 +158,7 @@ const TutorDetailsView = ({ id: propId }) => {
       {/* Back */}
       <Link
         href="/student/tutors"
-        className="flex items-center text-gray-500 hover:text-blue-600 mb-6"
+        className="flex items-center text-gray-500 hover:text-blue-600 mb-6 "
       >
         <ArrowLeft size={18} className="mr-2" /> Back to Tutors
       </Link>
