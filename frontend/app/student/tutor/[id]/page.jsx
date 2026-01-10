@@ -2,6 +2,7 @@
 
 import TutorDetailsView from "@/student/pages/TutorDetailsView";
 
-export default function StudentTutorDetailPage({ params }) {
-  return <TutorDetailsView id={params.id} />;
+export default function StudentTutorDetailPage() {
+  // ID is resolved inside TutorDetailsView via useParams()
+  return <TutorDetailsView />;
 }

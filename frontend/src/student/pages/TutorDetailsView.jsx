@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { getTutorById } from "@/api/tutorApi";
+import { getStudentClasses } from "@/api/student.api";
  
 
 const TutorDetailsView = ({ id: propId }) => {
@@ -37,21 +38,84 @@ const TutorDetailsView = ({ id: propId }) => {
         if (!t) {
           setTutor(null);
         } else {
-          // Map API tutor to view model (fill in some placeholder fields)
+          // Try to compute next availability from upcoming classes for this tutor
+          let nextAvailability = t.availability || "Today";
+          try {
+            const classesRes = await getStudentClasses({ tutorId: t._id });
+            const classes = classesRes.data?.data || classesRes.data || [];
+
+            if (Array.isArray(classes) && classes.length > 0) {
+              // pick earliest class by startDate, then earliest slot within that class
+              const sortedClasses = [...classes].sort(
+                (a, b) => new Date(a.startDate) - new Date(b.startDate)
+              );
+              const firstClass = sortedClasses[0];
+              const schedule = Array.isArray(firstClass.schedule)
+                ? firstClass.schedule
+                : [];
+
+              if (schedule.length > 0) {
+                const sortedSlots = [...schedule].sort((a, b) => {
+                  const ta = a.startTime || "";
+                  const tb = b.startTime || "";
+                  return ta.localeCompare(tb);
+                });
+                const slot = sortedSlots[0];
+
+                const dayPart = slot.day || "";
+                const timePart =
+                  slot.startTime && slot.endTime
+                    ? `${slot.startTime} - ${slot.endTime}`
+                    : "";
+                const datePart = firstClass.startDate
+                  ? new Date(firstClass.startDate).toLocaleDateString()
+                  : "";
+
+                const pieces = [dayPart, timePart, datePart].filter(Boolean);
+                if (pieces.length) {
+                  nextAvailability = pieces.join(", ");
+                } else {
+                  nextAvailability = "Upcoming slot";
+                }
+              }
+            }
+          } catch (e) {
+            console.error("Failed to load tutor classes for availability", e);
+          }
+
+          // Map API tutor to view model, prefer backend values and fall back to placeholders
           setTutor({
             id: t._id,
             name: t.name,
-            subject: "Spoken English & Communication", // placeholder
-            rating: 4.8,
-            reviews: 120,
-            experience: "5+ Years",
+            // Use expertise from backend when available, otherwise default label
+            subject: t.expertise || "Spoken English & Communication",
+            // Use backend rating/reviews when available, otherwise fall back to defaults
+            rating: typeof t.rating === "number" && t.rating > 0 ? t.rating : 4.8,
+            reviews:
+              typeof t.reviewsCount === "number" && t.reviewsCount > 0
+                ? t.reviewsCount
+                : 120,
+            // Use experience string from backend if present
+            experience: t.experience || "5+ Years",
+            // Optional rich profile fields with safe fallbacks
             bio:
+              t.bio ||
               "Passionate English tutor focused on helping students gain real-world speaking confidence.",
             email: t.email,
-            education: "Certified English Trainer",
-            specialties: ["Spoken English", "Grammar", "Interview Prep"],
-            availability: "Today",
-            responseTime: "< 2 hours",
+            education: t.education || "Certified English Trainer",
+            specialties:
+              Array.isArray(t.specialties) && t.specialties.length > 0
+                ? t.specialties
+                : ["Spoken English", "Grammar", "Interview Prep"],
+            // High-level availability & response time coming from backend schema / classes
+            availability: nextAvailability,
+            responseTime: t.responseTime || "< 2 hours",
+            // Verification / status / joined date
+            verified: !!t.isVerified,
+            status: t.status || "INACTIVE",
+            joinedDate: t.createdAt
+              ? new Date(t.createdAt).toLocaleDateString()
+              : null,
           });
         }
       } catch (err) {
@@ -114,14 +178,22 @@ const TutorDetailsView = ({ id: propId }) => {
             <div>
               <div className="flex items-center gap-3 mb-2">
                 <h1 className="text-3xl font-extrabold">{tutor.name}</h1>
-                <span className="flex items-center bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-sm font-semibold">
-                  <ShieldCheck size={14} className="mr-1" /> Verified
-                </span>
+                {tutor.verified && (
+                  <span className="flex items-center bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-sm font-semibold">
+                    <ShieldCheck size={14} className="mr-1" /> Verified
+                  </span>
+                )}
               </div>
 
-              <p className="text-lg text-blue-600 font-medium mb-3">
+              <p className="text-lg text-blue-600 font-medium mb-1">
                 {tutor.subject}
               </p>
+
+              {tutor.joinedDate && (
+                <p className="text-xs text-gray-400 mb-2">
+                  Joined on {tutor.joinedDate}
+                </p>
+              )}
 
               <div className="flex flex-wrap gap-6 text-gray-600">
                 <div className="flex items-center">
@@ -205,13 +277,16 @@ const TutorDetailsView = ({ id: propId }) => {
               Book a Lesson
             </button>
 
-            <button className="w-full border-2 border-blue-600 text-blue-600 py-4 rounded-2xl font-bold hover:bg-blue-50">
+            <button className="w-full border-2 border-blue-600 text-blue-600 py-4 rounded-2xl font-bold hover:bg-blue-50 mb-3">
               Send Message
             </button>
 
-            <p className="text-center text-gray-400 text-xs mt-5">
-              No payment required to contact the tutor
-            </p>
+            <div className="text-center text-gray-500 text-xs space-y-1 mt-2">
+              <p>No payment required to contact the tutor</p>
+              <p className="flex items-center justify-center gap-1">
+                <Mail size={12} /> {tutor.email}
+              </p>
+            </div>
           </div>
         </div>
       </div>

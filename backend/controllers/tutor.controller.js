@@ -16,7 +16,9 @@ export const listTutors = async (req, res) => {
     }
 
     const tutors = await User.find(filter)
-      .select("name email phone organizationId createdAt")
+      .select(
+        "name email phone organizationId createdAt expertise experience availability responseTime rating reviewsCount"
+      )
       .sort({ createdAt: -1 });
 
     res.json({ success: true, data: tutors });
@@ -37,7 +39,9 @@ export const getTutorById = async (req, res) => {
     const tutor = await User.findOne({
       _id: id,
       role: "TUTOR",
-    }).select("name email phone organizationId status isVerified createdAt");
+    }).select(
+      "name email phone organizationId status isVerified createdAt expertise experience bio education specialties availability responseTime rating reviewsCount"
+    );
 
     if (!tutor) {
       return res.status(404).json({ message: "Tutor not found" });

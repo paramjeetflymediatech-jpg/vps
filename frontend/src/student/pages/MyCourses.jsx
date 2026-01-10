@@ -130,7 +130,6 @@
 //           </h3>
 //           <button
 
-
 //   onClick={() => router.push("/student/myClass")}
 //   className="bg-[#6335F8] text-white px-6 py-2.5 rounded-full flex items-center gap-2"
 // >
@@ -221,8 +220,6 @@
 
 // export default MySessions;
 
-
-
 "use client";
 
 import React, { useEffect, useState } from "react";
@@ -237,6 +234,7 @@ import {
   LayoutGrid,
 } from "lucide-react";
 import { getTutors } from "@/api/tutorApi";
+import { getStudentClasses } from "@/api/student.api";
 
 const TABS = ["Upcoming", "Completed", "Cancelled", "Missed", "Pending"];
 const TOTAL_PAGES = 5;
@@ -259,17 +257,74 @@ const MySessions = () => {
     const fetchTutors = async () => {
       try {
         const res = await getTutors();
-        const apiTutors = (res.data?.data || []).slice(0, 8).map((t, index) => ({
-          id: t._id || index,
-          name: t.name,
-          sessions: Math.floor(Math.random() * 1000) + 100,
-          time: "Today, 07:00 PM", // placeholder next-availability text
-          img: `https://i.pravatar.cc/150?u=${t.email}`,
-        }));
+        const rawTutors = (res.data?.data || []).slice(0, 8);
+
+        const apiTutors = await Promise.all(
+          rawTutors.map(async (t, index) => {
+            const id = t._id || index;
+            let nextAvailability = "No upcoming classes";
+
+            try {
+              const classesRes = await getStudentClasses({ tutorId: id });
+              const classes = classesRes.data?.data || classesRes.data || [];
+
+              if (Array.isArray(classes) && classes.length > 0) {
+                const sortedClasses = [...classes].sort(
+                  (a, b) => new Date(a.startDate) - new Date(b.startDate)
+                );
+                const firstClass = sortedClasses[0];
+                const schedule = Array.isArray(firstClass.schedule)
+                  ? firstClass.schedule
+                  : [];
+
+                if (schedule.length > 0) {
+                  const sortedSlots = [...schedule].sort((a, b) => {
+                    const ta = a.startTime || "";
+                    const tb = b.startTime || "";
+                    return ta.localeCompare(tb);
+                  });
+                  const slot = sortedSlots[0];
+
+                  const dayPart = slot.day || "";
+                  const timePart =
+                    slot.startTime && slot.endTime
+                      ? `${slot.startTime} - ${slot.endTime}`
+                      : "";
+                  const datePart = !firstClass.startDate
+                    ? new Date(firstClass.startDate).toLocaleDateString() +
+                      "-" +
+                      new Date(firstClass.endDate).toLocaleDateString()
+                    : "";
+
+                  const pieces = [dayPart, timePart, datePart].filter(Boolean);
+                  if (pieces.length) {
+                    nextAvailability = pieces.join(", ");
+                  } else {
+                    nextAvailability = "Upcoming slot";
+                  }
+                }
+              }
+            } catch (e) {
+              console.error(
+                "Failed to load classes for tutor availability in MySessions",
+                e
+              );
+            }
+
+            return {
+              id,
+              name: t.name,
+              sessions: Math.floor(Math.random() * 1000) + 100,
+              time: nextAvailability,
+              img: `https://i.pravatar.cc/150?u=${t.email}`,
+            };
+          })
+        );
+
         setTutors(apiTutors);
       } catch (err) {
         console.error(err);
-      setTutorError("Failed to load tutors");
+        setTutorError("Failed to load tutors");
       } finally {
         setLoadingTutors(false);
       }
@@ -280,12 +335,15 @@ const MySessions = () => {
 
   return (
     <div className="max-w-7xl mx-auto p-6 md:p-10 bg-[#FBFCFF] min-h-screen">
-      
       {/* ---------- HEADER SECTION ---------- */}
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-10 gap-6">
         <div>
-          <h1 className="text-3xl font-black text-gray-900 tracking-tight">My Sessions</h1>
-          <p className="text-gray-500 font-medium mt-1">Manage your learning journey and schedule</p>
+          <h1 className="text-3xl font-black text-gray-900 tracking-tight">
+            My Sessions
+          </h1>
+          <p className="text-gray-500 font-medium mt-1">
+            Manage your learning journey and schedule
+          </p>
         </div>
 
         <div className="flex bg-gray-100/80 p-1.5 rounded-2xl backdrop-blur-sm border border-gray-100 overflow-x-auto max-w-full">
@@ -307,7 +365,6 @@ const MySessions = () => {
 
       {/* ---------- MAIN CONTENT AREA ---------- */}
       <div className="grid grid-cols-1 gap-10">
-        
         {/* EMPTY STATE REDESIGN */}
         {sessions.length === 0 && (
           <div className="relative overflow-hidden rounded-[2.5rem] border-2 border-dashed border-purple-100 bg-white p-12 md:p-20 flex flex-col items-center text-center">
@@ -319,7 +376,8 @@ const MySessions = () => {
               No {activeTab} sessions yet
             </h3>
             <p className="text-gray-500 max-w-xs mb-8 font-medium">
-              It looks like you haven't scheduled any lessons in this category. Start your journey today!
+              It looks like you haven't scheduled any lessons in this category.
+              Start your journey today!
             </p>
             <button
               onClick={() => router.push("/student/myClass")}
@@ -337,7 +395,9 @@ const MySessions = () => {
               <LayoutGrid size={20} className="text-[#6335F8]" />
               Book a Trial Session
             </h2>
-            <button className="text-sm font-bold text-[#6335F8] hover:underline">View All</button>
+            <button className="text-sm font-bold text-[#6335F8] hover:underline">
+              View All
+            </button>
           </div>
 
           <div className="flex gap-6 overflow-x-auto pb-6 no-scrollbar">
@@ -369,7 +429,9 @@ const MySessions = () => {
                   <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest mb-1 flex items-center gap-1">
                     <Clock size={10} /> Next Available
                   </p>
-                  <p className="font-bold text-sm text-gray-800">{tutor.time}</p>
+                  <p className="font-bold text-sm text-gray-800">
+                    {tutor.time}
+                  </p>
                 </div>
 
                 <button
@@ -399,7 +461,7 @@ const MySessions = () => {
             {[1, 2, 3, "...", TOTAL_PAGES].map((item, i) => (
               <button
                 key={i}
-                onClick={() => typeof item === 'number' && setPage(item)}
+                onClick={() => typeof item === "number" && setPage(item)}
                 className={`w-10 h-10 rounded-xl text-sm font-black transition-all ${
                   page === item
                     ? "bg-[#6335F8] text-white shadow-lg shadow-[#6335F8]/20"

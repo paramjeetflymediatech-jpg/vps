@@ -46,9 +46,15 @@ const AllTutors = () => {
         const apiTutors = (res.data?.data || []).map((t, index) => ({
           id: t._id || index,
           name: t.name,
-          subject: categories[(index % (categories.length - 1)) + 1],
-          rating: (4 + Math.random()).toFixed(1),
-          reviews: Math.floor(Math.random() * 200) + 10,
+          subject: t.expertise || categories[(index % (categories.length - 1)) + 1],
+          rating:
+            typeof t.rating === "number" && t.rating > 0
+              ? t.rating.toFixed(1)
+              : (4 + Math.random()).toFixed(1),
+          reviews:
+            typeof t.reviewsCount === "number" && t.reviewsCount > 0
+              ? t.reviewsCount
+              : Math.floor(Math.random() * 200) + 10,
           price: Math.floor(Math.random() * 50) + 20,
           image: `https://i.pravatar.cc/150?u=${t.email}`,
           bio:
