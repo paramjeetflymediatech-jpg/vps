@@ -2,32 +2,22 @@
 
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
-export default function UpiPaymentClient() {
+export default function UpiPaymentClient({ amount, plan, tutorId }) {
   const router = useRouter();
-  const searchParams = useSearchParams();
 
-  /* =========================
-     🔹 QUERY PARAMS
-     ========================= */
-  const amount = searchParams.get("amount") || "0";
-  const plan = searchParams.get("plan") || "Session Activation";
-  const tutorId = searchParams.get("tutorId");
-
-  /* =========================
-     🔹 DEVICE CHECK
-     ========================= */
+  // Device check for mobile UPI deep link
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
-    setIsMobile(/Android|iPhone|iPad/i.test(navigator.userAgent));
+    if (typeof navigator !== "undefined") {
+      setIsMobile(/Android|iPhone|iPad/i.test(navigator.userAgent));
+    }
   }, []);
 
-  /* =========================
-     🔹 UPI DETAILS
-     ========================= */
+  // UPI details
   const upiId = "nshpental-1@okaxis";
   const name = "The English Raj";
 
@@ -35,15 +25,12 @@ export default function UpiPaymentClient() {
     name
   )}&am=${amount}&cu=INR&tn=${encodeURIComponent(plan)}`;
 
-  /* =========================
-     🔹 HANDLERS
-     ========================= */
   const handleUpiPay = () => {
     if (isMobile) {
       window.location.href = upiUrl;
 
       setTimeout(() => {
-        router.push(`/payment-success?tutorId=${tutorId}`);
+        router.push(`/payment-success?tutorId=${tutorId ?? ""}`);
       }, 3000);
     } else {
       alert("Please scan the QR code using your mobile UPI app.");
