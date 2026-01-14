@@ -44,3 +44,11 @@
 .react-international-phone {
   --react-international-phone-height: 48px;
 }
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}

@@ -19,6 +19,8 @@ const Register = () => {
     name: "",
     email: "",
     phone: "", // phone includes country code automatically
+    password: "",   // ✅ ADD THIS
+
       });
 
   const handleChange = (e) => {
