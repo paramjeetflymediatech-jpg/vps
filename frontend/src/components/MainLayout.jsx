@@ -1,6 +1,6 @@
 import Header from "./Header";
 import Footer from "./Footer";
-// import CoursesPricing from "./CoursesPricing";
+import CoursesPricing from "./CoursesPricing";
 import Testimonials from "../views/Testimonials";
 import LearningGoal from "../components/LearningGoal"; // 👈 add this
 
@@ -22,7 +22,7 @@ const MainLayout = () => {
       </main>
 
       {/* 👉 Courses Pricing ONLY on Home */}
-      {/* {isHome && <CoursesPricing />} */}
+      {isHome && <CoursesPricing />}
 
 
       {/* 👉 Learning Goal ONLY on Front Page */}

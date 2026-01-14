@@ -168,7 +168,7 @@ const BookSession = () => {
 
   {/* HEADER */}
   <div>
-    <h1 className="text-2xl sm:text-3xl font-bold text-blue mt-15 md:mt-10">Book a Session</h1>
+    <h1 className="text-2xl sm:text-3xl  mt-12 md:mt-10 font-black text-gray-900 tracking-tight">Book a Session</h1>
     <p className="text-gray-500 text-sm sm:text-base">Search & book available tutors</p>
   </div>
 

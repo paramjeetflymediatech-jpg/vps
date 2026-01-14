@@ -124,8 +124,10 @@
 
 import "./globals.css";
 import AppShell from "./AppShell";
-import Script from "next/script";
+// import Script from "next/script";
 import PixelTracker from "@/components/PixelTracker";
+import FloatingSupport from "@/components/FloatingSupport";
+
 
 export const metadata = {
   title: "The English Raj",
@@ -169,6 +171,8 @@ export default function RootLayout({ children }) {
 
         <PixelTracker />
         <AppShell>{children}</AppShell>
+          {/* Floating Chat + WhatsApp */}
+  <FloatingSupport />
       </body>
     </html>
   );

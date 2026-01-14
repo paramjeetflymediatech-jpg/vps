@@ -566,7 +566,7 @@ const AllTutors = () => {
   {/* ================= HEADER ================= */}
   <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
     <div className="space-y-2">
-<h1 className="mt-20 sm:mt-10 text-2xl sm:text-3xl font-black text-gray-900 tracking-tight">        Find the perfect <span className="text-[#6335F8]">Tutor</span>
+<h1 className="mt-17 sm:mt-10 text-2xl sm:text-3xl font-black text-gray-900 tracking-tight">  Find the perfect <span className="text-[#6335F8]">Tutor</span>
       </h1>
       <p className="text-gray-500 font-medium text-sm sm:text-lg">
         Expert-led sessions for career and language growth.
@@ -574,13 +574,13 @@ const AllTutors = () => {
     </div>
 
     {/* Search */}
-    <div className="relative w-full lg:w-96">
+    <div className="relative w-full lg:w-96 ">
       <Search
         className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
         size={18}
       />
       <input
-        className="w-full pl-12 pr-4 py-3 sm:py-4 bg-white border border-gray-200 rounded-2xl text-sm sm:text-base font-medium focus:border-[#6335F8] outline-none"
+        className="w-full pl-12 pr-4 py-3 sm:py-4 bg-white border border-gray-200 rounded-2xl text-sm sm:text-base font-medium focus:border-[#6335F8] outline-none "
         placeholder="Search tutors..."
         value={searchTerm}
         onChange={(e) => {

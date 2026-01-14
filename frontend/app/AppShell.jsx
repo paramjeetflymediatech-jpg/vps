@@ -7,6 +7,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import LearningGoal from "@/components/LearningGoal";
 import Testimonials from "@/views/Testimonials";
+import CoursesPricing from "../src/components/CoursesPricing";
 
 export default function AppShell({ children }) {
   const pathname = usePathname();
@@ -35,6 +36,10 @@ export default function AppShell({ children }) {
       <main className="min-h-[80vh]">
         {children}
       </main>
+
+      {/* 👉 Courses Pricing ONLY on Home */}
+            {isHome && <CoursesPricing />}
+
 
       {/* 👉 Learning Goal ONLY on Home */}
       {isHome && <LearningGoal />}
