@@ -142,7 +142,7 @@ const TutorLayout = ({ children }) => {
             <BookOpen size={20} /> Classes
           </Link>
 
-          <Link
+          {/* <Link
             href="/tutor/settings"
             onClick={() => setSidebarOpen(false)}
             className={
@@ -150,7 +150,7 @@ const TutorLayout = ({ children }) => {
             }
           >
             <Settings size={20} /> Settings
-          </Link>
+          </Link> */}
         </nav>
       </aside>
 

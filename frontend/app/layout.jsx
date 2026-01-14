@@ -125,8 +125,8 @@
 import "./globals.css";
 import AppShell from "./AppShell";
 // import Script from "next/script";
-import PixelTracker from "@/components/PixelTracker";
-import FloatingSupport from "@/components/FloatingSupport";
+// import PixelTracker from "@/components/PixelTracker";
+// import FloatingSupport from "@/components/FloatingSupport";
 
 
 export const metadata = {
@@ -169,10 +169,10 @@ export default function RootLayout({ children }) {
           }}
         />
 
-        <PixelTracker />
+        {/* <PixelTracker /> */}
         <AppShell>{children}</AppShell>
           {/* Floating Chat + WhatsApp */}
-  <FloatingSupport />
+  {/* <FloatingSupport /> */}
       </body>
     </html>
   );

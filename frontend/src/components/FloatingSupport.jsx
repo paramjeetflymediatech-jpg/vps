@@ -5,7 +5,7 @@ import { FaWhatsapp } from "react-icons/fa";
 
 
 export default function FloatingSupport() {
-  const whatsappNumber = "919877817314"; // 🔴 replace
+  const whatsappNumber = "910000000000"; 
   const message = "Hello! I need help with English courses.";
 
   const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
