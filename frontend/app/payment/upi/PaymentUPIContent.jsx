@@ -82,7 +82,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
 
-export default function UpiContent() {
+export default function PaymentUPIContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 

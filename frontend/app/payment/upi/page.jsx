@@ -1,6 +1,6 @@
 // app/payment/upi/page.jsx
 import { Suspense } from "react";
-import PaymentUPIContent from "./PaymentUPIContent";
+import  PaymentUPIContent  from "./PaymentUPIContent";
 
 export default function Page() {
   return (
