@@ -113,3 +113,44 @@ export const uploadPaymentProof = async (req, res) => {
     return res.status(500).json({ message: "Failed to upload payment proof" });
   }
 };
+
+// GET /api/payment/admin/all - Get all payments for admin
+export const getAllPayments = async (req, res) => {
+  try {
+    const payments = await Payment.find({})
+      .populate('userId', 'name email')
+      .populate('tutorId', 'name email')
+      .sort({ createdAt: -1 });
+
+    return res.status(200).json({ payments });
+  } catch (err) {
+    console.error("getAllPayments error:", err);
+    return res.status(500).json({ message: "Failed to fetch payments" });
+  }
+};
+
+// PUT /api/payment/admin/verify/:paymentId - Verify payment (admin only)
+export const verifyPayment = async (req, res) => {
+  try {
+    const { paymentId } = req.params;
+    const { status } = req.body; // "SUCCESS" or "FAILED"
+
+    const payment = await Payment.findByIdAndUpdate(
+      paymentId,
+      { status },
+      { new: true }
+    ).populate('userId', 'name email');
+
+    if (!payment) {
+      return res.status(404).json({ message: "Payment not found" });
+    }
+
+    return res.status(200).json({ 
+      message: `Payment ${status.toLowerCase()} successfully`, 
+      payment 
+    });
+  } catch (err) {
+    console.error("verifyPayment error:", err);
+    return res.status(500).json({ message: "Failed to verify payment" });
+  }
+};
