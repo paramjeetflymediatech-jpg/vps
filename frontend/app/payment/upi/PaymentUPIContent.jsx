@@ -138,7 +138,7 @@ export default function PaymentUPIContent() {
 
         {/* UPLOAD SECTION */}
         <div className="mt-6">
-          {uploaded ? (
+          {!uploaded ? (
             <>
               <input
                 type="file"
