@@ -2,18 +2,33 @@ import mongoose from "mongoose";
 
 const paymentSchema = new mongoose.Schema(
   {
-    userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-    amount: { type: Number, required: true },
-    txnId: { type: String, required: true, unique: true },
-    // Optional: URL or path to transaction screenshot/image
-    proofImageUrl: { type: String },
-    // PENDING = user submitted, admin not yet verified
-    // VERIFIED = admin confirmed payment
-    // REJECTED = admin rejected/invalid payment
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+    tutorId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
+    amount: {
+      type: Number,
+      required: true,
+    },
     status: {
       type: String,
-      enum: ["PENDING", "VERIFIED", "REJECTED"],
+      enum: ["PENDING", "SUCCESS", "FAILED"],
       default: "PENDING",
+    },
+    method: {
+      type: String,
+      default: "UPI",
+    },
+    lessons: {
+      type: Number,
+    },
+    txnId: {
+      type: String,
     },
   },
   { timestamps: true }

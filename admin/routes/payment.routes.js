@@ -4,6 +4,7 @@ const router = express.Router();
 const Payment = require("../models/payment");
 const User = require("../models/userModel");
 const { auth, role } = require("../middlewares/auth.middleware");
+const sendMail = require("../utils/sendmail");
 
 // LIST PAYMENTS
 router.get("/", auth, role("ADMIN"), async (req, res) => {
@@ -64,11 +65,32 @@ router.post("/:id/verify", auth, role("ADMIN"), async (req, res) => {
     payment.status = status;
     await payment.save();
 
-    // When verified, mark user.isPaymentDone = true
+    // When verified, mark user.isPaymentDone = true and send activation email
     if (status === "VERIFIED" && payment.userId) {
-      await User.findByIdAndUpdate(payment.userId, {
-        $set: { isPaymentDone: true },
-      });
+      const user = await User.findByIdAndUpdate(
+        payment.userId,
+        { $set: { isPaymentDone: true } },
+        { new: true }
+      );
+
+      // Send activation email
+      if (user && user.email) {
+        try {
+          await sendMail({
+            to: user.email,
+            subject: "Your account has been activated",
+            html: `
+              <p>Hi ${user.name || "there"},</p>
+              <p>Your payment has been verified and your account is now <strong>activated</strong>.</p>
+              <p>You can now log in and start viewing your courses.</p>
+              <p>If you did not make this payment, please contact support immediately.</p>
+            `,
+          });
+        } catch (mailErr) {
+          console.error("Payment activation email error:", mailErr);
+          // Do not fail the API just because email failed
+        }
+      }
     }
 
     return res.json({
