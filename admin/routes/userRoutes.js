@@ -2,6 +2,9 @@ const express = require("express");
 const router = express.Router();
 const User = require("../models/userModel");
 const Batch = require("../models/Batch");
+const Class = require("../models/class");
+const Course = require("../models/courseModel");
+const CoursePackage = require("../models/coursePackage");
 const bcrypt = require("bcryptjs");
 const mongoose = require("mongoose");
 const { auth, role } = require("../middlewares/auth.middleware");
@@ -227,14 +230,37 @@ router.delete("/delete/:id", auth, role("ADMIN"), async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
+    // Cascade delete / cleanup based on user role
+    if (user.role === "TUTOR") {
+      // Delete classes taught by this tutor (admin side)
+      await Class.deleteMany({ tutorId: id });
+      // Delete batches owned by this tutor
+      await Batch.deleteMany({ tutorId: id });
+      // Detach tutor from courses (keep courses but make them unassigned)
+      await Course.updateMany({ tutorId: id }, { $set: { tutorId: null } });
+      // Delete packages created by this tutor/admin user
+      await CoursePackage.deleteMany({ createdBy: id });
+    } else if (user.role === "STUDENT") {
+      // Remove student from any batch enrolments (admin side)
+      await Batch.updateMany(
+        { enrolledStudents: id },
+        { $pull: { enrolledStudents: id } }
+      );
+      // Note: enrollments in backend `Enrollment` collection are handled on API side
+    } else if (user.role === "ADMIN") {
+      // For now, only delete packages explicitly created by this admin
+      await CoursePackage.deleteMany({ createdBy: id });
+    }
+
+    // Finally delete the user document itself
     await User.findByIdAndDelete(id);
 
     return res.json({
       success: true,
-      message: "User deleted successfully",
+      message: "User and linked data deleted successfully",
     });
   } catch (err) {
-    console.error("❌ DELETE USER ERROR:", err); // 🔥 THIS LINE
+    console.error("❌ DELETE USER ERROR:", err);
     return res.status(500).json({ message: "Delete failed" });
   }
 });

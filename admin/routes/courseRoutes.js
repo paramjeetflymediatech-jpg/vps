@@ -3,6 +3,7 @@ const router = express.Router();
 const fs = require("fs");
 const path = require("path");
 const Course = require("../models/courseModel");
+const Class = require("../models/class");
 const { auth, role } = require("../middlewares/auth.middleware");
 const upload = require("../middlewares/upload");
 const User = require("../models/userModel");
@@ -81,10 +82,24 @@ router.get("/add", auth, role("ADMIN"), async (req, res) => {
       .select("_id name email")
       .lean();
 
+    // Load upcoming classes (startDate today or future) for attaching to the course
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const classes = await Class.find({
+      isDeleted: false,
+      startDate: { $gte: today },
+    })
+      .sort({ startDate: 1 })
+      .limit(20)
+      .select("_id title startDate endDate")
+      .lean();
+
     res.render("tutor_course/add", {
       error: null,
       formData: {},
-      tutors, // 👈 PASS TUTORS
+      tutors,
+      classes,
     });
   } catch (err) {
     console.error(err);
@@ -103,20 +118,42 @@ router.post(
   upload.single("image"),
   async (req, res) => {
     try {
-      const { title, description, tutorId, price, published, organizationId } =
-        req.body;
+      const { title, description, tutorId, price, published } = req.body;
+      let { classes } = req.body;
+
+      // Normalize classes to an array of ids
+      if (classes && !Array.isArray(classes)) {
+        classes = [classes];
+      }
+      const classIds = classes || [];
+
       const imageUrl = req.file?.path; // Cloudinary URL
       const imageId = req.file?.filename;
+
+      // Compute course expiry date = max endDate of attached classes (if any)
+      let expiryDate = null;
+      if (classIds.length) {
+        const latestClass = await Class.find({ _id: { $in: classIds } })
+          .sort({ endDate: -1 })
+          .limit(1)
+          .select("endDate")
+          .lean();
+        if (latestClass.length && latestClass[0].endDate) {
+          expiryDate = latestClass[0].endDate;
+        }
+      }
 
       let data = await Course.create({
         title,
         description,
         tutorId: tutorId || null,
-        organizationId: organizationId || null,
+        organizationId: req.user.organizationId || null,
         price: Number(price || 0),
-        published: published === "on" ? true : false,
+        published: published === "on",
         image: imageUrl,
         imageId, // 👈 SAVE IMAGE
+        classes: classIds,
+        expiryDate,
       });
       console.log("New Course Created:", data);
       return res.redirect("/admin/courses");
@@ -139,11 +176,25 @@ router.get("/edit/:id", auth, role("ADMIN"), async (req, res) => {
       .select("_id name email")
       .lean();
 
+    // Load upcoming classes (startDate today or future) so admin can attach/detach them
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const classes = await Class.find({
+      isDeleted: false,
+      startDate: { $gte: today },
+    })
+      .sort({ startDate: 1 })
+      .limit(20)
+      .select("_id title startDate endDate")
+      .lean();
+
     if (!course) return res.redirect("/admin/courses");
 
     res.render("tutor_course/edit", {
       course,
       tutors,
+      classes,
       error: null,
     });
   } catch (err) {
@@ -173,9 +224,33 @@ router.post(
     course.title = req.body.title;
     course.description = req.body.description;
     course.tutorId = req.body.tutorId || null;
-    course.organizationId = req.body.organizationId || null;
+    course.organizationId = req.user.organizationId || course.organizationId;
     course.price = Number(req.body.price);
     course.published = req.body.published === "on";
+
+    // Update attached classes
+    let { classes } = req.body;
+    if (classes && !Array.isArray(classes)) {
+      classes = [classes];
+    }
+    const classIds = classes || [];
+    course.classes = classIds;
+
+    // Recompute course expiry date from latest class endDate (if any)
+    if (classIds.length) {
+      const latestClass = await Class.find({ _id: { $in: classIds } })
+        .sort({ endDate: -1 })
+        .limit(1)
+        .select("endDate")
+        .lean();
+      if (latestClass.length && latestClass[0].endDate) {
+        course.expiryDate = latestClass[0].endDate;
+      } else {
+        course.expiryDate = null;
+      }
+    } else {
+      course.expiryDate = null;
+    }
 
     if (req.file) {
       course.image = req.file.path;

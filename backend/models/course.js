@@ -20,6 +20,8 @@ const CourseSchema = new mongoose.Schema(
         ref: "Class",
       },
     ],
+    // Computed expiry date based on the latest attached class endDate
+    expiryDate: { type: Date },
   },
   { timestamps: true }
 );

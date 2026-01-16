@@ -17,6 +17,8 @@ const userSchema = new mongoose.Schema(
     },
     isVerified: { type: Boolean, default: false },
     status: { type: String, enum: ["ACTIVE", "INACTIVE"], default: "ACTIVE" },
+    // Marks whether admin has confirmed this user's payment
+    isPaymentDone: { type: Boolean, default: false },
     resetToken: String,
     resetTokenExpiry: Date,
 

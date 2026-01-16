@@ -99,38 +99,6 @@
         </select>
       </div>
 
-      <!-- CLASSES MULTISELECT (optional) -->
-      <div>
-        <label class="block text-sm font-medium mb-1">Include Classes (optional)</label>
-        <p class="text-xs text-gray-500 mb-1">
-          Hold Ctrl (Windows) or Cmd (Mac) to select multiple classes.
-        </p>
-        <select
-          name="classes"
-          multiple
-          class="w-full border rounded px-4 py-2 min-h-[120px]"
-        >
-          <% const selectedClassIds = (pkg.classes || []).map(c => c.toString()); %>
-          <% if (typeof classes !== 'undefined') { %>
-            <% classes.forEach(cls => { %>
-              <option
-                value="<%= cls._id %>"
-                <%= selectedClassIds.includes(cls._id.toString()) ? 'selected' : '' %>
-              >
-                <%= cls.title %>
-                <% if (cls.startDate && cls.endDate) { %>
-                  (
-                  <%= new Date(cls.startDate).toLocaleDateString() %>
-                  -
-                  <%= new Date(cls.endDate).toLocaleDateString() %>
-                  )
-                <% } %>
-              </option>
-            <% }) %>
-          <% } %>
-        </select>
-      </div>
-
       <!-- PRICING -->
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>

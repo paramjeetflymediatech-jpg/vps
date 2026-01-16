@@ -47,27 +47,6 @@
         action="/admin/classes/edit/<%= classdata._id %>"
         class="space-y-5"
       >
-
-        <!-- COURSE -->
-        <div>
-          <label class="block text-sm font-semibold mb-1">Course</label>
-          <select
-            name="courseId"
-            required
-            class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500"
-          >
-            <% data.forEach(c => { %>
-              <option
-                value="<%= c._id %>"
-                <%= c._id.toString() === classdata.courseId._id.toString()
-                  ? 'selected' : '' %>
-              >
-                <%= c.title %>
-              </option>
-            <% }) %>
-          </select>
-        </div>
-
         <!-- TITLE -->
         <div>
           <label class="block text-sm font-semibold mb-1">Class Title</label>
@@ -108,7 +87,7 @@
               name="startDate"
               value="<%= classdata.startDate.toISOString().slice(0,10) %>"
               required
-              min="<%= new Date().toISOString().slice(0,10) %>"
+                min="<%= new Date().toISOString().slice(0,10) %>"
               class="w-full border rounded-lg px-3 py-2"
             />
           </div>
@@ -120,7 +99,7 @@
               name="endDate"
               value="<%= classdata.endDate.toISOString().slice(0,10) %>"
               required
-              min="<%= new Date().toISOString().slice(0,10) %>"
+                min="<%= classdata.endDate.toISOString().slice(0,10)%>"
               class="w-full border rounded-lg px-3 py-2"
             />
           </div>
@@ -180,27 +159,15 @@
           </button>
         </div>
 
-        <!-- PRICE & MAX STUDENTS -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label class="block text-sm font-semibold mb-1">Price</label>
-            <input
-              type="number"
-              name="price"
-              value="<%= classdata.price %>"
-              class="w-full border rounded-lg px-3 py-2"
-            />
-          </div>
-
-          <div>
-            <label class="block text-sm font-semibold mb-1">Max Students</label>
-            <input
-              type="number"
-              name="maxStudents"
-              value="<%= classdata.maxStudents %>"
-              class="w-full border rounded-lg px-3 py-2"
-            />
-          </div>
+        <!-- MAX STUDENTS -->
+        <div>
+          <label class="block text-sm font-semibold mb-1">Max Students</label>
+          <input
+            type="number"
+            name="maxStudents"
+            value="<%= classdata.maxStudents %>"
+            class="w-full border rounded-lg px-3 py-2"
+          />
         </div>
 
         <!-- STATUS -->
@@ -217,30 +184,6 @@
             <% }) %>
           </select>
         </div>
-
-       <!-- INSTRUCTOR -->
-<div>
-  <label class="block text-sm font-semibold mb-1">Instructor</label>
-
-  <select
-    name="tutorId"
-    required
-    class="w-full border rounded-lg px-3 py-2 bg-white
-           focus:ring-2 focus:ring-blue-500 focus:outline-none"
-  >
-    <% tutors.forEach(t => { %>
-      <option
-        value="<%= t._id %>"
-        <%= t._id.toString() === classdata.tutorId._id.toString()
-          ? "selected"
-          : "" %>
-      >
-        <%= t.name %> (<%= t.email %>)
-      </option>
-    <% }) %>
-  </select>
-</div>
-
 
         <!-- SUBMIT -->
         <button

@@ -87,30 +87,46 @@
       <p class="text-xs text-gray-500 mb-1">
         Hold Ctrl (Windows) or Cmd (Mac) to select multiple classes.
       </p>
-      <select
-        name="classes"
-        multiple
-        class="w-full border rounded px-4 py-2 min-h-[120px]"
-      >
-        <% const selectedClassIds = (course.classes || []).map(c => c.toString ? c.toString() : c); %>
-        <% if (typeof classes !== 'undefined') { %>
-          <% classes.forEach(cls => { %>
-            <option
-              value="<%= cls._id %>"
-              <%= selectedClassIds.includes(cls._id.toString()) ? 'selected' : '' %>
-            >
-              <%= cls.title %>
-              <% if (cls.startDate && cls.endDate) { %>
-                (
-                <%= new Date(cls.startDate).toLocaleDateString() %>
-                -
-                <%= new Date(cls.endDate).toLocaleDateString() %>
-                )
-              <% } %>
-            </option>
-          <% }) %>
+      <div class="flex items-center gap-3 mb-2">
+        <select
+          id="classes-select"
+          name="classes"
+          multiple
+          class="flex-1 w-full border rounded px-4 py-2 min-h-[120px]"
+        >
+          <% const selectedClassIds = (course.classes || []).map(c => c.toString ? c.toString() : c); %>
+          <% if (typeof classes !== 'undefined') { %>
+            <% classes.forEach(cls => { %>
+              <option
+                value="<%= cls._id %>"
+                <%= selectedClassIds.includes(cls._id.toString()) ? 'selected' : '' %>
+              >
+                <%= cls.title %>
+                <% if (cls.startDate && cls.endDate) { %>
+                  (
+                  <%= new Date(cls.startDate).toLocaleDateString() %>
+                  -
+                  <%= new Date(cls.endDate).toLocaleDateString() %>
+                  )
+                <% } %>
+              </option>
+            <% }) %>
+          <% } %>
+        </select>
+
+        <% if (selectedClassIds && selectedClassIds.length) { %>
+          <button
+            type="button"
+            id="reload-classes-btn"
+            class="px-3 py-2 text-xs bg-blue-600 text-white rounded hover:bg-blue-700"
+          >
+            Load latest upcoming classes
+          </button>
         <% } %>
-      </select>
+      </div>
+      <p class="text-[11px] text-gray-500">
+        Button will refresh this list with upcoming classes (by start date). Existing selected classes stay selected.
+      </p>
     </div>
 
     <!-- Current Image -->
@@ -162,5 +178,83 @@
 </div>
 
 </main>
+
+<script>
+  (function () {
+    const reloadBtn = document.getElementById("reload-classes-btn");
+    const selectEl = document.getElementById("classes-select");
+
+    if (!reloadBtn || !selectEl) return;
+
+    reloadBtn.addEventListener("click", async () => {\r
+      reloadBtn.disabled = true;
+      reloadBtn.textContent = "Loading...";
+      try {
+        const res = await fetch("/admin/classes/upcoming", {
+          headers: { "Accept": "application/json" },
+          credentials: "same-origin",
+        });
+        if (!res.ok) throw new Error("Failed to load classes");
+        const json = await res.json();
+        if (!json.success || !Array.isArray(json.data)) {
+          throw new Error("Unexpected response");
+        }
+
+        const latest = json.data;
+
+        // Preserve current selections
+        const selectedValues = new Set(
+          Array.from(selectEl.options)
+            .filter((o) => o.selected)
+            .map((o) => o.value)
+        );
+
+        // Build a map of existing options by value to avoid duplicates
+        const existingOptions = new Map();
+        Array.from(selectEl.options).forEach((o) => {
+          existingOptions.set(o.value, o);
+        });
+
+        // Append/merge latest upcoming classes
+        latest.forEach((cls) => {
+          const id = String(cls._id);
+          const start = cls.startDate ? new Date(cls.startDate) : null;
+          const end = cls.endDate ? new Date(cls.endDate) : null;
+          const labelParts = [cls.title];
+          if (start && end) {
+            labelParts.push(
+              " (" +
+              start.toLocaleDateString() +
+              " - " +
+              end.toLocaleDateString() +
+              ")"
+            );
+          }
+          const text = labelParts.join("");
+
+          let opt = existingOptions.get(id);
+          if (!opt) {
+            opt = document.createElement("option");
+            opt.value = id;
+            existingOptions.set(id, opt);
+            selectEl.appendChild(opt);
+          }
+          opt.textContent = text;
+        });
+
+        // Restore selections
+        Array.from(selectEl.options).forEach((o) => {
+          o.selected = selectedValues.has(o.value);
+        });
+      } catch (err) {
+        console.error(err);
+        alert("Failed to load latest classes. Please try again.");
+      } finally {
+        reloadBtn.disabled = false;
+        reloadBtn.textContent = "Load latest upcoming classes";
+      }
+    });
+  })();
+</script>
 
 <%- include('../layouts/footer') %>

@@ -134,7 +134,10 @@ exports.renderClasses = async (req, res) => {
  */
 exports.renderCreateClass = async (req, res) => {
   try {
-    const courses = await Course.find().lean();
+    const courses = await Course.find()
+      .sort({ createdAt: -1 })
+      .limit(20)
+      .lean();
     const tutors = await User.find({ role: "TUTOR" }).lean();
 
     res.render("batches/create", {
@@ -160,6 +163,7 @@ exports.createClass = async (req, res) => {
 
     const normalizedSchedule = normalizeSchedule(schedule);
 
+    // Only check clash if a tutor is selected
     const clash = await findTutorScheduleClash({
       tutorId,
       schedule: normalizedSchedule,
@@ -171,15 +175,15 @@ exports.createClass = async (req, res) => {
     }
 
     await Class.create({
-      courseId,
-      tutorId,
+      courseId: courseId || null,
+      tutorId: tutorId || null,
       startDate,
       endDate,
-      price: req.body.price,
-      meetLink: req.body.meetLink,
+      price: 0,
+      meetingLink: req.body.meetingLink,
       title,
       description,
-      schedule: sortSchedule(normalizedSchedule),
+      schedule: sortSchedule(normalizeSchedule),
       maxStudents: Number(maxStudents),
       status,
     });
@@ -208,7 +212,10 @@ exports.renderEditClass = async (req, res) => {
       return res.redirect("/admin/classes");
     }
 
-    const courses = await Course.find().lean();
+    const courses = await Course.find()
+      .sort({ createdAt: -1 })
+      .limit(20)
+      .lean();
     const tutors = await User.find({ role: "TUTOR" }).lean();
 
     res.render("batches/edit", {
@@ -235,7 +242,6 @@ exports.updateClass = async (req, res) => {
       startDate,
       endDate,
       schedule,
-      price,
       maxStudents,
       status,
     } = req.body;
@@ -264,17 +270,18 @@ exports.updateClass = async (req, res) => {
     const updated = await Class.findByIdAndUpdate(
       req.params.id,
       {
-        courseId,
+        courseId: courseId || null,
         meetingLink,
         startDate,
         endDate,
         schedule: sortSchedule(normalizedSchedule),
-        price: Number(price),
+        // price fixed at 0 for classes
+        price: 0,
         maxStudents: Number(maxStudents),
         status,
         title: req.body.title,
         description: req.body.description,
-        tutorId: req.body.tutorId,
+        tutorId: req.body.tutorId || null,
       },
       { new: true, runValidators: true }
     );

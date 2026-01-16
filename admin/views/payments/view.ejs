@@ -1,0 +1,124 @@
+<%- include('../layouts/header') %>
+<%- include('../layouts/sidebar') %>
+
+<main class="bg-gray-100 min-h-screen px-3 sm:px-4 md:px-6 py-6 w-full md:ml-64">
+  <div class="max-w-3xl mx-auto bg-white rounded-2xl shadow p-6">
+    <h1 class="text-2xl font-semibold mb-4">Payment Details</h1>
+
+    <div class="space-y-4 text-sm">
+      <div>
+        <span class="font-semibold">User:</span>
+        <span class="ml-2"><%= payment.userId ? payment.userId.name : 'N/A' %></span>
+      </div>
+      <div>
+        <span class="font-semibold">Email:</span>
+        <span class="ml-2"><%= payment.userId ? payment.userId.email : 'N/A' %></span>
+      </div>
+      <div>
+        <span class="font-semibold">Amount:</span>
+        <span class="ml-2">₹<%= payment.amount %></span>
+      </div>
+      <div>
+        <span class="font-semibold">Transaction ID:</span>
+        <span class="ml-2"><%= payment.txnId %></span>
+      </div>
+      <div>
+        <span class="font-semibold">Status:</span>
+        <span class="ml-2"><%= payment.status %></span>
+      </div>
+      <div>
+        <span class="font-semibold">User Payment Verified:</span>
+        <span class="ml-2"><%= payment.userId && payment.userId.isPaymentDone ? 'Yes' : 'No' %></span>
+      </div>
+      <div>
+        <span class="font-semibold">Created At:</span>
+        <span class="ml-2"><%= new Date(payment.createdAt).toLocaleString() %></span>
+      </div>
+    </div>
+
+    <% if (payment.proofImage matters) { %>
+      <div class="mt-6">
+        <h2 class="font-semibold mb-2">Payment Proof</h2>
+        <img
+          src="<%= payment.proofImageUrl %>"
+          alt="Payment proof"
+          class="w-full max-h-96 object-contain border rounded"
+        />
+      </div>
+    <% } else { %>
+      <p class="mt-4 text-gray-500 text-sm">
+        No payment proof image has been uploaded for this transaction.
+      </p>
+    <% } %>
+
+    <form
+      id="payment-status-form"
+      action="/admin/payments/<%= payment._id %>/verify"
+      method="POST"
+      class="mt-6 space-y-4"
+    >
+      <label class="block text-sm font-medium mb-1" for="status">
+        Update Payment Status
+      </label>
+      <select
+        id="status"
+        name="status"
+        class="w-full border rounded px-3 py-2"
+      >
+        <option value="PENDING" <%= payment.status === 'PENDING' ? 'selected' : '' %>>Pending</option>
+        <option value="VERIFIED" <%= payment.status === 'VERIFIED' ? 'selected' : '' %>>Verified</option>
+        <option value="REJECTED" <%= payment.status === 'REJECTED' ? 'selected' : '' %>>Rejected</option>
+      </select>
+
+      <button
+        type="submit"
+        class="w-full bg-blue-600 text-white py-2 rounded mt-2 hover:bg-blue-700"
+      >
+        Save Status
+      </button>
+    </form>
+
+    <div class="mt-4">
+      <a href="/admin/payments" class="text-sm text-gray-600 hover:underline">
+        ← Back to Payments
+      </a>
+    </div>
+  </div>
+</main>
+
+<script>
+  (function () {
+    const form = document.getElementById("payment-status-form");
+    if (!form) return;
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const formData = new FormData(form);
+      const status = formData.get("status");
+
+      try {
+        const res = await fetch(form.action, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+          body: new URLSearchParams({ status }),
+        });
+
+        const data = await res.json();
+        if (!res.ok) {
+          alert(data.message || "Failed to update payment");
+          return;
+        }
+
+        alert("Payment status updated");
+        window.location.reload();
+      } catch (err) {
+        console.error(err);
+        alert("Something went wrong");
+      }
+    });
+  })();
+</script>
+
+<%- include('../layouts/footer') %>

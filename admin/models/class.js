@@ -5,7 +5,7 @@ const classSchema = new mongoose.Schema(
     courseId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "course",
-      required: true,
+      required: false,
     },
 
     title: {
@@ -19,7 +19,7 @@ const classSchema = new mongoose.Schema(
     tutorId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      required: true,
+      required: false,
     },
 
     price: {

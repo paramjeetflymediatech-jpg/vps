@@ -1,17 +1,35 @@
 import express from "express";
+import Payment from "../../models/payment.js";
 const router = express.Router();
 
 router.post("/upi/initiate", async (req, res) => {
-  const { userId, amount, txnId } = req.body;
+  const { userId, amount, txnId, proofImageUrl } = req.body;
 
   if (!userId || !amount || !txnId) {
     return res.status(400).json({ success: false, message: "All fields required" });
   }
 
-  // Save to DB (or in-memory for testing)
-  console.log("Payment recorded:", { userId, amount, txnId, status: "PENDING" });
+  try {
+    // Create or update a payment record for this txnId
+    const payment = await Payment.findOneAndUpdate(
+      { txnId },
+      {
+        userId,
+        amount,
+        txnId,
+        proofImageUrl: proofImageUrl || undefined,
+        status: "PENDING",
+      },
+      { new: true, upsert: true, runValidators: true }
+    );
 
-  return res.json({ success: true, message: "Payment recorded. Verification pending." });
+    console.log("Payment recorded:", payment);
+
+    return res.json({ success: true, message: "Payment recorded. Verification pending." });
+  } catch (err) {
+    console.error("Payment save error:", err);
+    return res.status(500).json({ success: false, message: "Server error" });
+  }
 });
 
 export default router;
