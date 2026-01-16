@@ -1,4 +1,4 @@
-import Payment from "../models/Payment.js";
+import Payment from "../models/payment.js";
 import { sendEmail } from "../config/mailer.js";
 import { v4 as uuidv4 } from "uuid";
 // Map lesson number to price
