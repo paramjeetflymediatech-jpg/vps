@@ -30,8 +30,12 @@ const paymentSchema = new mongoose.Schema(
     txnId: {
       type: String,
     },
+    paymentImage: {
+      type: String, // URL or path to uploaded payment proof image
+    },
   },
   { timestamps: true }
 );
 
-export default mongoose.models.Payment || mongoose.model("Payment", paymentSchema);
+export default mongoose.models.Payment ||
+  mongoose.model("Payment", paymentSchema);

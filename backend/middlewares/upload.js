@@ -5,7 +5,7 @@ import cloudinary from "./index.js";
 const storage = new CloudinaryStorage({
   cloudinary,
   params: async (req, file) => ({
-    folder: "courses",
+    folder: req.body.folder || "courses", // Allow dynamic folder
     public_id: `${Date.now()}-${file.originalname.split(".")[0]}`,
     allowed_formats: ["jpg", "jpeg", "png", "webp"],
   }),

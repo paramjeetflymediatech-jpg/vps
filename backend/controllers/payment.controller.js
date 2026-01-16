@@ -1,4 +1,5 @@
 import Payment from "../models/Payment.js";
+import { sendEmail } from "../config/mailer.js";
 
 // Map lesson number to price
 const lessonPricing = {
@@ -63,5 +64,52 @@ export const logUpiPayment = async (req, res) => {
   } catch (err) {
     console.error("logUpiPayment error:", err);
     return res.status(500).json({ message: "Failed to log payment" });
+  }
+};
+
+// POST /api/payment/upload-proof
+export const uploadPaymentProof = async (req, res) => {
+  try {
+    const userId = req.user?.id || req.user?._id;
+    const { paymentId } = req.body;
+
+    if (!userId) {
+      return res.status(401).json({ message: "Unauthorized: user not found" });
+    }
+
+    if (!paymentId) {
+      return res.status(400).json({ message: "Payment ID is required" });
+    }
+
+    if (!req.file) {
+      return res.status(400).json({ message: "Payment image is required" });
+    }
+
+    // Update payment with image URL
+    const payment = await Payment.findOneAndUpdate(
+      { _id: paymentId, userId },
+      { paymentImage: req.file.path }, // Cloudinary URL
+      { new: true }
+    );
+
+    if (!payment) {
+      return res.status(404).json({ message: "Payment not found" });
+    }
+
+    // Send notification email to admin
+    const adminEmail = process.env.ADMIN_EMAIL || "admin@yopmail.com";
+    await sendEmail(
+      adminEmail,
+      "New Payment Proof Uploaded",
+      `New payment proof uploaded by user ${userId}. Payment ID: ${paymentId}, Amount: ₹${payment.amount}`
+    );
+
+    return res.status(200).json({ 
+      message: "Payment proof uploaded successfully", 
+      payment 
+    });
+  } catch (err) {
+    console.error("uploadPaymentProof error:", err);
+    return res.status(500).json({ message: "Failed to upload payment proof" });
   }
 };
