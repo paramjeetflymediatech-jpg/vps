@@ -1,171 +1,155 @@
 <%- include('../layouts/header') %>
-<%- include('../layouts/sidebar') %>
+  <%- include('../layouts/sidebar') %>
 
-<main
-  class="bg-gray-100 min-h-screen flex justify-center px-3 sm:px-4 md:px-6 py-6 w-full md:ml-64 transition-all"
->
-  <div class="w-full max-w-3xl">
-    <!-- MOBILE HEADER -->
-    <div class="relative flex items-center mb-6 md:hidden h-12">
-      <button
-        class="menu-btn absolute left-0 bg-blue-600 text-white p-2 rounded-lg shadow hover:bg-blue-700 transition z-10"
-      >
-        ☰
-      </button>
-      <h1 class="w-full text-center text-lg font-semibold text-gray-800">
-        Add Package
-      </h1>
-    </div>
-
-    <!-- DESKTOP HEADER -->
-    <div class="hidden md:flex items-center mb-6">
-      <h1 class="text-2xl font-semibold text-gray-800">
-        ➕ Add New Package
-      </h1>
-    </div>
-
-    <!-- FORM CARD -->
-    <div class="bg-white rounded-2xl shadow p-4 sm:p-5 md:p-6">
-      <form action="/admin/packages/add" method="POST" class="space-y-5">
-        <!-- TITLE -->
-        <div>
-          <label class="block text-sm font-medium mb-1">Title</label>
-          <input
-            type="text"
-            name="title"
-            required
-            placeholder="Complete Spoken English Bundle"
-            class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-          />
-        </div>
-
-        <!-- DESCRIPTION -->
-        <div>
-          <label class="block text-sm font-medium mb-1">Description</label>
-          <textarea
-            name="description"
-            rows="4"
-            required
-            placeholder="Short description of what this package includes..."
-            class="w-full px-4 py-2 border rounded-lg resize-none focus:ring-2 focus:ring-blue-500 outline-none"
-          ></textarea>
-        </div>
-
-        <!-- LEVEL -->
-        <div>
-          <label class="block text-sm font-medium mb-1">Level</label>
-          <select
-            name="level"
-            class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-          >
-            <option value="">-- Select Level --</option>
-            <option value="BEGINNER">Beginner</option>
-            <option value="INTERMEDIATE">Intermediate</option>
-            <option value="ADVANCED">Advanced</option>
-          </select>
-        </div>
-
-        <!-- CATEGORY -->
-        <div>
-          <label class="block text-sm font-medium mb-1">Category</label>
-          <select
-            name="category"
-            class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-          >
-            <option value="">-- Select Category --</option>
-            <option value="GENERAL_ENGLISH">General English</option>
-            <option value="SPOKEN_ENGLISH">Spoken English</option>
-            <option value="EXAM_PREP">Exam Prep (IELTS/TOEFL)</option>
-            <option value="BUSINESS_ENGLISH">Business English</option>
-          </select>
-        </div>
-
-        <!-- COURSES MULTISELECT -->
-        <div>
-          <label class="block text-sm font-medium mb-1">Include Courses</label>
-          <p class="text-xs text-gray-500 mb-1">
-            Hold Ctrl (Windows) or Cmd (Mac) to select multiple courses.
-          </p>
-          <select
-            name="courses"
-            multiple
-            class="w-full px-4 py-2 border rounded-lg min-h-[120px] focus:ring-2 focus:ring-blue-500 outline-none"
-          >
-            <% courses.forEach(course => { %>
-              <option value="<%= course._id %>">
-                <%= course.title %> (₹<%= course.price %>)
-              </option>
-            <% }) %>
-          </select>
-        </div>
-
-        <!-- PRICING -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label class="block text-sm font-medium mb-1">Price (₹)</label>
-            <input
-              type="number"
-              name="price"
-              min="0"
-              placeholder="3999"
-              class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-            />
-          </div>
-          <div>
-            <label class="block text-sm font-medium mb-1">Discount Price (₹)</label>
-            <input
-              type="number"
-              name="discountPrice"
-              min="0"
-              placeholder="2999"
-              class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-            />
-          </div>
-        </div>
-
-        <!-- ACCESS DURATION -->
-        <div>
-          <label class="block text-sm font-medium mb-1">Access Duration (days)</label>
-          <input
-            type="number"
-            name="accessDurationDays"
-            min="0"
-            placeholder="365"
-            class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-          />
-        </div>
-
-        <!-- PUBLISHED -->
-        <div class="flex items-center gap-2">
-          <input
-            type="checkbox"
-            name="published"
-            id="published"
-            class="w-4 h-4 text-blue-600 rounded"
-          />
-          <label for="published" class="text-sm">
-            Publish Package
-          </label>
-        </div>
-
-        <!-- ACTION BUTTONS -->
-        <div class="flex flex-col sm:flex-row gap-4 justify-end pt-2">
-          <a
-            href="/admin/packages"
-            class="w-full sm:w-auto text-center px-6 py-2 rounded-lg border hover:bg-gray-100 transition"
-          >
-            Cancel
-          </a>
+    <main class="bg-gray-100 min-h-screen flex justify-center px-3 sm:px-4 md:px-6 py-6 w-full md:ml-64 transition-all">
+      <div class="w-full max-w-3xl">
+        <!-- MOBILE HEADER -->
+        <div class="relative flex items-center mb-6 md:hidden h-12">
           <button
-            type="submit"
-            class="w-full sm:w-auto bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition"
-          >
-            Save Package
+            class="menu-btn absolute left-0 bg-blue-600 text-white p-2 rounded-lg shadow hover:bg-blue-700 transition z-10">
+            ☰
           </button>
+          <h1 class="w-full text-center text-lg font-semibold text-gray-800">
+            Add Package
+          </h1>
         </div>
-      </form>
-    </div>
-  </div>
-</main>
 
-<%- include('../layouts/footer') %>
+        <!-- DESKTOP HEADER -->
+        <div class="hidden md:flex items-center mb-6">
+          <h1 class="text-2xl font-semibold text-gray-800">
+            ➕ Add New Package
+          </h1>
+        </div>
+
+        <!-- FORM CARD -->
+        <div class="bg-white rounded-2xl shadow p-4 sm:p-5 md:p-6">
+          <form action="/admin/packages/add" method="POST" class="space-y-5">
+            <!-- TITLE -->
+            <div>
+              <label class="block text-sm font-medium mb-1">Title</label>
+              <input type="text" name="title" required placeholder="Complete Spoken English Bundle"
+                class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" />
+            </div>
+
+            <!-- DESCRIPTION -->
+            <div>
+              <label class="block text-sm font-medium mb-1">Description</label>
+              <textarea name="description" rows="4" required
+                placeholder="Short description of what this package includes..."
+                class="w-full px-4 py-2 border rounded-lg resize-none focus:ring-2 focus:ring-blue-500 outline-none"></textarea>
+            </div>
+
+            <!-- LEVEL -->
+            <div>
+              <label class="block text-sm font-medium mb-1">Level</label>
+              <select name="level"
+                class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                <option value="">-- Select Level --</option>
+                <option value="BEGINNER">Beginner</option>
+                <option value="INTERMEDIATE">Intermediate</option>
+                <option value="ADVANCED">Advanced</option>
+              </select>
+            </div>
+
+            <!-- CATEGORY -->
+            <div>
+              <label class="block text-sm font-medium mb-1">Category</label>
+              <select name="category"
+                class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                <option value="">-- Select Category --</option>
+                <option value="GENERAL_ENGLISH">General English</option>
+                <option value="SPOKEN_ENGLISH">Spoken English</option>
+                <option value="EXAM_PREP">Exam Prep (IELTS/TOEFL)</option>
+                <option value="BUSINESS_ENGLISH">Business English</option>
+              </select>
+            </div>
+
+            <!-- LESSONS -->
+            <div>
+              <label class="block text-sm font-medium mb-1">Number of Lessons</label>
+              <select name="lessons"
+                class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                <option value="">-- Select Lessons --</option>
+                <option value="8">8 Lessons</option>
+                <option value="12">12 Lessons</option>
+                <option value="16">16 Lessons</option>
+                <option value="20">20 Lessons</option>
+                <option value="24">24 Lessons</option>
+              </select>
+            </div>
+
+            <!-- LESSON DURATION -->
+            <div>
+              <label class="block text-sm font-medium mb-1">Lesson Duration (minutes)</label>
+              <select name="lessonDuration"
+                class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                <option value="">-- Select Duration --</option>
+                <option value="30">30 minutes</option>
+                <option value="45">45 minutes</option>
+                <option value="60">60 minutes</option>
+                <option value="90">90 minutes</option>
+              </select>
+            </div>
+
+            <!-- COURSES MULTISELECT -->
+            <div>
+              <label class="block text-sm font-medium mb-1">Include Courses</label>
+              <p class="text-xs text-gray-500 mb-1">
+                Hold Ctrl (Windows) or Cmd (Mac) to select multiple courses.
+              </p>
+              <select name="courses" multiple
+                class="w-full px-4 py-2 border rounded-lg min-h-[120px] focus:ring-2 focus:ring-blue-500 outline-none">
+                <% courses.forEach(course=> { %>
+                  <option value="<%= course._id %>">
+                    <%= course.title %> (₹<%= course.price %>)
+                  </option>
+                  <% }) %>
+              </select>
+            </div>
+
+            <!-- PRICING -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium mb-1">Price (₹)</label>
+                <input type="number" name="price" min="0" placeholder="3999"
+                  class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" />
+              </div>
+              <div>
+                <label class="block text-sm font-medium mb-1">Discount Price (₹)</label>
+                <input type="number" name="discountPrice" min="0" placeholder="2999"
+                  class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" />
+              </div>
+            </div>
+
+            <!-- ACCESS DURATION -->
+            <div>
+              <label class="block text-sm font-medium mb-1">Access Duration (days)</label>
+              <input type="number" name="accessDurationDays" min="0" placeholder="365"
+                class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" />
+            </div>
+
+            <!-- PUBLISHED -->
+            <div class="flex items-center gap-2">
+              <input type="checkbox" name="published" id="published" class="w-4 h-4 text-blue-600 rounded" />
+              <label for="published" class="text-sm">
+                Publish Package
+              </label>
+            </div>
+
+            <!-- ACTION BUTTONS -->
+            <div class="flex flex-col sm:flex-row gap-4 justify-end pt-2">
+              <a href="/admin/packages"
+                class="w-full sm:w-auto text-center px-6 py-2 rounded-lg border hover:bg-gray-100 transition">
+                Cancel
+              </a>
+              <button type="submit"
+                class="w-full sm:w-auto bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition">
+                Save Package
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </main>
+
+    <%- include('../layouts/footer') %>

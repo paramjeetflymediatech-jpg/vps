@@ -1,120 +1,204 @@
 <%- include('../layouts/header') %>
-  <%- include('../layouts/sidebar') %>
+<%- include('../layouts/sidebar') %>
 
-    <main class="bg-gray-100 min-h-screen px-3 sm:px-4 md:px-6 py-6 w-full md:ml-64">
-      <div class="max-w-3xl mx-auto bg-white rounded-2xl shadow p-6">
-        <h1 class="text-2xl font-semibold mb-4">Payment Details</h1>
+<main
+  class="bg-gray-100 min-h-screen px-3 sm:px-4 md:px-6 py-6
+         w-full md:ml-64 transition-all duration-300"
+>
+  <div class="max-w-3xl mx-auto">
 
-        <div class="space-y-4 text-sm">
-          <div>
-            <span class="font-semibold">User:</span>
-            <span class="ml-2">
-              <%= payment.userId ? payment.userId.name : 'N/A' %>
-            </span>
-          </div>
-          <div>
-            <span class="font-semibold">Email:</span>
-            <span class="ml-2">
-              <%= payment.userId ? payment.userId.email : 'N/A' %>
-            </span>
-          </div>
-          <div>
-            <span class="font-semibold">Amount:</span>
-            <span class="ml-2">₹<%= payment.amount %></span>
-          </div>
+    <!-- ================= MOBILE HEADER ================= -->
+    <div class="flex items-center justify-between mb-6 md:hidden">
+      <button
+        id="menuBtn"
+        class="bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600
+               text-white px-3 py-2 rounded-lg shadow text-xl"
+      >
+        ☰
+      </button>
 
-          <div>
-            <span class="font-semibold">Status:</span>
-            <span class="ml-2">
-              <%= payment.status %>
-            </span>
-          </div>
-          <div>
-            <span class="font-semibold">User Payment Verified:</span>
-            <span class="ml-2">
-              <%= payment.userId && payment.userId.isPaymentDone ? 'Yes' : 'No' %>
-            </span>
-          </div>
-          <div>
-            <span class="font-semibold">Created At:</span>
-            <span class="ml-2">
-              <%= new Date(payment.createdAt).toLocaleString() %>
-            </span>
-          </div>
+      <h1 class="text-lg font-semibold text-gray-800">
+        Payment Details
+      </h1>
+
+      <span
+        class="bg-gray-200 text-gray-700 px-3 py-2 rounded-lg text-sm font-semibold"
+      >
+        Admin
+      </span>
+    </div>
+
+    <!-- ================= DESKTOP HEADER ================= -->
+    <div class="hidden md:block mb-4">
+      <h1 class="text-2xl font-semibold text-gray-800">
+        Payment Details
+      </h1>
+    </div>
+
+    <!-- ================= CONTENT CARD ================= -->
+    <div class="bg-white rounded-2xl shadow p-6">
+
+      <div class="space-y-4 text-sm">
+        <div>
+          <span class="font-semibold">User:</span>
+          <span class="ml-2">
+            <%= payment.userId ? payment.userId.name : 'N/A' %>
+          </span>
         </div>
 
-        <% if (payment.proofImage) { %>
-          <div class="mt-6">
-            <h2 class="font-semibold mb-2">Payment Proof</h2>
-            <img src="<%= payment.proofImage %>" alt="Payment proof"
-              class="w-full max-h-96 object-contain border rounded" />
-          </div>
-          <% } else { %>
-            <p class="mt-4 text-gray-500 text-sm">
-              No payment proof image has been uploaded for this transaction.
-            </p>
-            <% } %>
+        <div>
+          <span class="font-semibold">Email:</span>
+          <span class="ml-2">
+            <%= payment.userId ? payment.userId.email : 'N/A' %>
+          </span>
+        </div>
 
-              <form id="payment-status-form" action="/admin/payments/<%= payment._id %>/verify" method="POST"
-                class="mt-6 space-y-4">
+        <div>
+          <span class="font-semibold">Amount:</span>
+          <span class="ml-2">₹<%= payment.amount %></span>
+        </div>
 
-                <% if (payment.status !=='APPROVED' ) { %>
-                  <label class="block text-sm font-medium mb-1" for="status">
-                    Update Payment Status
-                  </label>
+        <div>
+          <span class="font-semibold">Status:</span>
+          <span class="ml-2 font-semibold
+            <%= payment.status === 'APPROVED'
+              ? 'text-green-600'
+              : payment.status === 'REJECTED'
+              ? 'text-red-600'
+              : 'text-yellow-600' %>">
+            <%= payment.status %>
+          </span>
+        </div>
 
-                  <select id="status" name="status" class="w-full border rounded px-3 py-2">
-                    <option value="PENDING" <%=payment.status==='PENDING' ? 'selected' : '' %>>Pending</option>
-                    <option value="APPROVED" <%=payment.status==='APPROVED' ? 'selected' : '' %>>APPROVED</option>
-                    <option value="REJECTED" <%=payment.status==='REJECTED' ? 'selected' : '' %>>Rejected</option>
-                  </select>
+        <div>
+          <span class="font-semibold">User Payment Verified:</span>
+          <span class="ml-2">
+            <%= payment.userId && payment.userId.isPaymentDone ? 'Yes' : 'No' %>
+          </span>
+        </div>
 
-                  <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded mt-2 hover:bg-blue-700">
-                    Save Status
-                  </button>
-              </form>
-              <% } %>
-                <div class="mt-4">
-                  <a href="/admin/payments" class="text-sm text-gray-600 hover:underline">
-                    ← Back to Payments
-                  </a>
-                </div>
+        <div>
+          <span class="font-semibold">Created At:</span>
+          <span class="ml-2">
+            <%= new Date(payment.createdAt).toLocaleString() %>
+          </span>
+        </div>
       </div>
-    </main>
 
-    <script>
-      (function () {
-        const form = document.getElementById("payment-status-form");
-        if (!form) return;
+      <!-- ================= PAYMENT PROOF ================= -->
+      <% if (payment.proofImage) { %>
+        <div class="mt-6">
+          <h2 class="font-semibold mb-2">Payment Proof</h2>
+          <img
+            src="<%= payment.proofImage %>"
+            alt="Payment proof"
+            class="w-full max-h-96 object-contain border rounded-lg"
+          />
+        </div>
+      <% } else { %>
+        <p class="mt-4 text-gray-500 text-sm">
+          No payment proof image uploaded.
+        </p>
+      <% } %>
 
-        form.addEventListener("submit", async (e) => {
-          e.preventDefault();
-          const formData = new FormData(form);
-          const status = formData.get("status");
+      <!-- ================= STATUS FORM ================= -->
+      <% if (payment.status !== 'APPROVED') { %>
+        <form
+          id="payment-status-form"
+          action="/admin/payments/<%= payment._id %>/verify"
+          method="POST"
+          class="mt-6 space-y-4"
+        >
+          <label class="block text-sm font-medium" for="status">
+            Update Payment Status
+          </label>
 
-          try {
-            const res = await fetch(form.action, {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/x-www-form-urlencoded",
-              },
-              body: new URLSearchParams({ status }),
-            });
+          <select
+            id="status"
+            name="status"
+            class="w-full border rounded-lg px-3 py-2"
+          >
+            <option value="PENDING" <%= payment.status === 'PENDING' ? 'selected' : '' %>>
+              Pending
+            </option>
+            <option value="APPROVED" <%= payment.status === 'APPROVED' ? 'selected' : '' %>>
+              Approved
+            </option>
+            <option value="REJECTED" <%= payment.status === 'REJECTED' ? 'selected' : '' %>>
+              Rejected
+            </option>
+          </select>
 
-            const data = await res.json();
-            if (!res.ok) {
-              alert(data.message || "Failed to update payment");
-              return;
-            }
+          <button
+            type="submit"
+            class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700"
+          >
+            Save Status
+          </button>
+        </form>
+      <% } %>
 
-            alert("Payment status updated");
-            window.location.reload();
-          } catch (err) {
-            console.error(err);
-            alert("Something went wrong");
-          }
+      <!-- ================= BACK LINK ================= -->
+      <div class="mt-6">
+        <a
+          href="/admin/payments"
+          class="text-sm text-gray-600 hover:underline"
+        >
+          ← Back to Payments
+        </a>
+      </div>
+
+    </div>
+  </div>
+</main>
+
+<!-- ================= MOBILE MENU SCRIPT ================= -->
+<script>
+  const menuBtn = document.getElementById("menuBtn");
+  const sidebar = document.querySelector(".sidebar");
+
+  if (menuBtn && sidebar) {
+    menuBtn.addEventListener("click", () => {
+      sidebar.classList.toggle("hidden");
+    });
+  }
+</script>
+
+<!-- ================= FORM AJAX ================= -->
+<script>
+  (function () {
+    const form = document.getElementById("payment-status-form");
+    if (!form) return;
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const formData = new FormData(form);
+      const status = formData.get("status");
+
+      try {
+        const res = await fetch(form.action, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+          body: new URLSearchParams({ status }),
         });
-      })();
-    </script>
 
-    <%- include('../layouts/footer') %>
+        const data = await res.json();
+        if (!res.ok) {
+          alert(data.message || "Failed to update payment");
+          return;
+        }
+
+        alert("Payment status updated successfully");
+        window.location.reload();
+      } catch (err) {
+        console.error(err);
+        alert("Something went wrong");
+      }
+    });
+  })();
+</script>
+
+<%- include('../layouts/footer') %>

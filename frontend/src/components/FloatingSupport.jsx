@@ -5,7 +5,7 @@ import { FaWhatsapp } from "react-icons/fa";
 
 
 export default function FloatingSupport() {
-  const whatsappNumber = "910000000000"; 
+  const whatsappNumber = "919041323089"; // Indian number format with country code
   const message = "Hello! I need help with English courses.";
 
   const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
@@ -19,7 +19,7 @@ export default function FloatingSupport() {
 
   return (
     <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-3">
-      
+
       {/* Chatbot */}
       <button
         onClick={handleChatbot}

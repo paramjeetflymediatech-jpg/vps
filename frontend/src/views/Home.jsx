@@ -112,7 +112,7 @@ const Home = () => {
                          text-white px-8 py-3
                          rounded-full text-sm font-semibold"
             >
-              ACTIVATE
+              BOOK NOW
             </motion.button>
           </motion.div>
         </div>

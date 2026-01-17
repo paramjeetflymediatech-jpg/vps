@@ -100,6 +100,7 @@ const Footer = () => {
         </div>
 
         {/* Support */}
+        
         <div>
           <h4 className="font-bold mb-4 text-lg">Support</h4>
           <ul className="space-y-2 text-md text-black/80">
@@ -115,17 +116,12 @@ const Footer = () => {
         <div>
           <h4 className="font-bold mb-4 text-lg">Get in touch</h4>
 
-          <p className="text-md text-black/80 leading-relaxed mb-3">
-            339 McDermott Points <br />
-            Hettingerhaven, NV 15283
-          </p>
-
           <p className="text-sm text-black/80 mb-1">
             <strong>Email:</strong> support@theenglishraj.com
           </p>
 
           <p className="text-sm text-black/80">
-            <strong>Phone:</strong> +91 99999 99999
+            <strong>Phone:</strong> +91 90413-23089
           </p>
         </div>
       </div>
