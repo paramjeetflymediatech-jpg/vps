@@ -181,7 +181,7 @@ const TutorLayout = ({ children }) => {
               </span>
             </div>
             <img
-              src="https://i.pravatar.cc/40"
+              src={user?.avatar || "no image"}
               alt="Profile"
               className="w-9 h-9 md:w-10 md:h-10 rounded-full border-2 border-[#0852A1]/20"
             />

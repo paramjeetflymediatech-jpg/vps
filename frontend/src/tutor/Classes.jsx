@@ -82,7 +82,10 @@ const Classes = () => {
 
     const tutorId = user?.id || user?._id;
     if (!tutorId) {
-      console.error("Tutor ID not found in user object from localStorage", user);
+      console.error(
+        "Tutor ID not found in user object from localStorage",
+        user
+      );
       return;
     }
 
@@ -92,8 +95,6 @@ const Classes = () => {
       price: Number(form.price),
       maxStudents: Number(form.maxStudents),
     };
-
-    console.log("Submitting class payload", payload);
 
     try {
       const res = editClass
@@ -198,7 +199,7 @@ const Classes = () => {
   return (
     <div className="max-w-7xl mx-auto p-6 space-y-8">
       {/* HEADER */}
-      <div className="flex justify-between items-center bg-white p-6 rounded-3xl border shadow-sm">
+      {/* <div className="flex justify-between items-center bg-white p-6 rounded-3xl border shadow-sm">
         <div>
           <h2 className="text-3xl font-black">Classes Panel</h2>
           <p className="text-gray-500">{classes.length} total classes</p>
@@ -209,7 +210,7 @@ const Classes = () => {
         >
           <Plus size={18} /> Create Class
         </button>
-      </div>
+      </div> */}
 
       {/* LIST */}
       {loading ? (
@@ -218,56 +219,62 @@ const Classes = () => {
         </div>
       ) : (
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {classes.map((item) => (
-            <div
-              key={item._id}
-              className="bg-white rounded-3xl border p-6 shadow-sm"
-            >
-              <div className="flex justify-between mb-3">
-                <span className="text-xs font-bold bg-blue-50 text-blue-600 px-3 py-1 rounded-full">
-                  {item.status}
-                </span>
-                <div className="flex gap-2">
-                  <Edit3
-                    size={16}
-                    className="cursor-pointer text-blue-600"
-                    onClick={() => openEdit(item)}
-                  />
-                  <Trash2
-                    size={16}
-                    className="cursor-pointer text-red-600"
-                    onClick={() => handleDelete(item._id)}
-                  />
+          {classes && classes.length > 0 ? (
+            classes.map((item, i, arr) => (
+              <div
+                key={item._id}
+                className="bg-white rounded-3xl border p-6 shadow-sm"
+              >
+                <div className="flex justify-between mb-3">
+                  <span className="text-xs font-bold bg-blue-50 text-blue-600 px-3 py-1 rounded-full">
+                    {item.status}
+                  </span>
+                  <div className="flex gap-2">
+                    <Edit3
+                      size={16}
+                      className="cursor-pointer text-blue-600"
+                      onClick={() => openEdit(item)}
+                    />
+                    <Trash2
+                      size={16}
+                      className="cursor-pointer text-red-600"
+                      onClick={() => handleDelete(item._id)}
+                    />
+                  </div>
                 </div>
+
+                <h3 className="text-xl font-bold mb-3">{item.title}</h3>
+
+                <div className="space-y-2 text-sm text-gray-500">
+                  <div className="flex items-center gap-2">
+                    <Users size={14} /> Max {item.maxStudents}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Calendar size={14} />
+                    {new Date(item.startDate).toLocaleDateString()}
+                  </div>
+                  <div className="flex items-center gap-2 font-black text-[#0852A1]">
+                    <IndianRupee size={14} /> {item.price}
+                  </div>
+                </div>
+
+                {item.meetingLink && (
+                  <a
+                    href={item.meetingLink}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="block mt-4 text-center py-3 bg-green-600 text-white rounded-2xl font-bold"
+                  >
+                    Join Live Class
+                  </a>
+                )}
               </div>
-
-              <h3 className="text-xl font-bold mb-3">{item.title}</h3>
-
-              <div className="space-y-2 text-sm text-gray-500">
-                <div className="flex items-center gap-2">
-                  <Users size={14} /> Max {item.maxStudents}
-                </div>
-                <div className="flex items-center gap-2">
-                  <Calendar size={14} />
-                  {new Date(item.startDate).toLocaleDateString()}
-                </div>
-                <div className="flex items-center gap-2 font-black text-[#0852A1]">
-                  <IndianRupee size={14} /> {item.price}
-                </div>
-              </div>
-
-              {item.meetingLink && (
-                <a
-                  href={item.meetingLink}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="block mt-4 text-center py-3 bg-green-600 text-white rounded-2xl font-bold"
-                >
-                  Join Live Class
-                </a>
-              )}
+            ))
+          ) : (
+            <div className="text-center py-6 text-gray-500 font-medium">
+              No class available
             </div>
-          ))}
+          )}
         </div>
       )}
 

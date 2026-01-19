@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { getTutorById } from "../api/tutorApi";
 import { profileUpdate } from "../api/auth.api";
+import toast from "react-hot-toast";
 export default function ProfilePage({ id }) {
   const [form, setForm] = useState({
     name: "",
@@ -48,28 +49,31 @@ export default function ProfilePage({ id }) {
     e.preventDefault();
     setLoading(true);
     setMessage("");
-    const formData = new FormData();
-    formData.append("name", form.name);
-    formData.append("email", form.email);
-    formData.append("phone", form.phone);
-    if (avatar) formData.append("avatar", avatar);
+    try {
+      const formData = new FormData();
+      formData.append("name", form.name);
+      formData.append("email", form.email);
+      formData.append("phone", form.phone);
+      if (avatar) formData.append("avatar", avatar);
 
-    const res = await profileUpdate(user._id, formData);
-    console.log(res, "res");
-    const data = res?.data.success ? res.data.user : [];
-    if (res?.data.success) {
-      setForm({
-        name: data.name || "",
-        email: data.email || "",
-        phone: data.phone || "",
-      });
-      if (data.avatar) {
-        setImagePreview(data.avatar); // ✅ updated image
+      const res = await profileUpdate(user._id, formData);
+      const data = res?.data.success ? res.data.user : [];
+      if (res?.data.success) {
+        setForm({
+          name: data.name || "",
+          email: data.email || "",
+          phone: data.phone || "",
+        });
+        if (data.avatar) {
+          setImagePreview(data.avatar); // ✅ updated image
+        }
+        setUser(data);
       }
-      setUser(data);
+      setLoading(false);
+      setMessage(res.data.message);
+    } catch (error) {
+      setMessage(error.message);
     }
-    setLoading(false);
-    setMessage(data.message);
   };
 
   return (
