@@ -74,29 +74,32 @@ const TutorLayout = ({ children }) => {
       {/* SIDEBAR */}
       <aside
         className={`
-        fixed md:static inset-y-0 left-0 z-50 w-64 bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600 text-white 
+        fixed md:sticky inset-y-0 md:top-0 left-0 z-50 w-64 bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600 text-white 
         transform transition-transform duration-300 ease-in-out
         ${sidebarOpen ? "translate-x-0" : "-translate-x-full"} 
-        md:translate-x-0 flex flex-col
+        md:translate-x-0 flex flex-col min-h-screen md:h-screen
       `}
       >
-        {/* Logo & Close Button (Mobile) */}
-        <div className="p-6 flex justify-between items-center border-b border-white/10">
-          <Link
-            href="/"
-            onClick={() => setSidebarOpen(false)}
-            className="flex items-center"
-          >
-            <img
-              src={Logo.src}
-              alt="Logo"
-              className="w-32 cursor-pointer hover:opacity-90 transition"
-            />
-          </Link>
+        {/* Logo Section - Centered */}
+        <div className="p-6 border-b border-white/10">
+          <div className="flex justify-between items-center md:justify-center">
+            <Link
+              href="/"
+              onClick={() => setSidebarOpen(false)}
+              className="flex items-center justify-center"
+            >
+              <img
+                src={Logo.src}
+                alt="Logo"
+                className="w-32 cursor-pointer hover:opacity-90 transition"
+              />
+            </Link>
 
-          <button className="md:hidden" onClick={() => setSidebarOpen(false)}>
-            <X size={24} />
-          </button>
+            {/* Close Button (Mobile Only) */}
+            <button className="md:hidden" onClick={() => setSidebarOpen(false)}>
+              <X size={24} />
+            </button>
+          </div>
         </div>
 
         {/* Navigation Links */}
@@ -112,16 +115,6 @@ const TutorLayout = ({ children }) => {
           >
             <LayoutDashboard size={20} /> Dashboard
           </Link>
-
-          {/* <Link
-            href="/tutor/courses"
-            onClick={() => setSidebarOpen(false)}
-            className={
-              pathname.startsWith("/tutor/courses") ? activeLink : normalLink
-            }
-          >
-            <GraduationCap size={20} /> Courses
-          </Link> */}
 
           <Link
             href="/tutor/packages"
@@ -140,7 +133,7 @@ const TutorLayout = ({ children }) => {
               pathname.startsWith("/tutor/classes") ? activeLink : normalLink
             }
           >
-            <BookOpen size={20} /> Classes
+            <GraduationCap size={20} /> My Courses
           </Link>
 
           <Link
@@ -153,6 +146,17 @@ const TutorLayout = ({ children }) => {
             <User size={20} /> Profile
           </Link>
         </nav>
+
+        {/* Logout Button at Bottom - Always Visible */}
+        <div className="p-4 border-t border-white/10 mt-auto">
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center justify-center gap-3 px-4 py-3 rounded bg-red-500/20 text-white hover:bg-red-500/30 transition-all font-semibold"
+          >
+            <LogOut size={20} />
+            <span>Logout</span>
+          </button>
+        </div>
       </aside>
 
       {/* MAIN CONTENT AREA */}

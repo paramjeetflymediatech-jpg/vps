@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Plus,
   Edit3,
@@ -10,6 +10,12 @@ import {
   IndianRupee,
   X,
   Loader2,
+  Check,
+  Video,
+  Eye,
+  Link as LinkIcon,
+  CheckCircle,
+  XCircle,
 } from "lucide-react";
 import {
   getAllClasses,
@@ -30,6 +36,10 @@ const Classes = () => {
   const [showModal, setShowModal] = useState(false);
   const [editClass, setEditClass] = useState(null);
   const [meetingLinks, setMeetingLinks] = useState({});
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
+  const [isError, setIsError] = useState(false);
+  const [editingLinkId, setEditingLinkId] = useState(null);
 
   const [form, setForm] = useState({
     courseId: "",
@@ -47,11 +57,44 @@ const Classes = () => {
     setMeetingLinks(prev => ({ ...prev, [courseId]: value }));
   };
 
+  // Validate Google Meet link
+  const isValidGoogleMeetLink = (url) => {
+    const googleMeetPattern = /^https:\/\/meet\.google\.com\/[a-z]{3}-[a-z]{4}-[a-z]{3}$/;
+    return googleMeetPattern.test(url);
+  };
+
   const saveMeetingLink = async (courseId) => {
     try {
-      const meetingLink = meetingLinks[courseId];
+      const meetingLink = meetingLinks[courseId]?.trim();
+
       if (!meetingLink) {
-        alert("Please enter a meeting link");
+        setSuccessMessage('Please enter a meeting link');
+        setIsError(true);
+        setShowSuccess(true);
+        setTimeout(() => setShowSuccess(false), 3000);
+        return;
+      }
+
+      // Validate Google Meet URL
+      if (!isValidGoogleMeetLink(meetingLink)) {
+        setSuccessMessage('Please enter a valid Google Meet link (e.g., https://meet.google.com/xxx-yyyy-zzz)');
+        setIsError(true);
+        setShowSuccess(true);
+        setTimeout(() => setShowSuccess(false), 4000);
+        return;
+      }
+
+      // Check if link is already used by another course (excluding current course's original link)
+      const currentCourse = assignedCourses.find(c => c._id === courseId);
+      const duplicateCourse = assignedCourses.find(
+        course => course._id !== courseId && course.meetingLink === meetingLink
+      );
+
+      if (duplicateCourse) {
+        setSuccessMessage(`This meeting link is already used by "${duplicateCourse.title}". Please use a unique link for each course.`);
+        setIsError(true);
+        setShowSuccess(true);
+        setTimeout(() => setShowSuccess(false), 5000);
         return;
       }
 
@@ -65,11 +108,23 @@ const Classes = () => {
               : course
           )
         );
-        alert("Meeting link saved successfully!");
+
+        // Clear the input
+        setMeetingLinks(prev => ({ ...prev, [courseId]: '' }));
+        setEditingLinkId(null);
+
+        // Show success notification
+        setSuccessMessage('Meeting link saved successfully!');
+        setIsError(false);
+        setShowSuccess(true);
+        setTimeout(() => setShowSuccess(false), 3000);
       }
     } catch (error) {
-      console.error("Failed to save meeting link", error);
-      alert("Failed to save meeting link");
+      console.error('Failed to save meeting link', error);
+      setSuccessMessage('Failed to save meeting link');
+      setIsError(true);
+      setShowSuccess(true);
+      setTimeout(() => setShowSuccess(false), 3000);
     }
   };
 
@@ -86,6 +141,15 @@ const Classes = () => {
     }
   }, [user]);
 
+  const fetchCourses = async () => {
+    try {
+      const res = await getCourses();
+      setCourses(res?.data || []);
+    } catch (err) {
+      console.error("Failed to load courses", err);
+    }
+  };
+
   const fetchAssignedCourses = async () => {
     if (!user?.id && !user?._id) return;
 
@@ -97,7 +161,17 @@ const Classes = () => {
       const res = await getCourses({ tutorId });
 
       if (res?.data) {
-        setAssignedCourses(Array.isArray(res.data) ? res.data : res.data.data || []);
+        const courses = Array.isArray(res.data) ? res.data : res.data.data || [];
+        setAssignedCourses(courses);
+
+        // Initialize meetingLinks with existing links so input is editable
+        const links = {};
+        courses.forEach(course => {
+          if (course.meetingLink) {
+            links[course._id] = course.meetingLink;
+          }
+        });
+        setMeetingLinks(links);
       }
     } catch (err) {
       console.error("Failed to load assigned courses", err);
@@ -106,359 +180,275 @@ const Classes = () => {
     }
   };
 
-  const fetchCourses = async () => {
-    const res = await getCourses();
-    if (res?.data) setCourses(res.data);
-  };
-
-  /* ================= SUBMIT ================= */
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    const tutorId = user?.id || user?._id;
-    if (!tutorId) {
-      console.error(
-        "Tutor ID not found in user object from localStorage",
-        user
-      );
-      return;
-    }
-
-    const payload = {
-      ...form,
-      tutorId,
-      price: Number(form.price),
-      maxStudents: Number(form.maxStudents),
-    };
-
-    try {
-      const res = editClass
-        ? await updateClass(editClass._id, payload)
-        : await createClass(payload);
-
-      if (res?.data?.success) {
-        const updatedClass = res.data.data;
-
-        if (editClass) {
-          setClasses((prev) =>
-            prev.map((c) => (c._id === updatedClass._id ? updatedClass : c))
-          );
-        } else {
-          setClasses((prev) => [updatedClass, ...prev]);
-        }
-
-        closeModal();
-      }
-    } catch (error) {
-      // Errors (including 409) are already handled by axios interceptor with toasts.
-      console.warn("Failed to save class", {
-        status: error.response?.status,
-        data: error.response?.data,
-        message: error.response?.data?.message || error.message,
-      });
-    }
-  };
-
-  /* ================= DELETE ================= */
-
-  const handleDelete = async (id) => {
-    const res = await deleteClass(id);
-    if (res?.data?.success) {
-      setClasses((prev) => prev.filter((c) => c._id !== id));
-    }
-  };
-  /* ================= HELPERS ================= */
-  const openCreate = () => {
-    resetForm();
-    setEditClass(null);
-    setShowModal(true);
-  };
-
-  const openEdit = async (data) => {
-    setEditClass(data);
-    const res = await getClassById(data._id);
-    if (res?.data?.success) {
-      let item = res.data.data;
-      setForm({
-        courseId: item.courseId?._id || item.courseId,
-        title: item.title,
-        description: item.description,
-        price: item.price,
-        startDate: item.startDate?.slice(0, 10),
-        endDate: item.endDate?.slice(0, 10),
-        maxStudents: item.maxStudents,
-        meetingLink: item.meetingLink || "",
-        schedule:
-          item.schedule?.length > 0
-            ? item.schedule
-            : [{ day: "Mon", startTime: "", endTime: "" }],
-      });
-      setShowModal(true);
-    }
-  };
-
-  const closeModal = () => {
-    setShowModal(false);
-    resetForm();
-  };
-
-  const resetForm = () => {
-    setForm({
-      courseId: "",
-      title: "",
-      description: "",
-      price: "",
-      startDate: "",
-      endDate: "",
-      maxStudents: 50,
-      meetingLink: "",
-      schedule: [{ day: "Mon", startTime: "", endTime: "" }],
-    });
-  };
-
-  /* ================= SCHEDULE ================= */
-  const updateSchedule = (index, key, value) => {
-    const updated = [...form.schedule];
-    updated[index][key] = value;
-    setForm({ ...form, schedule: updated });
-  };
-
-  const addSchedule = () => {
-    setForm({
-      ...form,
-      schedule: [...form.schedule, { day: "Mon", startTime: "", endTime: "" }],
-    });
-  };
-
   /* ================= UI ================= */
   return (
-    <div className="max-w-7xl mx-auto p-6 space-y-8">
-      {/* HEADER */}
-      {/* <div className="flex justify-between items-center bg-white p-6 rounded-3xl border shadow-sm">
-        <div>
-          <h2 className="text-3xl font-black">Classes Panel</h2>
-          <p className="text-gray-500">{classes.length} total classes</p>
-        </div>
-        <button
-          onClick={openCreate}
-          className="flex items-center gap-2 bg-[#0852A1] text-white px-6 py-3 rounded-2xl font-bold"
-        >
-          <Plus size={18} /> Create Class
-        </button>
-      </div> */}
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50 pt-20 md:pt-6 pb-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
-      {/* LIST */}
-      {loading ? (
-        <div className="flex justify-center py-20">
-          <Loader2 className="animate-spin" size={36} />
+        {/* Success/Error Message - Top Right Corner */}
+        {showSuccess && (
+          <div className={`fixed top-4 right-4 z-50 ${isError ? 'bg-red-500' : 'bg-green-500'} text-white px-4 py-3 rounded-xl shadow-lg flex items-center gap-2 animate-in slide-in-from-right max-w-md`}>
+            <Check size={20} />
+            <span className="font-bold text-sm">{successMessage}</span>
+          </div>
+        )}
+
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-3xl sm:text-4xl font-black text-slate-900 mb-2">
+            My Courses
+          </h1>
+          <p className="text-slate-600">
+            {assignedCourses.length > 0
+              ? `Managing ${assignedCourses.length} course${assignedCourses.length > 1 ? 's' : ''} assigned to you`
+              : "No courses assigned yet. Contact admin to get started."
+            }
+          </p>
         </div>
-      ) : (
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {assignedCourses && assignedCourses.length > 0 ? (
-            assignedCourses.map((course) => (
-              <div
-                key={course._id}
-                className="bg-white rounded-3xl border p-6 shadow-sm hover:shadow-lg transition"
-              >
-                <div className="flex justify-between mb-3">
-                  <span className="text-xs font-bold bg-purple-50 text-purple-600 px-3 py-1 rounded-full">
-                    {course.published ? 'Published' : 'Draft'}
-                  </span>
+
+        {loading ? (
+          <div className="flex justify-center items-center py-20">
+            <div className="text-center">
+              <Loader2 className="animate-spin text-blue-600 mx-auto mb-4" size={48} />
+              <p className="text-slate-600 font-medium">Loading courses...</p>
+            </div>
+          </div>
+        ) : assignedCourses.length === 0 ? (
+          <div className="bg-white rounded-2xl p-12 text-center shadow-lg border border-slate-100">
+            <Video size={64} className="mx-auto text-slate-300 mb-4" />
+            <h3 className="text-xl font-black text-slate-900 mb-2">No Courses Assigned</h3>
+            <p className="text-slate-600">Contact your admin to get courses assigned to you</p>
+          </div>
+        ) : (
+          <>
+            {/* Desktop Table View - Hidden on mobile/tablet */}
+            <div className="hidden lg:block bg-white rounded-2xl shadow-lg border border-slate-100 overflow-hidden">
+              {/* Table Header */}
+              <div className="bg-gradient-to-r from-blue-600 to-purple-600 px-6 py-4">
+                <div className="grid grid-cols-12 gap-4 text-white font-bold text-sm">
+                  <div className="col-span-4">Course Details</div>
+                  <div className="col-span-2 text-center">Price</div>
+                  <div className="col-span-2 text-center">Status</div>
+                  <div className="col-span-4 text-center">Meeting Link</div>
                 </div>
+              </div>
 
-                <h3 className="text-xl font-bold mb-3">{course.title}</h3>
+              {/* Table Body */}
+              <div className="divide-y divide-slate-100">
+                {assignedCourses.map((course, index) => (
+                  <div
+                    key={course._id}
+                    className="px-6 py-5 hover:bg-slate-50 transition-colors"
+                  >
+                    <div className="grid grid-cols-12 gap-4 items-center">
+                      {/* Course Details */}
+                      <div className="col-span-4">
+                        <h3 className="font-black text-slate-900 mb-1">{course.title}</h3>
+                        {course.description && (
+                          <p className="text-sm text-slate-600 line-clamp-2">{course.description}</p>
+                        )}
+                        {course.expiryDate && (
+                          <p className="text-xs text-slate-500 mt-1 flex items-center gap-1">
+                            <Calendar size={12} />
+                            Valid until: {new Date(course.expiryDate).toLocaleDateString()}
+                          </p>
+                        )}
+                      </div>
 
-                {course.description && (
-                  <p className="text-sm text-gray-500 mb-4 line-clamp-2">
-                    {course.description}
-                  </p>
-                )}
+                      {/* Price */}
+                      <div className="col-span-2 text-center">
+                        <div className="inline-flex items-center gap-1 px-3 py-1 bg-blue-50 rounded-lg">
+                          <IndianRupee size={14} className="text-blue-600" />
+                          <span className="font-black text-blue-600">{course.price || 'Free'}</span>
+                        </div>
+                      </div>
 
-                <div className="space-y-2 text-sm text-gray-500 mb-4">
-                  <div className="flex items-center gap-2 font-black text-[#0852A1]">
-                    <IndianRupee size={14} /> {course.price || 'Free'}
-                  </div>
-                  {course.expiryDate && (
-                    <div className="flex items-center gap-2">
-                      <Calendar size={14} />
-                      Valid until: {new Date(course.expiryDate).toLocaleDateString()}
+                      {/* Status */}
+                      <div className="col-span-2 text-center">
+                        {course.published ? (
+                          <span className="inline-flex items-center gap-1 px-3 py-1 bg-green-50 text-green-700 rounded-lg text-sm font-bold">
+                            <CheckCircle size={14} />
+                            Published
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 px-3 py-1 bg-orange-50 text-orange-700 rounded-lg text-sm font-bold">
+                            <XCircle size={14} />
+                            Draft
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Meeting Link */}
+                      <div className="col-span-4">
+                        {editingLinkId === course._id ? (
+                          <div className="flex gap-2">
+                            <input
+                              type="url"
+                              placeholder="https://meet.google.com/xxx-yyyy-zzz"
+                              className="flex-1 px-3 py-2 text-sm border-2 border-blue-500 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                              value={meetingLinks[course._id] || ""}
+                              onChange={(e) => handleMeetingLinkChange(course._id, e.target.value)}
+                            />
+                            <button
+                              onClick={() => saveMeetingLink(course._id)}
+                              className="px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
+                            >
+                              <Check size={16} />
+                            </button>
+                            <button
+                              onClick={() => {
+                                setEditingLinkId(null);
+                                setMeetingLinks(prev => ({ ...prev, [course._id]: course.meetingLink || '' }));
+                              }}
+                              className="px-3 py-2 bg-slate-200 text-slate-700 rounded-lg hover:bg-slate-300 transition"
+                            >
+                              <X size={16} />
+                            </button>
+                          </div>
+                        ) : course.meetingLink ? (
+                          <div className="flex items-center gap-2">
+                            <div className="flex-1 flex items-center gap-2 px-3 py-2 bg-green-50 rounded-lg">
+                              <Video size={14} className="text-green-600" />
+                              <span className="text-sm text-green-700 font-medium truncate">
+                                {course.meetingLink.substring(0, 30)}...
+                              </span>
+                            </div>
+                            <button
+                              onClick={() => setEditingLinkId(course._id)}
+                              className="px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+                              title="Edit link"
+                            >
+                              <Edit3 size={14} />
+                            </button>
+                          </div>
+                        ) : (
+                          <button
+                            onClick={() => setEditingLinkId(course._id)}
+                            className="w-full px-4 py-2 border-2 border-dashed border-slate-300 text-slate-600 rounded-lg hover:border-blue-500 hover:text-blue-600 transition font-bold text-sm"
+                          >
+                            + Add Meeting Link
+                          </button>
+                        )}
+                      </div>
                     </div>
-                  )}
-                </div>
-
-                <div className="pt-4 border-t">
-                  <p className="text-xs text-gray-400 mb-2">Add Google Meet link for your students:</p>
-                  <input
-                    type="url"
-                    placeholder="https://meet.google.com/..."
-                    className="w-full px-3 py-2 text-sm border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none mb-2"
-                    value={meetingLinks[course._id] || course.meetingLink || ""}
-                    onChange={(e) => handleMeetingLinkChange(course._id, e.target.value)}
-                  />
-                  <button
-                    onClick={() => saveMeetingLink(course._id)}
-                    className="w-full bg-blue-600 text-white py-2 rounded-lg text-sm font-bold hover:bg-blue-700 transition"
-                  >
-                    Save Meeting Link
-                  </button>
-                </div>
-              </div>
-            ))
-          ) : (
-            <div className="col-span-full text-center py-12 text-gray-500">
-              <p className="text-lg font-medium">No courses assigned yet</p>
-              <p className="text-sm mt-2">Contact your admin to get assigned to courses</p>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* MODAL */}
-      {showModal && (
-        <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
-          <div className="bg-white w-full max-w-xl rounded-3xl p-6 overflow-y-auto max-h-[90vh]">
-            <div className="flex justify-between mb-4">
-              <h3 className="text-xl font-bold">
-                {editClass ? "Edit Class" : "Create Class"}
-              </h3>
-              <X onClick={closeModal} className="cursor-pointer" />
-            </div>
-
-            <form onSubmit={handleSubmit} className="space-y-4">
-              {/* COURSE */}
-              <select
-                required
-                value={form.courseId}
-                onChange={(e) => setForm({ ...form, courseId: e.target.value })}
-                className="w-full border rounded-xl px-4 py-3"
-              >
-                <option value="">Select Course</option>
-                {courses.map((c) => (
-                  <option key={c._id} value={c._id}>
-                    {c.title}
-                  </option>
+                  </div>
                 ))}
-              </select>
-
-              <input
-                required
-                placeholder="Class Title"
-                value={form.title}
-                onChange={(e) => setForm({ ...form, title: e.target.value })}
-                className="w-full border rounded-xl px-4 py-3"
-              />
-
-              <textarea
-                placeholder="Description"
-                value={form.description}
-                onChange={(e) =>
-                  setForm({ ...form, description: e.target.value })
-                }
-                className="w-full border rounded-xl px-4 py-3"
-              />
-
-              <input
-                type="url"
-                placeholder="Meeting Link"
-                value={form.meetingLink}
-                onChange={(e) =>
-                  setForm({ ...form, meetingLink: e.target.value })
-                }
-                className="w-full border rounded-xl px-4 py-3"
-              />
-
-              {/* DATES */}
-              <div className="grid grid-cols-2 gap-4">
-                <input
-                  type="date"
-                  required
-                  value={form.startDate}
-                  onChange={(e) =>
-                    setForm({ ...form, startDate: e.target.value })
-                  }
-                  className="border rounded-xl px-4 py-3"
-                />
-                <input
-                  type="date"
-                  required
-                  value={form.endDate}
-                  onChange={(e) =>
-                    setForm({ ...form, endDate: e.target.value })
-                  }
-                  className="border rounded-xl px-4 py-3"
-                />
               </div>
+            </div>
 
-              {/* SCHEDULE */}
-              {form.schedule.map((s, i) => (
-                <div key={i} className="grid grid-cols-3 gap-2">
-                  <select
-                    value={s.day}
-                    onChange={(e) => updateSchedule(i, "day", e.target.value)}
-                    className="border rounded-xl px-3 py-2"
-                  >
-                    {DAYS.map((d) => (
-                      <option key={d}>{d}</option>
-                    ))}
-                  </select>
-                  <input
-                    type="time"
-                    value={s.startTime}
-                    onChange={(e) =>
-                      updateSchedule(i, "startTime", e.target.value)
-                    }
-                    className="border rounded-xl px-3 py-2"
-                  />
-                  <input
-                    type="time"
-                    value={s.endTime}
-                    onChange={(e) =>
-                      updateSchedule(i, "endTime", e.target.value)
-                    }
-                    className="border rounded-xl px-3 py-2"
-                  />
+            {/* Mobile/Tablet Card View - Hidden on desktop */}
+            <div className="lg:hidden space-y-4">
+              {assignedCourses.map((course, index) => (
+                <div
+                  key={course._id}
+                  className="bg-white rounded-2xl shadow-lg border border-slate-100 overflow-hidden"
+                >
+                  {/* Card Header */}
+                  <div className={`bg-gradient-to-r ${index % 3 === 0 ? 'from-blue-500 to-blue-600' :
+                    index % 3 === 1 ? 'from-purple-500 to-purple-600' :
+                      'from-green-500 to-green-600'
+                    } p-4`}>
+                    <h3 className="font-black text-white text-lg mb-1">{course.title}</h3>
+                    <div className="flex items-center gap-2">
+                      {course.published ? (
+                        <span className="inline-flex items-center gap-1 px-2 py-1 bg-white/20 backdrop-blur-sm text-white rounded-lg text-xs font-bold">
+                          <CheckCircle size={12} />
+                          Published
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 px-2 py-1 bg-white/20 backdrop-blur-sm text-white rounded-lg text-xs font-bold">
+                          <XCircle size={12} />
+                          Draft
+                        </span>
+                      )}
+                      <div className="inline-flex items-center gap-1 px-2 py-1 bg-white/20 backdrop-blur-sm text-white rounded-lg text-xs font-bold">
+                        <IndianRupee size={12} />
+                        {course.price || 'Free'}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Card Body */}
+                  <div className="p-4 space-y-4">
+                    {/* Description */}
+                    {course.description && (
+                      <p className="text-sm text-slate-600">{course.description}</p>
+                    )}
+
+                    {/* Expiry Date */}
+                    {course.expiryDate && (
+                      <div className="flex items-center gap-2 text-xs text-slate-500">
+                        <Calendar size={14} />
+                        Valid until: {new Date(course.expiryDate).toLocaleDateString()}
+                      </div>
+                    )}
+
+                    {/* Meeting Link Section */}
+                    <div className="pt-4 border-t border-slate-100">
+                      <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
+                        Meeting Link
+                      </p>
+
+                      {editingLinkId === course._id ? (
+                        <div className="space-y-2">
+                          <input
+                            type="url"
+                            placeholder="https://meet.google.com/xxx-yyyy-zzz"
+                            className="w-full px-3 py-2 text-sm border-2 border-blue-500 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                            value={meetingLinks[course._id] || ""}
+                            onChange={(e) => handleMeetingLinkChange(course._id, e.target.value)}
+                          />
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => saveMeetingLink(course._id)}
+                              className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-bold"
+                            >
+                              <Check size={16} />
+                              Save
+                            </button>
+                            <button
+                              onClick={() => {
+                                setEditingLinkId(null);
+                                setMeetingLinks(prev => ({ ...prev, [course._id]: course.meetingLink || '' }));
+                              }}
+                              className="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg hover:bg-slate-300 transition font-bold"
+                            >
+                              <X size={16} />
+                            </button>
+                          </div>
+                        </div>
+                      ) : course.meetingLink ? (
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-2 px-3 py-2 bg-green-50 rounded-lg">
+                            <Video size={14} className="text-green-600 flex-shrink-0" />
+                            <span className="text-sm text-green-700 font-medium truncate flex-1">
+                              {course.meetingLink}
+                            </span>
+                          </div>
+                          <button
+                            onClick={() => setEditingLinkId(course._id)}
+                            className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-bold"
+                          >
+                            <Edit3 size={16} />
+                            Edit Link
+                          </button>
+                        </div>
+                      ) : (
+                        <button
+                          onClick={() => setEditingLinkId(course._id)}
+                          className="w-full px-4 py-2 border-2 border-dashed border-slate-300 text-slate-600 rounded-lg hover:border-blue-500 hover:text-blue-600 transition font-bold text-sm"
+                        >
+                          + Add Meeting Link
+                        </button>
+                      )}
+                    </div>
+                  </div>
                 </div>
               ))}
-
-              <button
-                type="button"
-                onClick={addSchedule}
-                className="text-blue-600 font-bold text-sm"
-              >
-                + Add Schedule
-              </button>
-
-              {/* PRICE */}
-              <div className="grid grid-cols-2 gap-4">
-                <input
-                  type="number"
-                  placeholder="Price"
-                  value={form.price}
-                  onChange={(e) => setForm({ ...form, price: e.target.value })}
-                  className="border rounded-xl px-4 py-3"
-                />
-                <input
-                  type="number"
-                  placeholder="Max Students"
-                  value={form.maxStudents}
-                  onChange={(e) =>
-                    setForm({ ...form, maxStudents: e.target.value })
-                  }
-                  className="border rounded-xl px-4 py-3"
-                />
-              </div>
-
-              <button
-                type="submit"
-                className="w-full bg-[#0852A1] text-white py-4 rounded-2xl font-bold"
-              >
-                {editClass ? "Update Class" : "Create Class"}
-              </button>
-            </form>
-          </div>
-        </div>
-      )}
+            </div>
+          </>
+        )}
+      </div>
     </div>
   );
 };

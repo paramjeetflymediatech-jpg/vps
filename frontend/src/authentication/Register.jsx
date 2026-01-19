@@ -26,8 +26,14 @@ const Register = () => {
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    // For regular inputs
-    setForm((prev) => ({ ...prev, [name]: value }));
+    // Prevent numbers in name field
+    if (name === 'name') {
+      // Only allow letters and spaces
+      const onlyLetters = value.replace(/[^a-zA-Z\s]/g, '');
+      setForm((prev) => ({ ...prev, [name]: onlyLetters }));
+    } else {
+      setForm((prev) => ({ ...prev, [name]: value }));
+    }
   };
 
   // handle phone separately
@@ -39,8 +45,15 @@ const Register = () => {
     e.preventDefault();
     setLoading(true);
 
+    // Validate name - no numbers allowed
     if (form.name.length < 3) {
       toast.error("Name must be at least 3 characters long");
+      setLoading(false);
+      return;
+    }
+
+    if (/\d/.test(form.name)) {
+      toast.error("Name cannot contain numbers");
       setLoading(false);
       return;
     }

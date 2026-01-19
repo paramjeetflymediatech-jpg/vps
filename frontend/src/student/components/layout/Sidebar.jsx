@@ -13,7 +13,8 @@ import {
   CalendarCheck,
   Menu,
   X,
-  GraduationCap
+  GraduationCap,
+  User
 } from "lucide-react";
 
 const StudentSidebar = () => {
@@ -37,7 +38,8 @@ const StudentSidebar = () => {
     { name: "My Courses", path: "/student/courses", icon: <BookOpen size={18} /> },
     { name: "Packages", path: "/student/packages", icon: <Package size={18} /> },
     { name: "Book a Trial", path: "/student/myClass", icon: <CalendarCheck size={18} /> },
-{ name: "Tutors", path: "/student/allTutors", icon: <GraduationCap size={18} /> },
+    { name: "Tutors", path: "/student/allTutors", icon: <GraduationCap size={18} /> },
+    { name: "Profile", path: "/student/profile", icon: <User size={18} /> },
   ];
 
   const baseStyle = "flex items-center gap-3 px-4 py-3 rounded-xl transition-all mb-1";

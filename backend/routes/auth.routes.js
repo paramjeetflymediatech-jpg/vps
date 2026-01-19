@@ -27,4 +27,12 @@ router.put(
   updateProfile
 );
 
+// Profile update for all authenticated users
+router.put(
+  "/profile",
+  auth,
+  upload.single("avatar"),
+  updateProfile
+);
+
 export default router;
