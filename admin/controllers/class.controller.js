@@ -183,7 +183,8 @@ exports.createClass = async (req, res) => {
       meetingLink: req.body.meetingLink,
       title,
       description,
-      schedule: sortSchedule(normalizeSchedule),
+      // Use the already-normalized schedule and sort it before saving
+      schedule: sortSchedule(normalizedSchedule),
       maxStudents: Number(maxStudents),
       status,
     });

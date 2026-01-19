@@ -214,8 +214,9 @@ const Tutors = () => {
                   <div className="relative inline-block mb-5 sm:mb-6 mt-2">
                     <img
                       src={
-                        tutor.avatar ||
-                        "https://dummyimage.com/150x150/cccccc/000000&text=Tutor"
+                        tutor.avatar
+                          ? (tutor.avatar.startsWith('http') ? tutor.avatar : `http://localhost:8000/${tutor.avatar}`)
+                          : "https://dummyimage.com/150x150/cccccc/000000&text=Tutor"
                       }
                       alt={tutor.name}
                       className="w-24 h-24 sm:w-32 sm:h-32 rounded-full shadow-lg object-cover group-hover:scale-105 transition-transform duration-500 border-4 border-white ring-1 ring-slate-100"

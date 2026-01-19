@@ -87,6 +87,7 @@ const TutorDetailsView = ({ id: propId }) => {
           setTutor({
             id: t._id,
             name: t.name,
+            avatar: t.avatar,
             // Use expertise from backend when available, otherwise default label
             subject: t.expertise || "Spoken English & Communication",
             // Use backend rating/reviews when available, otherwise fall back to defaults
@@ -168,9 +169,17 @@ const TutorDetailsView = ({ id: propId }) => {
           {/* Profile Header */}
           <div className="bg-white rounded-3xl p-8 border shadow-sm flex gap-6">
             <div className="relative">
-              <div className="w-28 h-28 bg-gradient-to-tr from-blue-600 to-indigo-500 rounded-2xl flex items-center justify-center text-white text-4xl font-bold">
-                {tutor.name.charAt(0)}
-              </div>
+              {tutor.avatar ? (
+                <img
+                  src={tutor.avatar.startsWith('http') ? tutor.avatar : `http://localhost:8000/${tutor.avatar}`}
+                  alt={tutor.name}
+                  className="w-28 h-28 rounded-2xl object-cover"
+                />
+              ) : (
+                <div className="w-28 h-28 bg-gradient-to-tr from-blue-600 to-indigo-500 rounded-2xl flex items-center justify-center text-white text-4xl font-bold">
+                  {tutor.name.charAt(0)}
+                </div>
+              )}
               <div className="absolute -bottom-2 -right-2 bg-green-500 w-7 h-7 rounded-full border-4 border-white"></div>
             </div>
 

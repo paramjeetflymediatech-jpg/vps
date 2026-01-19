@@ -81,6 +81,16 @@ export default function ProfilePage() {
           setImagePreview(data.avatar); // ✅ updated image
         }
         setUser(data);
+        const newdata = {
+          id: data._id,
+          name: data.name,
+          email: data.email,
+          avatar: data.avatar,
+          role: data.role,
+          organizationId: data.organizationId,
+        };
+        const newuserdata = JSON.stringify(newdata);
+        localStorage.setItem("user", newuserdata);
       }
       setLoading(false);
       setMessage(res.data.message);

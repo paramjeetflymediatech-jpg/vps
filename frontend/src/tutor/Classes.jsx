@@ -18,17 +18,18 @@ import {
   deleteClass,
   getClassById,
 } from "../api/classes.api";
-import { getCourses } from "../api/course.api";
+import { getCourses, updateCourse } from "../api/course.api";
 
 const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
 const Classes = () => {
   const [user, setUser] = useState(null);
-  const [classes, setClasses] = useState([]);
+  const [assignedCourses, setAssignedCourses] = useState([]);
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editClass, setEditClass] = useState(null);
+  const [meetingLinks, setMeetingLinks] = useState({});
 
   const [form, setForm] = useState({
     courseId: "",
@@ -42,6 +43,36 @@ const Classes = () => {
     schedule: [{ day: "Mon", startTime: "", endTime: "" }],
   });
 
+  const handleMeetingLinkChange = (courseId, value) => {
+    setMeetingLinks(prev => ({ ...prev, [courseId]: value }));
+  };
+
+  const saveMeetingLink = async (courseId) => {
+    try {
+      const meetingLink = meetingLinks[courseId];
+      if (!meetingLink) {
+        alert("Please enter a meeting link");
+        return;
+      }
+
+      const res = await updateCourse(courseId, { meetingLink });
+      if (res?.data) {
+        // Update local state
+        setAssignedCourses(prev =>
+          prev.map(course =>
+            course._id === courseId
+              ? { ...course, meetingLink }
+              : course
+          )
+        );
+        alert("Meeting link saved successfully!");
+      }
+    } catch (error) {
+      console.error("Failed to save meeting link", error);
+      alert("Failed to save meeting link");
+    }
+  };
+
   /* ================= FETCH ================= */
   useEffect(() => {
     const userData = JSON.parse(localStorage.getItem("user") || "{}");
@@ -50,21 +81,26 @@ const Classes = () => {
 
   useEffect(() => {
     if (user?.id || user?._id) {
-      fetchClasses();
+      fetchAssignedCourses();
       fetchCourses();
     }
   }, [user]);
 
-  const fetchClasses = async () => {
+  const fetchAssignedCourses = async () => {
     if (!user?.id && !user?._id) return;
 
     try {
       setLoading(true);
-      const res = await getAllClasses({ tutorId: user.id || user._id });
-      if (res?.data?.success) setClasses(res.data.data);
+      const tutorId = user.id || user._id;
+
+      // Fetch courses where this tutor is assigned
+      const res = await getCourses({ tutorId });
+
+      if (res?.data) {
+        setAssignedCourses(Array.isArray(res.data) ? res.data : res.data.data || []);
+      }
     } catch (err) {
-      console.error("Failed to load classes", err);
-      // Optional: show a friendlier message later
+      console.error("Failed to load assigned courses", err);
     } finally {
       setLoading(false);
     }
@@ -219,60 +255,60 @@ const Classes = () => {
         </div>
       ) : (
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {classes && classes.length > 0 ? (
-            classes.map((item, i, arr) => (
+          {assignedCourses && assignedCourses.length > 0 ? (
+            assignedCourses.map((course) => (
               <div
-                key={item._id}
-                className="bg-white rounded-3xl border p-6 shadow-sm"
+                key={course._id}
+                className="bg-white rounded-3xl border p-6 shadow-sm hover:shadow-lg transition"
               >
                 <div className="flex justify-between mb-3">
-                  <span className="text-xs font-bold bg-blue-50 text-blue-600 px-3 py-1 rounded-full">
-                    {item.status}
+                  <span className="text-xs font-bold bg-purple-50 text-purple-600 px-3 py-1 rounded-full">
+                    {course.published ? 'Published' : 'Draft'}
                   </span>
-                  <div className="flex gap-2">
-                    <Edit3
-                      size={16}
-                      className="cursor-pointer text-blue-600"
-                      onClick={() => openEdit(item)}
-                    />
-                    <Trash2
-                      size={16}
-                      className="cursor-pointer text-red-600"
-                      onClick={() => handleDelete(item._id)}
-                    />
-                  </div>
                 </div>
 
-                <h3 className="text-xl font-bold mb-3">{item.title}</h3>
+                <h3 className="text-xl font-bold mb-3">{course.title}</h3>
 
-                <div className="space-y-2 text-sm text-gray-500">
-                  <div className="flex items-center gap-2">
-                    <Users size={14} /> Max {item.maxStudents}
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Calendar size={14} />
-                    {new Date(item.startDate).toLocaleDateString()}
-                  </div>
-                  <div className="flex items-center gap-2 font-black text-[#0852A1]">
-                    <IndianRupee size={14} /> {item.price}
-                  </div>
-                </div>
-
-                {item.meetingLink && (
-                  <a
-                    href={item.meetingLink}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="block mt-4 text-center py-3 bg-green-600 text-white rounded-2xl font-bold"
-                  >
-                    Join Live Class
-                  </a>
+                {course.description && (
+                  <p className="text-sm text-gray-500 mb-4 line-clamp-2">
+                    {course.description}
+                  </p>
                 )}
+
+                <div className="space-y-2 text-sm text-gray-500 mb-4">
+                  <div className="flex items-center gap-2 font-black text-[#0852A1]">
+                    <IndianRupee size={14} /> {course.price || 'Free'}
+                  </div>
+                  {course.expiryDate && (
+                    <div className="flex items-center gap-2">
+                      <Calendar size={14} />
+                      Valid until: {new Date(course.expiryDate).toLocaleDateString()}
+                    </div>
+                  )}
+                </div>
+
+                <div className="pt-4 border-t">
+                  <p className="text-xs text-gray-400 mb-2">Add Google Meet link for your students:</p>
+                  <input
+                    type="url"
+                    placeholder="https://meet.google.com/..."
+                    className="w-full px-3 py-2 text-sm border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none mb-2"
+                    value={meetingLinks[course._id] || course.meetingLink || ""}
+                    onChange={(e) => handleMeetingLinkChange(course._id, e.target.value)}
+                  />
+                  <button
+                    onClick={() => saveMeetingLink(course._id)}
+                    className="w-full bg-blue-600 text-white py-2 rounded-lg text-sm font-bold hover:bg-blue-700 transition"
+                  >
+                    Save Meeting Link
+                  </button>
+                </div>
               </div>
             ))
           ) : (
-            <div className="text-center py-6 text-gray-500 font-medium">
-              No class available
+            <div className="col-span-full text-center py-12 text-gray-500">
+              <p className="text-lg font-medium">No courses assigned yet</p>
+              <p className="text-sm mt-2">Contact your admin to get assigned to courses</p>
             </div>
           )}
         </div>
