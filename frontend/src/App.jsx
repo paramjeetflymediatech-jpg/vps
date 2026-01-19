@@ -25,7 +25,7 @@ import TutorLogin from "./tutor/pages/TutorLogin";
 import TutorDashboard from "./tutor/pages/Dashboard";
 import Courses from "./tutor/Courses";
 import Classes from "./tutor/Classes";
-import Settings from "./tutor/Settings";
+import ProfilePage from "./tutor/ProfilePage";
 import TutorLayout from "./tutor/pages/TutorLayout";
 
 /* ================= STUDENT ================= */
@@ -36,7 +36,6 @@ import ClassDeatail from "./student/pages/ClassDeatail";
 import CourseDetails from "./student/pages/CourseDetails";
 import StudentProfile from "./student/pages/Profile";
 import StudentSettings from "./student/pages/Settings";
-
 
 /* ================= DASHBOARD ================= */
 import DashboardRedirect from "./views/DashboardRedirect";
@@ -84,7 +83,7 @@ const App = () => {
           <Route path="dashboard" element={<TutorDashboard />} />
           <Route path="classes" element={<Classes />} />
           <Route path="classes/:id" element={<ClassDeatail />} />
-          <Route path="settings" element={<Settings />} />
+          <Route path="profile/:id" element={<ProfilePage />} />
           <Route path="courses" element={<Courses />} />
         </Route>
 

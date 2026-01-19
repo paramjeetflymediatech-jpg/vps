@@ -8,20 +8,38 @@ const isValidObjectId = (id) => mongoose.Types.ObjectId.isValid(id);
 
 export const listTutors = async (req, res) => {
   try {
-    const { organizationId } = req.query;
+    const { organizationId, page = 1, limit = 10 } = req.query;
     const filter = { role: "TUTOR", isVerified: true, status: "ACTIVE" };
 
     if (organizationId) {
       filter.organizationId = organizationId;
     }
 
+    // Pagination Logic
+    const pageNum = parseInt(page, 10);
+    const limitNum = parseInt(limit, 10);
+    const skip = (pageNum - 1) * limitNum;
+
     const tutors = await User.find(filter)
       .select(
         "name email phone organizationId createdAt expertise experience availability responseTime rating reviewsCount"
       )
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limitNum);
 
-    res.json({ success: true, data: tutors });
+    const totalTutors = await User.countDocuments(filter);
+
+    res.json({
+      success: true,
+      data: tutors,
+      pagination: {
+        total: totalTutors,
+        page: pageNum,
+        limit: limitNum,
+        totalPages: Math.ceil(totalTutors / limitNum),
+      },
+    });
   } catch (error) {
     console.error("listTutors error", error);
     res.status(500).json({ message: error.message });
@@ -40,7 +58,7 @@ export const getTutorById = async (req, res) => {
       _id: id,
       role: "TUTOR",
     }).select(
-      "name email phone organizationId status isVerified createdAt expertise experience bio education specialties availability responseTime rating reviewsCount"
+      "name email phone organizationId avatar imageid status isVerified createdAt expertise experience bio education specialties availability responseTime rating reviewsCount"
     );
     if (!tutor) {
       return res.status(404).json({ message: "Tutor not found" });
@@ -133,36 +151,4 @@ export const createBatch = async (req, res) => {
   res.json(batch);
 };
 
-export const updateProfile = async (req, res) => {
-  try {
-    const userId = req.user.id;
 
-    const { avatar } = req.body;
-
-    // Build dynamic update object
-    const updates = {};
-    if (avatar) updates.avatar = avatar;
-
-    const user = await User.findByIdAndUpdate(
-      userId,
-      { $set: updates },
-      { new: true, runValidators: true }
-    ).select("-password");
-
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-
-    return res.status(200).json({
-      success: true,
-      message: "Profile updated successfully",
-      user,
-    });
-  } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: "Profile update failed",
-      error: error.message,
-    });
-  }
-};

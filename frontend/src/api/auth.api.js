@@ -22,3 +22,7 @@ export const resetPassword = (data) => {
   // email, otp, newPassword
   return API.post("/auth/reset-password", data);
 };
+export const profileUpdate = (id, data) => {
+  // email, otp, newPassword
+  return API.put(`/auth/profile/${id}`, data);
+};

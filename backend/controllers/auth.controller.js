@@ -63,9 +63,14 @@ export const register = async (req, res) => {
       });
     } catch (emailErr) {
       console.error("Email send error:", emailErr);
-      return res.status(201).json({
-        success: true,
-        message: "Registered, but failed to send OTP",
+
+      // ROLLBACK: Delete the user and OTP if email fails
+      await User.deleteOne({ email: emailLower });
+      await Otp.deleteMany({ email: emailLower });
+
+      return res.status(500).json({
+        success: false,
+        message: "Registered, but failed to send OTP. Please try again later.",
       });
     }
   } catch (error) {
@@ -273,6 +278,11 @@ export const login = async (req, res) => {
 
     // 1️⃣ Validate input
     if (!emailRaw || !passwordRaw || !role) {
+      console.log("❌ Login failed: Missing fields", {
+        emailRaw,
+        hasPassword: !!passwordRaw,
+        role,
+      });
       return res.status(400).json({
         success: false,
         message: "Email, password, and role are required",
@@ -286,6 +296,7 @@ export const login = async (req, res) => {
     // 2️⃣ Find user
     const user = await User.findOne({ email }).select("+password");
     if (!user) {
+      console.log("❌ Login failed: User not found", email);
       return res.status(400).json({
         success: false,
         message: "User not found",
@@ -390,4 +401,40 @@ export const logout = (req, res) => {
     success: true,
     message: "Logged out successfully",
   });
+};
+
+export const updateProfile = async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    const { name, email, phone } = req.body;
+
+    const updates = {};
+    if (name) updates.name = name;
+    if (email) updates.email = email;
+    if (phone) updates.phone = phone;
+
+    // If photo uploaded (via multer)
+    if (req.file) {
+      updates.imageid = `${req.file.filename}`;
+      updates.avatar = req.file.path;
+    }
+
+    const user = await User.findByIdAndUpdate(
+      userId,
+      { $set: updates },
+      { new: true, runValidators: true }
+    ).select("-password");
+
+    res.json({
+      success: true,
+      message: "Profile updated successfully",
+      user,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
 };

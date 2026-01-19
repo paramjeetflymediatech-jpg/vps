@@ -21,7 +21,7 @@ const Register = () => {
     phone: "", // phone includes country code automatically
     password: "",   // ✅ ADD THIS
 
-      });
+  });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -38,6 +38,18 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+
+    if (form.name.length < 3) {
+      toast.error("Name must be at least 3 characters long");
+      setLoading(false);
+      return;
+    }
+
+    if (form.password.length < 5) {
+      toast.error("Password must be at least 5 characters long");
+      setLoading(false);
+      return;
+    }
 
     try {
       await registerUser(form);
@@ -123,7 +135,7 @@ const Register = () => {
               />
             </div>
 
-           
+
             <div>
               <label className="block text-sm font-medium text-neutral-700 mb-1">
                 Phone number
@@ -166,7 +178,7 @@ const Register = () => {
                              focus:outline-none focus:ring-2 focus:ring-neutral-900
                              focus:border-neutral-900"
                 />
-               
+
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}

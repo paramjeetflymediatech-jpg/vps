@@ -3,11 +3,11 @@
 import {
   LayoutDashboard,
   BookOpen,
-  Settings,
   LogOut,
   Menu,
   GraduationCap,
   X,
+  User,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import Link from "next/link";
@@ -24,11 +24,13 @@ const TutorLayout = ({ children }) => {
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    const token = localStorage.getItem("tutorToken") || localStorage.getItem("token");
+    const token =
+      localStorage.getItem("tutorToken") || localStorage.getItem("token");
     const userRaw = localStorage.getItem("user");
     const parsedUser = userRaw ? JSON.parse(userRaw) : null;
 
-    const isTutor = parsedUser?.role && parsedUser.role.toLowerCase() === "tutor";
+    const isTutor =
+      parsedUser?.role && parsedUser.role.toLowerCase() === "tutor";
 
     if (!token || !isTutor) {
       router.replace("/tutor/login");
@@ -52,7 +54,6 @@ const TutorLayout = ({ children }) => {
     "flex items-center gap-3 px-4 py-3 rounded text-white hover:bg-white/10 transition-all";
 
   if (checkingAuth) {
-    
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-gray-500 text-sm">Checking tutor session...</div>
@@ -142,15 +143,15 @@ const TutorLayout = ({ children }) => {
             <BookOpen size={20} /> Classes
           </Link>
 
-          {/* <Link
-            href="/tutor/settings"
+          <Link
+            href={`/tutor/profile/${user.id}`}
             onClick={() => setSidebarOpen(false)}
             className={
-              pathname.startsWith("/tutor/settings") ? activeLink : normalLink
+              pathname.startsWith("/tutor/profile") ? activeLink : normalLink
             }
           >
-            <Settings size={20} /> Settings
-          </Link> */}
+            <User size={20} /> Profile
+          </Link>
         </nav>
       </aside>
 

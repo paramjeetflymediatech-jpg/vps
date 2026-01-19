@@ -17,6 +17,7 @@ const UserSchema = new mongoose.Schema(
       ref: "Organization",
     },
     avatar: { type: String },
+    imageid: { type: String },
     isVerified: { type: Boolean, default: false },
     status: { type: String, enum: ["ACTIVE", "INACTIVE"], default: "ACTIVE" },
     // Marks whether admin has confirmed this user's payment
