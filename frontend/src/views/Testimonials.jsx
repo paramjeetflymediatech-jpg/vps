@@ -60,29 +60,34 @@ const Testimonials = () => {
   return (
     <section
       ref={sectionRef}
-      className="max-w-7xl mx-auto px-4 py-20"
+      className="max-w-7xl mx-auto px-4 py-15"
     >
       {/* ===== HEADER ===== */}
-      <div className="text-center mb-14">
-        <motion.h1
-          initial={{ opacity: 0, y: -30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          className="text-4xl font-bold text-gray-800"
-        >
-          What Our Learners Say
-        </motion.h1>
+      <div className="text-center mb-10 sm:mb-14 px-4">
+  <motion.h1
+    initial={{ opacity: 0, y: -30 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ duration: 0.8 }}
+    className="text-2xl sm:text-4xl font-bold text-gray-800"
+  >
+    What Our Learners Say
+  </motion.h1>
 
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.3 }}
-          className="mt-4 text-gray-600 max-w-2xl mx-auto"
-        >
-          Trusted by learners across India and beyond.  
-          Discover how <span className="font-semibold text-[#0852A1]">The English Raj</span> is helping people speak English fluently with confidence.
-        </motion.p>
-      </div>
+  <motion.p
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}
+    transition={{ delay: 0.3 }}
+    className="mt-3 sm:mt-4 text-sm sm:text-base text-gray-600 max-w-2xl mx-auto leading-relaxed"
+  >
+    Trusted by learners across India and beyond.
+    Discover how{" "}
+    <span className="font-semibold text-[#0852A1]">
+      The English Raj
+    </span>{" "}
+    is helping people speak English fluently with confidence.
+  </motion.p>
+</div>
+
 
       {/* ===== TESTIMONIAL GRID ===== */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">

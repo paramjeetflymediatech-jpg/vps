@@ -257,7 +257,7 @@ const BecomeTutor = () => {
           "Teaching at The English Raj is the best career move I ever made."
         </p>
         <p className="text-xs md:text-sm mt-3 font-medium text-blue-100 opacity-90">
-          — Sarah Senior Tutor
+          — Aneesha Senior Tutor
         </p>
       </div>
     </div>

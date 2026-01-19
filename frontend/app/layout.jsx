@@ -124,6 +124,7 @@
 
 import "./globals.css";
 import AppShell from "./AppShell";
+import Chatbot from "../src/chatbot/Chatbot";
 // import Script from "next/script";
 // import PixelTracker from "@/components/PixelTracker";
 // import FloatingSupport from "@/components/FloatingSupport";
@@ -171,8 +172,9 @@ export default function RootLayout({ children }) {
 
         {/* <PixelTracker /> */}
         <AppShell>{children}</AppShell>
-          {/* Floating Chat + WhatsApp */}
-  {/* <FloatingSupport /> */}
+
+        {/* Global Chatbot */}
+        <Chatbot />
       </body>
     </html>
   );

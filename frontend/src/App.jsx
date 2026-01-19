@@ -3,6 +3,7 @@ import { Toaster } from "react-hot-toast";
 import MainLayout from "./components/MainLayout";
 import AuthLayout from "./components/AuthLayout";
 import ScrollToTop from "./common/ScrollToTop";
+import Chatbot from "./chatbot/Chatbot";
 
 /* ================= PUBLIC PAGES ================= */
 import Home from "./views/Home";
@@ -97,6 +98,9 @@ const App = () => {
           <Route path="settings" element={<StudentSettings />} />
         </Route>
       </Routes>
+
+      {/* Global Chatbot */}
+      <Chatbot />
     </>
   );
 };

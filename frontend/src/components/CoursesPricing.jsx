@@ -1,11 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { getPackages } from "@/api/package.api";
 
 const CoursesPricing = () => {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const tutorId = searchParams.get("tutorId");
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [packages, setPackages] = useState([]);
@@ -46,11 +48,15 @@ const CoursesPricing = () => {
     const lessons =
       pkg.lessons ? `${pkg.lessons} Lessons` : pkg.title || "Package";
 
-    router.push(
-      `/payment/upi?packageId=${pkg._id}&amount=${amount}&lessons=${encodeURIComponent(
-        lessons
-      )}`
-    );
+    let url = `/payment/upi?packageId=${pkg._id}&amount=${amount}&lessons=${encodeURIComponent(
+      lessons
+    )}`;
+
+    if (tutorId) {
+      url += `&tutorId=${tutorId}`;
+    }
+
+    router.push(url);
   };
 
   if (loading) {

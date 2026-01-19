@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Search, Star, Calendar, Award, ShieldCheck, ChevronLeft, ChevronRight, ChevronDown, ChevronUp } from "lucide-react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
@@ -6,6 +7,7 @@ import tutorHeroImg from "../assets/tutorimg.jpg";
 import { getTutors } from "../api/tutorApi";
 
 const Tutors = () => {
+  const router = useRouter();
   const [search, setSearch] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [tutors, setTutors] = useState([]);
@@ -252,11 +254,11 @@ const Tutors = () => {
                         <Calendar size={18} /> Schedule Trial
                       </button>
                     </Link>
-                    <Link href={`/tutors/${tutor._id}`} className="w-full">
-                      <button className="w-full py-3.5 border border-slate-200 text-slate-600 rounded-xl font-bold hover:bg-slate-50 hover:text-slate-900 transition-all active:scale-[0.98]">
-                        View Full Profile
-                      </button>
-                    </Link>
+                    <button
+                      onClick={() => router.push(`/student/tutor/${tutor._id}`)}
+                      className="w-full py-3.5 border border-slate-200 text-slate-600 rounded-xl font-bold hover:bg-slate-50 hover:text-slate-900 transition-all active:scale-[0.98]">
+                      View Full Profile
+                    </button>
                   </div>
                 </motion.div>
               ))}
@@ -297,7 +299,7 @@ const Tutors = () => {
         <h2 className="text-3xl font-bold text-slate-900 mb-6">Can't find the right match?</h2>
         <p className="text-slate-500 mb-8 text-lg max-w-xl mx-auto">Our advisors are available 24/7 to help you choose the perfect tutor for your specific goals.</p>
         <Link href="/contact">
-          <button className="px-12 py-4 border-2 border-slate-200 text-slate-900 rounded-full font-bold hover:bg-[#6335F8] hover:text-white hover:border-[#6335F8] transition-all cursor-pointer">
+          <button className="px-12 py-4 border-2 border-slate-200 text-slate-900 rounded-full font-bold hover:bg-[#0852A1] hover:text-white hover:border-[#0852A1] transition-all cursor-pointer">
             Contact Support
           </button>
         </Link>

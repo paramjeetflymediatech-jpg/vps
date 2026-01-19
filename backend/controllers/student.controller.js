@@ -54,3 +54,50 @@ export const enrollBatch = async (req, res) => {
 
   res.json({ message: "Enrolled successfully" });
 };
+
+/**
+ * GET MY ENROLLMENTS
+ * Fetch all classes the student is enrolled in via Batches.
+ */
+export const getMyEnrollments = async (req, res) => {
+  try {
+    const enrollments = await Enrollment.find({ userId: req.user.id })
+      .populate({
+        path: "batchId",
+        populate: {
+          path: "classId",
+          populate: [
+            { path: "courseId", select: "title" },
+            { path: "tutorId", select: "name email image" }, // Added image if available in User model, checking User model might be good but email/name is standard
+          ],
+        },
+      })
+      .sort({ createdAt: -1 });
+
+    // Filter valid enrollments (where batch and class still exist)
+    const data = enrollments
+      .filter((e) => e.batchId && e.batchId.classId)
+      .map((e) => {
+        const cls = e.batchId.classId;
+        return {
+          _id: cls._id, // Class ID
+          enrollmentId: e._id,
+          title: cls.title,
+          description: cls.description,
+          status: cls.status, // UPCOMING, ONGOING, COMPLETED
+          startDate: cls.startDate,
+          endDate: cls.endDate,
+          schedule: cls.schedule, // [{day, startTime, endTime}]
+          meetingLink: cls.meetingLink,
+          tutor: cls.tutorId, // {name, email}
+          course: cls.courseId, // {title}
+          batchId: e.batchId._id,
+        };
+      });
+
+    res.json({ success: true, data });
+  } catch (error) {
+    console.error("getMyEnrollments error", error);
+    res.status(500).json({ message: error.message });
+  }
+};

@@ -48,10 +48,11 @@ const LearningGoal = () => {
   const [activeGoal, setActiveGoal] = useState(goals[0]);
 
   return (
-    <section className="py-20 bg-white">
-      <h3 className="text-4xl font-bold text-center mb-14 text-black">
-        What’s your learning goal today?
-      </h3>
+    <section className="py-10 bg-white">
+      <h3 className="text-2xl sm:text-4xl font-bold text-center mb-14 text-black">
+  What’s your learning goal today?
+</h3>
+
 
       <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-3 gap-12 items-center">
 
