@@ -1,10 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
 import { getTutorById } from "../api/tutorApi";
 import { profileUpdate } from "../api/auth.api";
 import toast from "react-hot-toast";
-export default function ProfilePage({ id }) {
+
+export default function ProfilePage() {
+  const params = useParams();
+  const id = params?.id;
+
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -15,6 +20,7 @@ export default function ProfilePage({ id }) {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [user, setUser] = useState(null);
+
   // Fetch current profile
   useEffect(() => {
     const userData = JSON.parse(localStorage.getItem("user") || "{}");
@@ -22,24 +28,31 @@ export default function ProfilePage({ id }) {
   }, []);
 
   useEffect(() => {
+    if (!id) return;
+
     const fetchProfile = async () => {
-      const res = await getTutorById(id);
-      const data = res?.data.success ? res.data.data : [];
-      if (res?.data.success) {
-        setForm({
-          name: data.name || "",
-          email: data.email || "",
-          phone: data.phone || "",
-        });
-        setUser(data);
-        if (data.avatar) {
-          setImagePreview(data.avatar);
+      try {
+        const res = await getTutorById(id);
+        const data = res?.data?.data;
+        if (res?.data?.success && data) {
+          setForm({
+            name: data.name || "",
+            email: data.email || "",
+            phone: data.phone || "",
+          });
+          setUser(data);
+          if (data.avatar) {
+            setImagePreview(data.avatar);
+          }
         }
+      } catch (error) {
+        console.error("Failed to fetch profile:", error);
+        toast.error("Failed to load profile");
       }
     };
 
     fetchProfile();
-  }, []);
+  }, [id]);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });

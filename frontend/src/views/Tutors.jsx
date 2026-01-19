@@ -159,14 +159,19 @@ const Tutors = () => {
       </div>
 
       {/* ================= TUTOR LISTINGS ================= */}
-      <section className="max-w-7xl mx-auto px-6 py-24">
-        <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-4">
-          <div>
-            <h2 className="text-4xl font-black text-slate-900 tracking-tight">Available Mentors</h2>
-            <p className="text-slate-500 mt-2 text-lg">Expert guidance tailored to your goals.</p>
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 py-16 sm:py-24">
+        {/* ================= HEADER ================= */}
+        <div className="flex flex-col md:flex-row justify-between items-center md:items-end mb-8 sm:mb-12 gap-6">
+          <div className="text-center md:text-left">
+            <h2 className="text-2xl sm:text-4xl font-black text-slate-900 tracking-tight">
+              Available Mentors
+            </h2>
+            <p className="text-slate-500 mt-2 text-sm sm:text-lg">
+              Expert guidance tailored to your goals.
+            </p>
           </div>
 
-          <div className="flex flex-col items-end gap-1">
+          <div className="flex flex-col items-center md:items-end gap-1">
             <button
               onClick={() => setShowAll(!showAll)}
               className="text-[#0852A1] font-bold hover:text-[#063d7a] transition-colors flex items-center gap-1 text-sm bg-blue-50 px-4 py-2 rounded-lg"
@@ -180,44 +185,52 @@ const Tutors = () => {
           </div>
         </div>
 
+        {/* ================= CONTENT ================= */}
         {loading ? (
-          <div className="flex justify-center items-center py-32">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#0852A1]"></div>
+          <div className="flex justify-center items-center py-24 sm:py-32">
+            <div className="animate-spin rounded-full h-10 w-10 sm:h-12 sm:w-12 border-b-2 border-[#0852A1]" />
           </div>
         ) : filteredTutors.length === 0 ? (
-          <div className="text-center py-20 text-slate-500 text-xl font-medium">No tutors found matching your search.</div>
+          <div className="text-center py-16 sm:py-20 text-slate-500 text-base sm:text-xl font-medium">
+            No tutors found matching your search.
+          </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
             <AnimatePresence>
               {displayedTutors.map((tutor) => (
                 <motion.div
+                  key={tutor._id || tutor.id}
                   layout
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.95 }}
                   transition={{ duration: 0.3 }}
-                  key={tutor._id || tutor.id}
-                  className="group bg-white rounded-[2rem] border border-slate-100 p-6 shadow-sm hover:shadow-[0_20px_40px_-5px_rgba(0,0,0,0.1)] transition-all duration-300 flex flex-col items-center text-center h-full relative overflow-hidden"
+                  className="group bg-white rounded-2xl sm:rounded-[2rem] border border-slate-100 p-4 sm:p-6 shadow-sm hover:shadow-[0_20px_40px_-5px_rgba(0,0,0,0.1)] transition-all duration-300 flex flex-col items-center text-center h-full relative overflow-hidden"
                 >
-                  {/* Hover Gradient Overlay */}
+                  {/* Hover Overlay */}
                   <div className="absolute inset-0 bg-gradient-to-b from-transparent to-blue-50/50 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
 
-                  {/* Profile Visuals */}
-                  <div className="relative inline-block mb-6 mt-2">
+                  {/* Profile Image */}
+                  <div className="relative inline-block mb-5 sm:mb-6 mt-2">
                     <img
-                      src={tutor.image || "https://dummyimage.com/150x150/cccccc/000000&text=Tutor"}
+                      src={
+                        tutor.avatar ||
+                        "https://dummyimage.com/150x150/cccccc/000000&text=Tutor"
+                      }
                       alt={tutor.name}
-                      className="w-32 h-32 rounded-full shadow-lg object-cover group-hover:scale-105 transition-transform duration-500 border-4 border-white ring-1 ring-slate-100"
+                      className="w-24 h-24 sm:w-32 sm:h-32 rounded-full shadow-lg object-cover group-hover:scale-105 transition-transform duration-500 border-4 border-white ring-1 ring-slate-100"
                     />
-                    {/* Status Dot */}
-                    <div className="absolute bottom-2 right-2 bg-emerald-500 border-[3px] border-white w-5 h-5 rounded-full shadow-sm" />
+                    <div className="absolute bottom-2 right-2 bg-emerald-500 border-[3px] border-white w-4 h-4 sm:w-5 sm:h-5 rounded-full shadow-sm" />
                   </div>
 
-                  {/* Rating & Exp Badge */}
-                  <div className="flex items-center justify-center gap-3 mb-5 w-full">
+                  {/* Rating & Experience */}
+                  <div className="flex items-center justify-center gap-2 sm:gap-3 mb-4 sm:mb-5 w-full">
                     <div className="flex items-center gap-1.5 px-3 py-1 bg-yellow-50 text-yellow-700 rounded-full text-xs font-bold border border-yellow-100">
                       <Star size={12} fill="currentColor" />
-                      {tutor.rating || "5.0"} <span className="text-yellow-600/60 font-medium">({tutor.reviewsCount || 10}+)</span>
+                      {tutor.rating || "5.0"}
+                      <span className="text-yellow-600/60 font-medium">
+                        ({tutor.reviewsCount || 10}+)
+                      </span>
                     </div>
                     <div className="flex items-center gap-1.5 px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-xs font-bold border border-blue-100">
                       <Award size={12} />
@@ -227,36 +240,54 @@ const Tutors = () => {
 
                   {/* Name & Title */}
                   <div className="mb-4 px-2 w-full">
-                    <h3 className="text-2xl font-black text-slate-900 mb-1 group-hover:text-[#0852A1] transition-colors">{tutor.name}</h3>
-                    <p className="text-[#0852A1] font-bold text-sm tracking-wide uppercase opacity-90 line-clamp-1">{tutor.title || "Certified English Expert"}</p>
+                    <h3 className="text-xl sm:text-2xl font-black text-slate-900 mb-1 group-hover:text-[#0852A1] transition-colors">
+                      {tutor.name}
+                    </h3>
+                    <p className="text-[#0852A1] font-bold text-xs sm:text-sm tracking-wide uppercase line-clamp-1">
+                      {tutor.title || "Certified English Expert"}
+                    </p>
                   </div>
 
-                  {/* Bio (Truncated) */}
-                  <p className="text-slate-500 text-sm leading-relaxed line-clamp-2 mb-6 px-4 min-h-[40px]">
-                    {tutor.bio || tutor.about || "Passionate about helping students achieve fluency and confidence in English language communication."}
+                  {/* Bio */}
+                  <p className="text-slate-500 text-sm leading-relaxed line-clamp-2 mb-6 px-2 sm:px-4 min-h-[40px]">
+                    {tutor.bio ||
+                      tutor.about ||
+                      "Passionate about helping students achieve fluency and confidence in English language communication."}
                   </p>
 
-                  {/* Skills Tags */}
+                  {/* Skills */}
                   <div className="flex flex-wrap justify-center gap-2 mb-8 w-full px-2">
-                    {(Array.isArray(tutor.expertise) ? tutor.expertise : (tutor.expertise ? [tutor.expertise] : []))
-                      .slice(0, 3) // Show max 3 tags to keep card clean
+                    {(Array.isArray(tutor.expertise)
+                      ? tutor.expertise
+                      : tutor.expertise
+                        ? [tutor.expertise]
+                        : []
+                    )
+                      .slice(0, 3)
                       .map((skill, i) => (
-                        <span key={i} className="px-3 py-1.5 rounded-lg bg-slate-50 text-slate-600 text-[11px] font-bold border border-slate-100 group-hover:border-blue-100 group-hover:bg-blue-50/50 transition-colors">
+                        <span
+                          key={i}
+                          className="px-3 py-1.5 rounded-lg bg-slate-50 text-slate-600 text-[11px] font-bold border border-slate-100 group-hover:border-blue-100 group-hover:bg-blue-50/50 transition-colors"
+                        >
                           {skill}
                         </span>
                       ))}
                   </div>
 
-                  {/* Actions - Pushed to bottom */}
+                  {/* Actions */}
                   <div className="w-full flex flex-col gap-3 mt-auto relative z-10">
-                    <Link href={isLoggedIn ? "/dashboard" : "/login"} className="w-full">
-                      <button className="w-full flex items-center justify-center gap-2 py-3.5 bg-[#0852A1] text-white rounded-xl font-bold hover:bg-slate-900 transition-all shadow-lg shadow-blue-900/10 active:scale-[0.98]">
+                    <Link href={isLoggedIn ? "/dashboard" : "/login"}>
+                      <button className="w-full flex items-center justify-center gap-2 py-3 sm:py-3.5 bg-[#0852A1] text-white rounded-xl font-bold hover:bg-slate-900 transition-all shadow-lg shadow-blue-900/10 active:scale-[0.98]">
                         <Calendar size={18} /> Schedule Trial
                       </button>
                     </Link>
+
                     <button
-                      onClick={() => router.push(`/student/tutor/${tutor._id}`)}
-                      className="w-full py-3.5 border border-slate-200 text-slate-600 rounded-xl font-bold hover:bg-slate-50 hover:text-slate-900 transition-all active:scale-[0.98]">
+                      onClick={() =>
+                        router.push(`/student/tutor/${tutor._id}`)
+                      }
+                      className="w-full py-3 sm:py-3.5 border border-slate-200 text-slate-600 rounded-xl font-bold hover:bg-slate-50 hover:text-slate-900 transition-all active:scale-[0.98]"
+                    >
                       View Full Profile
                     </button>
                   </div>
@@ -266,15 +297,13 @@ const Tutors = () => {
           </div>
         )}
 
-        {/* ================= PAGINATION (Only show if we are fetching lots of pages and user expanded view or if we want standard pagination) ================= */}
-        {/* Note: If "View All" is toggled OFF, we hide pagination because we are limiting locally.
-            If "View All" is ON, we show pagination controls. */}
+        {/* ================= PAGINATION ================= */}
         {pagination.totalPages > 1 && showAll && (
-          <div className="flex justify-center items-center gap-4 mt-20">
+          <div className="flex justify-center items-center gap-4 mt-16 sm:mt-20">
             <button
               onClick={() => handlePageChange(page - 1)}
               disabled={page === 1}
-              className="p-3 rounded-full bg-white border border-slate-200 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition shadow-sm"
+              className="p-3 rounded-full bg-white border border-slate-200 hover:bg-slate-50 disabled:opacity-50 transition shadow-sm"
             >
               <ChevronLeft size={20} />
             </button>
@@ -286,7 +315,7 @@ const Tutors = () => {
             <button
               onClick={() => handlePageChange(page + 1)}
               disabled={page === pagination.totalPages}
-              className="p-3 rounded-full bg-white border border-slate-200 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition shadow-sm"
+              className="p-3 rounded-full bg-white border border-slate-200 hover:bg-slate-50 disabled:opacity-50 transition shadow-sm"
             >
               <ChevronRight size={20} />
             </button>
@@ -294,12 +323,19 @@ const Tutors = () => {
         )}
       </section>
 
+
       {/* ================= FINAL CTA ================= */}
-      <section className="bg-white border-t border-slate-100 py-24 text-center">
-        <h2 className="text-3xl font-bold text-slate-900 mb-6">Can't find the right match?</h2>
-        <p className="text-slate-500 mb-8 text-lg max-w-xl mx-auto">Our advisors are available 24/7 to help you choose the perfect tutor for your specific goals.</p>
+      <section className="bg-white border-t border-slate-100 py-14 sm:py-24 text-center px-4">
+        <h2 className="text-xl sm:text-3xl font-bold text-slate-900 mb-4 sm:mb-6">
+          Can't find the right match?
+        </h2>
+
+        <p className="text-sm sm:text-lg text-slate-500 mb-6 sm:mb-8 max-w-xl mx-auto leading-relaxed">
+          Our advisors are available 24/7 to help you choose the perfect tutor for your specific goals.
+        </p>
+
         <Link href="/contact">
-          <button className="px-12 py-4 border-2 border-slate-200 text-slate-900 rounded-full font-bold hover:bg-[#0852A1] hover:text-white hover:border-[#0852A1] transition-all cursor-pointer">
+          <button className="px-8 sm:px-12 py-3 sm:py-4 border-2 border-slate-200 text-slate-900 rounded-full font-bold text-sm sm:text-base hover:bg-[#0852A1] hover:text-white hover:border-[#0852A1] transition-all cursor-pointer">
             Contact Support
           </button>
         </Link>

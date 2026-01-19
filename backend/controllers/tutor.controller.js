@@ -22,7 +22,7 @@ export const listTutors = async (req, res) => {
 
     const tutors = await User.find(filter)
       .select(
-        "name email phone organizationId createdAt expertise experience availability responseTime rating reviewsCount"
+        "name email phone avatar imageid organizationId createdAt expertise experience availability responseTime rating reviewsCount"
       )
       .sort({ createdAt: -1 })
       .skip(skip)
