@@ -84,7 +84,6 @@ exports.renderCreatePackage = async (req, res) => {
     const upcomingClasses = await Class.find({
       isDeleted: false,
       startDate: { $gte: today },
-      courseId: { $ne: null },
     })
       .select("courseId")
       .lean();
@@ -106,6 +105,7 @@ exports.renderCreatePackage = async (req, res) => {
         .select("_id title price")
         .lean();
     }
+    console.log(courses, "courses");
 
     res.render("packages/add", {
       title: "Create Package",
@@ -116,7 +116,7 @@ exports.renderCreatePackage = async (req, res) => {
   } catch (error) {
     console.error(error);
     req.flash("error", error.message);
-    res.redirect("back");
+    res.status(error.status).json(error.message);
   }
 };
 
@@ -252,10 +252,7 @@ exports.updatePackage = async (req, res) => {
     const courseIds = courses || [];
 
     if (courseIds.length === 0) {
-      req.flash(
-        "error",
-        "Please select at least one course for the package."
-      );
+      req.flash("error", "Please select at least one course for the package.");
       return res.redirect("back");
     }
 

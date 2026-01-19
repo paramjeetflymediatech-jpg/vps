@@ -31,7 +31,7 @@ const MySessions = () => {
     setPage(1);
   }, [activeTab]);
 
-  /* 📡 Fetch tutors */
+  /* 📡 Fetch tutors + availability */
   useEffect(() => {
     const fetchTutors = async () => {
       try {
@@ -40,29 +40,38 @@ const MySessions = () => {
 
         const apiTutors = await Promise.all(
           rawTutors.map(async (t, index) => {
-            const id = t._id || index;
-            let nextAvailability = "No upcoming classes";
+            const tutorId = t._id || index;
+
+            let nextAvailability = "Not Available";
+            let isAvailable = false;
 
             try {
-              const classesRes = await getStudentClasses({ tutorId: id });
+              const classesRes = await getStudentClasses({
+                
+              });
+
               const classes = classesRes.data?.data || [];
               const slot = classes?.[0]?.schedule?.[0];
-
+              console.log(classesRes);
               if (slot) {
                 nextAvailability = `${slot.day}, ${slot.startTime}`;
+                isAvailable = true;
               }
-            } catch { }
+            } catch (err) {
+              console.error("Slot fetch error", err);
+            }
 
             return {
-              id,
+              id: tutorId,
               name: t.name,
               sessions: Math.floor(Math.random() * 500) + 50,
               time: nextAvailability,
+              isAvailable,
               img: `https://i.pravatar.cc/150?u=${t.email}`,
             };
           })
         );
-
+        console.log(rawTutors);
         setTutors(apiTutors);
       } catch (err) {
         console.error(err);
@@ -74,11 +83,8 @@ const MySessions = () => {
     fetchTutors();
   }, []);
 
-  /* 📄 Pagination logic */
-  const TOTAL_PAGES = Math.max(
-    1,
-    Math.ceil(tutors.length / ITEMS_PER_PAGE)
-  );
+  /* 📄 Pagination */
+  const TOTAL_PAGES = Math.max(1, Math.ceil(tutors.length / ITEMS_PER_PAGE));
 
   const paginatedTutors = useMemo(() => {
     const start = (page - 1) * ITEMS_PER_PAGE;
@@ -87,7 +93,6 @@ const MySessions = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 bg-[#FBFCFF] min-h-screen pt-20">
-
       {/* HEADER */}
       <div className="flex flex-col lg:flex-row justify-between mb-8 gap-6">
         <div>
@@ -102,10 +107,11 @@ const MySessions = () => {
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`px-5 py-2 rounded-xl text-sm font-bold transition ${activeTab === tab
+              className={`px-5 py-2 rounded-xl text-sm font-bold transition ${
+                activeTab === tab
                   ? "bg-white text-[#6335F8] shadow"
                   : "text-gray-500"
-                }`}
+              }`}
             >
               {tab}
             </button>
@@ -117,12 +123,8 @@ const MySessions = () => {
       {sessions.length === 0 && (
         <div className="bg-white border-dashed border-2 rounded-3xl p-14 text-center mb-12">
           <Calendar className="mx-auto mb-4 text-[#6335F8]" size={40} />
-          <h3 className="text-2xl font-black mb-2">
-            No {activeTab} sessions
-          </h3>
-          <p className="text-gray-500 mb-6">
-            Start by booking a trial session
-          </p>
+          <h3 className="text-2xl font-black mb-2">No {activeTab} sessions</h3>
+          <p className="text-gray-500 mb-6">Start by booking a trial session</p>
           <button
             onClick={() => router.push("/student/myClass")}
             className="bg-[#6335F8] text-white px-8 py-4 rounded-2xl font-bold"
@@ -150,11 +152,7 @@ const MySessions = () => {
               className="bg-white p-6 rounded-3xl border hover:shadow-xl transition"
             >
               <div className="flex gap-4 mb-4">
-                <img
-                  src={tutor.img}
-                  className="w-16 h-16 rounded-2xl"
-                  alt=""
-                />
+                <img src={tutor.img} className="w-16 h-16 rounded-2xl" alt="" />
                 <div>
                   <h4 className="font-black">{tutor.name}</h4>
                   <p className="text-xs text-gray-400 font-bold">
@@ -170,14 +168,24 @@ const MySessions = () => {
                 <p className="font-bold text-sm">{tutor.time}</p>
               </div>
 
-              <button
-                onClick={() =>
-                  router.push(`/CoursesPricing?tutorId=${tutor.id}`)
-                }
-                className="w-full py-3 rounded-xl bg-purple-50 text-[#6335F8] font-black hover:bg-[#6335F8] hover:text-white transition"
-              >
-                Book Now
-              </button>
+              {/* ✅ Availability Check */}
+              {tutor.isAvailable ? (
+                <button
+                  onClick={() =>
+                    router.push(`/CoursesPricing?tutorId=${tutor.id}`)
+                  }
+                  className="w-full py-3 rounded-xl bg-purple-50 text-[#6335F8] font-black hover:bg-[#6335F8] hover:text-white transition"
+                >
+                  Book Now
+                </button>
+              ) : (
+                <button
+                  disabled
+                  className="w-full py-3 rounded-xl bg-gray-100 text-gray-400 font-black cursor-not-allowed"
+                >
+                  Not Available
+                </button>
+              )}
             </div>
           ))}
         </div>

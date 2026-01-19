@@ -44,6 +44,7 @@ import DashboardRedirect from "./views/DashboardRedirect";
 /* ================= ADMIN ================= */
 import ProtectedRoute from "./common/ProtectedRoute";
 import Dashboard from "./tutor/pages/Dashboard";
+import PackageDetail from "./student/pages/PackageDetail";
 
 const App = () => {
   return (
@@ -95,6 +96,7 @@ const App = () => {
           <Route path="courses" element={<MyCourses />} />
           <Route path="courses/:id" element={<CourseDetails />} />
           <Route path="profile" element={<StudentProfile />} />
+          <Route path="packages/:id" element={<PackageDetail />} />
           <Route path="settings" element={<StudentSettings />} />
         </Route>
       </Routes>

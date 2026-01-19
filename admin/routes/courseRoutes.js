@@ -155,6 +155,13 @@ router.post(
         classes: classIds,
         expiryDate,
       });
+      // ✅ Update all selected classes with courseId
+      if (classIds.length) {
+        await Class.updateMany(
+          { _id: { $in: classIds } },
+          { $set: { courseId: data._id } }
+        );
+      }
       console.log("New Course Created:", data);
       return res.redirect("/admin/courses");
     } catch (err) {
@@ -217,6 +224,7 @@ router.post(
     const course = await Course.findById(req.params.id);
     if (!course) return res.status(404).send("Not found");
 
+    // Delete old image
     if (req.file && course.imageId) {
       await cloudinary.uploader.destroy(course.imageId);
     }
@@ -228,26 +236,52 @@ router.post(
     course.price = Number(req.body.price);
     course.published = req.body.published === "on";
 
-    // Update attached classes
+    // Normalize classes
     let { classes } = req.body;
     if (classes && !Array.isArray(classes)) {
       classes = [classes];
     }
     const classIds = classes || [];
+
+    // 🔁 SYNC CLASS ↔ COURSE RELATION
+    const oldClassIds = course.classes.map(id => id.toString());
+    const newClassIds = classIds.map(id => id.toString());
+
+    const removedClasses = oldClassIds.filter(
+      id => !newClassIds.includes(id)
+    );
+    const addedClasses = newClassIds.filter(
+      id => !oldClassIds.includes(id)
+    );
+
+    if (removedClasses.length) {
+      await Class.updateMany(
+        { _id: { $in: removedClasses } },
+        { $unset: { courseId: "" } }
+      );
+    }
+
+    if (addedClasses.length) {
+      await Class.updateMany(
+        { _id: { $in: addedClasses } },
+        { $set: { courseId: course._id } }
+      );
+    }
+
     course.classes = classIds;
 
-    // Recompute course expiry date from latest class endDate (if any)
+    // Recompute expiry date
     if (classIds.length) {
       const latestClass = await Class.find({ _id: { $in: classIds } })
         .sort({ endDate: -1 })
         .limit(1)
         .select("endDate")
         .lean();
-      if (latestClass.length && latestClass[0].endDate) {
-        course.expiryDate = latestClass[0].endDate;
-      } else {
-        course.expiryDate = null;
-      }
+
+      course.expiryDate =
+        latestClass.length && latestClass[0].endDate
+          ? latestClass[0].endDate
+          : null;
     } else {
       course.expiryDate = null;
     }
@@ -261,6 +295,7 @@ router.post(
     res.redirect("/admin/courses");
   }
 );
+
 
 /*
 |--------------------------------------------------------------------------

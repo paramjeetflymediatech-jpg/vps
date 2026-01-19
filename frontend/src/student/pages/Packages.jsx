@@ -107,20 +107,24 @@
 
 // export default StudentPackages;
 
-
-
-
 "use client";
-
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { getStudentPackages } from "@/api/student.api";
-import { BookOpen, Loader2, IndianRupee, Rocket, CheckCircle2 } from "lucide-react";
+import {
+  BookOpen,
+  Loader2,
+  IndianRupee,
+  Rocket,
+  CheckCircle2,
+} from "lucide-react";
 
 const StudentPackages = () => {
   const [packages, setPackages] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const router = useRouter();
   useEffect(() => {
     const fetchPackages = async () => {
       try {
@@ -142,7 +146,9 @@ const StudentPackages = () => {
     return (
       <div className="flex flex-col justify-center items-center h-screen bg-[#FBFCFF]">
         <Loader2 className="animate-spin text-[#6335F8] mb-2" size={40} />
-        <p className="text-sm font-bold text-gray-500">Loading your offers...</p>
+        <p className="text-sm font-bold text-gray-500">
+          Loading your offers...
+        </p>
       </div>
     );
   }
@@ -164,8 +170,12 @@ const StudentPackages = () => {
       <div className="min-h-screen bg-[#FBFCFF] pt-24 px-4 sm:px-6">
         <div className="max-w-7xl mx-auto text-center py-20 bg-white rounded-[2.5rem] border-2 border-dashed border-gray-100">
           <Rocket className="mx-auto text-gray-300 mb-4" size={48} />
-          <h1 className="text-2xl font-black text-gray-900 mb-2">No Packages Found</h1>
-          <p className="text-gray-500 text-sm">Check back later for new learning bundles!</p>
+          <h1 className="text-2xl font-black text-gray-900 mb-2">
+            No Packages Found
+          </h1>
+          <p className="text-gray-500 text-sm">
+            Check back later for new learning bundles!
+          </p>
         </div>
       </div>
     );
@@ -178,7 +188,6 @@ const StudentPackages = () => {
           md:pt-10: Standard padding for desktop.
       */}
       <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-10 pt-16 md:pt-10 space-y-8">
-        
         {/* HEADER SECTION */}
         <div className="space-y-1">
           <h1 className="text-2xl sm:text-3xl font-black text-gray-900 tracking-tight">
@@ -224,14 +233,14 @@ const StudentPackages = () => {
 
                 {/* Features Placeholder (Optional UI Polish) */}
                 <div className="space-y-2 pt-2">
-                   <div className="flex items-center gap-2 text-xs font-bold text-gray-600">
-                      <CheckCircle2 size={14} className="text-green-500" />
-                      Lifetime Access
-                   </div>
-                   <div className="flex items-center gap-2 text-xs font-bold text-gray-600">
-                      <CheckCircle2 size={14} className="text-green-500" />
-                      Certificate of Completion
-                   </div>
+                  <div className="flex items-center gap-2 text-xs font-bold text-gray-600">
+                    <CheckCircle2 size={14} className="text-green-500" />
+                    Lifetime Access
+                  </div>
+                  <div className="flex items-center gap-2 text-xs font-bold text-gray-600">
+                    <CheckCircle2 size={14} className="text-green-500" />
+                    Certificate of Completion
+                  </div>
                 </div>
               </div>
 
@@ -239,7 +248,9 @@ const StudentPackages = () => {
               <div className="mt-8 pt-6 border-t border-gray-50 flex items-center justify-between">
                 <div>
                   <div className="flex items-baseline gap-1">
-                    <span className="text-2xl font-black text-gray-900">₹{pkg.price}</span>
+                    <span className="text-2xl font-black text-gray-900">
+                      ₹{pkg.price}
+                    </span>
                   </div>
                   {pkg.discountPrice && (
                     <div className="text-xs text-gray-400 line-through font-bold">
@@ -249,6 +260,7 @@ const StudentPackages = () => {
                 </div>
 
                 <button
+                  onClick={() => router.push(`/student/packages/${pkg._id}`)}
                   className="px-6 py-3 rounded-xl bg-purple-50 text-[#6335F8] text-sm font-black hover:bg-[#6335F8] hover:text-white transition-all shadow-sm active:scale-95"
                 >
                   View Details
