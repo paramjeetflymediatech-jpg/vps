@@ -69,6 +69,13 @@ const classSchema = new mongoose.Schema(
       enum: ["UPCOMING", "ONGOING", "COMPLETED"],
       default: "UPCOMING",
     },
+    
+    enrolledStudents: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
   },
   { timestamps: true }
 );

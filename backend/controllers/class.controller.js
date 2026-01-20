@@ -44,14 +44,22 @@ const findTutorScheduleClash = async ({
   tutorId,
   schedule,
   excludeClassId,
+  startDate,
+  endDate,
 }) => {
   const normalized = normalizeSchedule(schedule);
   if (!tutorId || !Array.isArray(normalized) || !normalized.length) {
     return null;
   }
 
+  const newStart = new Date(startDate);
+  const newEnd = new Date(endDate);
+
+  if (isNaN(newStart) || isNaN(newEnd)) return null;
+
   const days = normalized.map((s) => s.day);
 
+  // 1. Fetch potentially conflicting classes (same tutor, UPCOMING/ONGOING)
   const query = {
     tutorId,
     status: { $in: ["UPCOMING", "ONGOING"] },
@@ -65,6 +73,22 @@ const findTutorScheduleClash = async ({
   const classes = await Class.find(query).lean();
 
   const clash = classes.find((cls) => {
+    // 2. CHECK DATE OVERLAP FIRST
+    // Existing class dates
+    const oldStart = new Date(cls.startDate);
+    const oldEnd = new Date(cls.endDate);
+
+    // Skip invalid dates in DB
+    if (isNaN(oldStart) || isNaN(oldEnd)) return false;
+
+    // NO Date Overlap if: (NewEnds < OldStarts) OR (NewStarts > OldEnds)
+    // So Overlap IF: !((newEnd < oldStart) || (newStart > oldEnd))
+    // Simplified: (newStart <= oldEnd) && (newEnd >= oldStart)
+    const activeDateOverlap = newStart <= oldEnd && newEnd >= oldStart;
+
+    if (!activeDateOverlap) return false;
+
+    // 3. CHECK TIME OVERLAP (only if dates overlap)
     if (!Array.isArray(cls.schedule)) return false;
 
     return cls.schedule.some((existingSlot) => {
@@ -75,14 +99,16 @@ const findTutorScheduleClash = async ({
       return normalized.some((newSlot) => {
         if (newSlot.day !== existingSlot.day) return false;
 
-        const s1 = newSlot.startTime;
+        const s1 = newSlot.startTime; // New
         const e1 = newSlot.endTime;
-        const s2 = existingSlot.startTime;
+        const s2 = existingSlot.startTime; // Existing
         const e2 = existingSlot.endTime;
 
         if (!s1 || !e1 || !s2 || !e2) return false;
 
-        // Time overlap: not (one ends before the other starts)
+        // Time overlap: not (one ends before other starts)
+        // e1 <= s2 means new ends before existing starts
+        // e2 <= s1 means existing ends before new starts
         return !(e1 <= s2 || e2 <= s1);
       });
     });
@@ -185,6 +211,8 @@ export const createClass = async (req, res) => {
     const clash = await findTutorScheduleClash({
       tutorId,
       schedule: sortedSchedule,
+      startDate,
+      endDate,
     });
 
     if (clash) {
@@ -329,7 +357,7 @@ export const updateClass = async (req, res) => {
 
     /* ================= SCHEDULE VALIDATION ================= */
     const schedule = normalizeSchedule(
-      updates.schedule || existingClass.schedule
+      updates.schedule || existingClass.schedule,
     );
 
     if (!Array.isArray(schedule) || schedule.length === 0) {
@@ -375,6 +403,8 @@ export const updateClass = async (req, res) => {
       tutorId: effectiveTutorId,
       schedule,
       excludeClassId: id,
+      startDate: updates.startDate || existingClass.startDate,
+      endDate: updates.endDate || existingClass.endDate,
     });
 
     if (clash) {

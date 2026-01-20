@@ -45,7 +45,7 @@ export const createCourse = async (req, res) => {
 export const updateCourse = async (req, res) => {
   try {
     const data = { ...req.body };
-
+    console.log(data);
     // Agar user ne nayi file di hai toh use update karein
     if (req.file && course.imageId) {
       await cloudinary.uploader.destroy(course.imageId);

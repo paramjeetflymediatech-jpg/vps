@@ -138,9 +138,9 @@ const BookSession = () => {
           id: cls._id || index,
           tutorId: tutor._id,
           name: tutor.name || "Tutor",
-          rating: 4.8,
+          rating:tutor.rating,
           sessions: Math.floor(Math.random() * 1000) + 100,
-          image: `https://i.pravatar.cc/150?u=${email}`,
+          image: tutor.avatar || `https://i.pravatar.cc/150?u=${email}`,
           slots,
         };
       })

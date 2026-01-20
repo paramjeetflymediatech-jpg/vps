@@ -117,6 +117,7 @@ router.post(
   role("ADMIN"),
   upload.single("image"),
   async (req, res) => {
+    console.log(req.body);
     try {
       const { title, description, tutorId, price, published } = req.body;
       let { classes } = req.body;
@@ -159,7 +160,7 @@ router.post(
       if (classIds.length) {
         await Class.updateMany(
           { _id: { $in: classIds } },
-          { $set: { courseId: data._id } }
+          { $set: { courseId: data._id, tutorId: tutorId || null } },
         );
       }
       console.log("New Course Created:", data);
@@ -168,7 +169,7 @@ router.post(
       console.error(err);
       return res.status(500).send("Server Error");
     }
-  }
+  },
 );
 
 /*
@@ -238,33 +239,34 @@ router.post(
 
     // Normalize classes
     let { classes } = req.body;
+    let addedClasses = [];
     if (classes && !Array.isArray(classes)) {
       classes = [classes];
     }
     const classIds = classes || [];
-
-    // 🔁 SYNC CLASS ↔ COURSE RELATION
-    const oldClassIds = course.classes.map(id => id.toString());
-    const newClassIds = classIds.map(id => id.toString());
-
-    const removedClasses = oldClassIds.filter(
-      id => !newClassIds.includes(id)
-    );
-    const addedClasses = newClassIds.filter(
-      id => !oldClassIds.includes(id)
-    );
-
-    if (removedClasses.length) {
-      await Class.updateMany(
-        { _id: { $in: removedClasses } },
-        { $unset: { courseId: "" } }
+    if (classIds.length > 1) {
+      // 🔁 SYNC CLASS ↔ COURSE RELATION
+      const oldClassIds = course.classes.map((id) => id.toString());
+      const newClassIds = classIds.map((id) => id.toString());
+      const removedClasses = oldClassIds.filter(
+        (id) => !newClassIds.includes(id),
       );
+      addedClasses = newClassIds.filter((id) => !oldClassIds.includes(id));
+
+      if (removedClasses.length) {
+        await Class.updateMany(
+          { _id: { $in: removedClasses } },
+          { $unset: { courseId: "" } },
+        );
+      }
+    } else {
+      addedClasses = [...classIds];
     }
 
     if (addedClasses.length) {
       await Class.updateMany(
         { _id: { $in: addedClasses } },
-        { $set: { courseId: course._id } }
+        { $set: { courseId: course._id, tutorId: course.tutorId } },
       );
     }
 
@@ -293,9 +295,8 @@ router.post(
 
     await course.save();
     res.redirect("/admin/courses");
-  }
+  },
 );
-
 
 /*
 |--------------------------------------------------------------------------

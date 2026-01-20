@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 const enrollmentSchema = new mongoose.Schema(
   {
     userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-    batchId: { type: mongoose.Schema.Types.ObjectId, ref: "Batch" },
+    classId: { type: mongoose.Schema.Types.ObjectId, ref: "Class" },
   },
   { timestamps: true }
 );

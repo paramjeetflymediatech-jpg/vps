@@ -13,23 +13,26 @@ import Enrollment from "../models/enrollment.js";
  */
 export const getClasses = async (req, res) => {
   try {
-    const now = new Date();
-    const { tutorId } = req.query;
+    // const { tutorId } = req.query;
+
+    const todayStary = new Date();
+    todayStary.setHours(0, 0, 0, 0);
 
     const filter = {
       status: { $in: ["UPCOMING", "ONGOING"] },
-      endDate: { $gte: now },
+      endDate: { $gte: todayStary },
     };
 
-    if (tutorId) {
-      filter.tutorId = tutorId;
-    }
+    // if (tutorId) {
+    //   filter.tutorId = tutorId;
+    // }
 
     const classes = await Class.find(filter)
-      .populate("tutorId", "name email")
+      .populate("tutorId")
       .populate("courseId", "title")
-      .sort({ startDate: 1 });
-
+      .sort({ startDate: 1 })
+      .lean();
+    console.log(classes);
     return res.json({ success: true, data: classes });
   } catch (error) {
     console.error("getClasses (student) error", error);
@@ -37,22 +40,38 @@ export const getClasses = async (req, res) => {
   }
 };
 
-export const enrollBatch = async (req, res) => {
-  const batch = await Batch.findById(req.body.batchId);
+export const enrollClass = async (req, res) => {
+  try {
+    const { classId } = req.body;
+    const cls = await Class.findById(classId);
 
-  if (batch.enrolledStudents.length >= batch.maxStudents) {
-    return res.status(400).json({ message: "Batch full" });
+    if (!cls) {
+      return res.status(404).json({ message: "Class not found" });
+    }
+
+    // Check if already enrolled
+    if (cls.enrolledStudents.includes(req.user.id)) {
+      return res.status(400).json({ message: "Already enrolled" });
+    }
+
+    if (cls.enrolledStudents.length >= cls.maxStudents) {
+      return res.status(400).json({ message: "Class full" });
+    }
+
+    // Atomic update
+    await Class.findByIdAndUpdate(classId, {
+      $addToSet: { enrolledStudents: req.user.id },
+    });
+
+    await Enrollment.create({
+      userId: req.user.id,
+      classId: cls._id,
+    });
+
+    res.json({ message: "Enrolled successfully", success: true });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
-
-  batch.enrolledStudents.push(req.user.id);
-  await batch.save();
-
-  await Enrollment.create({
-    userId: req.user.id,
-    batchId: batch._id,
-  });
-
-  res.json({ message: "Enrolled successfully" });
 };
 
 /**
@@ -63,22 +82,18 @@ export const getMyEnrollments = async (req, res) => {
   try {
     const enrollments = await Enrollment.find({ userId: req.user.id })
       .populate({
-        path: "batchId",
-        populate: {
-          path: "classId",
-          populate: [
-            { path: "courseId", select: "title" },
-            { path: "tutorId", select: "name email image" }, // Added image if available in User model, checking User model might be good but email/name is standard
-          ],
-        },
+        path: "classId",
+        populate: [
+          { path: "courseId", select: "title" },
+          { path: "tutorId", select: "name email image" },
+        ],
       })
       .sort({ createdAt: -1 });
 
-    // Filter valid enrollments (where batch and class still exist)
     const data = enrollments
-      .filter((e) => e.batchId && e.batchId.classId)
+      .filter((e) => e.classId)
       .map((e) => {
-        const cls = e.batchId.classId;
+        const cls = e.classId;
         return {
           _id: cls._id, // Class ID
           enrollmentId: e._id,
@@ -89,9 +104,9 @@ export const getMyEnrollments = async (req, res) => {
           endDate: cls.endDate,
           schedule: cls.schedule, // [{day, startTime, endTime}]
           meetingLink: cls.meetingLink,
-          tutor: cls.tutorId, // {name, email}
-          course: cls.courseId, // {title}
-          batchId: e.batchId._id,
+          tutorId: cls.tutorId, // {name, email}
+          courseId: cls.courseId, // {title}
+          // batchId removed as we don't use it
         };
       });
 

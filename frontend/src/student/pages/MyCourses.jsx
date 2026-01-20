@@ -41,18 +41,14 @@ const MySessions = () => {
         const apiTutors = await Promise.all(
           rawTutors.map(async (t, index) => {
             const tutorId = t._id || index;
-
             let nextAvailability = "Not Available";
             let isAvailable = false;
 
             try {
-              const classesRes = await getStudentClasses({
-                
-              });
+              const classesRes = await getStudentClasses({});
 
               const classes = classesRes.data?.data || [];
               const slot = classes?.[0]?.schedule?.[0];
-              console.log(classesRes);
               if (slot) {
                 nextAvailability = `${slot.day}, ${slot.startTime}`;
                 isAvailable = true;
@@ -67,11 +63,10 @@ const MySessions = () => {
               sessions: Math.floor(Math.random() * 500) + 50,
               time: nextAvailability,
               isAvailable,
-              img: `https://i.pravatar.cc/150?u=${t.email}`,
+              img: t.avatar || `https://i.pravatar.cc/150?u=${t.email}`,
             };
-          })
+          }),
         );
-        console.log(rawTutors);
         setTutors(apiTutors);
       } catch (err) {
         console.error(err);

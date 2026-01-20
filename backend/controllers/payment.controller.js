@@ -33,10 +33,50 @@ export const createUpiPayment = (req, res) => {
 
 
 
+import Class from "../models/class.js";
+import Course from "../models/course.js";
+import CoursePackage from "../models/package.js";
+import Enrollment from "../models/enrollment.js";
+
+const grantAccess = async (userId, itemId, itemType) => {
+  try {
+    let classesToEnroll = [];
+
+    if (itemType === "CLASS") {
+      classesToEnroll.push(itemId);
+    } else if (itemType === "COURSE") {
+      // Find all classes for this course
+      const classes = await Class.find({ courseId: itemId });
+      classesToEnroll = classes.map((c) => c._id);
+    } else if (itemType === "PACKAGE") {
+      const pkg = await CoursePackage.findById(itemId).populate("courses");
+      if (pkg && pkg.courses) {
+        const courseIds = pkg.courses.map((c) => c._id);
+        const classes = await Class.find({ courseId: { $in: courseIds } });
+        classesToEnroll = classes.map((c) => c._id);
+      }
+    }
+
+    for (const classId of classesToEnroll) {
+      // Idempotent enrollment
+      await Class.findByIdAndUpdate(classId, {
+        $addToSet: { enrolledStudents: userId },
+      });
+      await Enrollment.updateOne(
+        { userId, classId },
+        { $setOnInsert: { userId, classId } },
+        { upsert: true }
+      );
+    }
+  } catch (error) {
+    console.error("Error granting access:", error);
+  }
+};
+
 // POST /api/payment/upi/log
 export const logUpiPayment = async (req, res) => {
   try {
-    const { tutorId, amount, lessons, status, clientPaymentId } = req.body;
+    const { tutorId, amount, lessons, status, clientPaymentId, itemId, itemType } = req.body;
 
     const userId = req.user?.id || req.user?._id;
     if (!userId) {
@@ -48,11 +88,13 @@ export const logUpiPayment = async (req, res) => {
       { clientPaymentId: paymentId },
       {
         $setOnInsert: {
-          clientPaymentId: paymentId, // ✅ REQUIRED
+          clientPaymentId: paymentId,
           userId,
           tutorId,
           amount,
           lessons,
+          itemId, // Store what was bought
+          itemType, // CLASS, COURSE, PACKAGE
           method: "UPI",
           status: status || "PENDING",
         },
@@ -63,6 +105,14 @@ export const logUpiPayment = async (req, res) => {
         setDefaultsOnInsert: true,
       }
     );
+
+    // If payment is SUCCESS/COMPLETED, grant access immediately
+    if (payment.status === "SUCCESS" || payment.status === "COMPLETED") {
+       if (itemId && itemType) {
+           await grantAccess(userId, itemId, itemType);
+       }
+    }
+
     console.log("Logged payment:", payment);
     res.status(201).json({ success: true, payment });
   } catch (err) {
@@ -185,6 +235,12 @@ export const verifyPayment = async (req, res) => {
 
     if (!payment) {
       return res.status(404).json({ message: "Payment not found" });
+    }
+
+    if (status === "SUCCESS" || status === "COMPLETED") {
+        if (payment.itemId && payment.itemType) {
+            await grantAccess(payment.userId._id, payment.itemId, payment.itemType);
+        }
     }
 
     return res.status(200).json({

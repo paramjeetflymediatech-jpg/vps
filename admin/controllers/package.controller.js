@@ -63,7 +63,7 @@ exports.renderPackages = async (req, res) => {
   } catch (error) {
     console.error(error);
     req.flash("error", error.message);
-    res.redirect("back");
+    res.status(error.status).json(error.message);
   }
 };
 
@@ -91,7 +91,7 @@ exports.renderCreatePackage = async (req, res) => {
     const courseIdSet = new Set(
       upcomingClasses
         .map((c) => (c.courseId ? c.courseId.toString() : null))
-        .filter(Boolean)
+        .filter(Boolean),
     );
 
     let courses = [];
@@ -143,8 +143,10 @@ exports.createPackage = async (req, res) => {
     const courseIds = courses || [];
 
     if (courseIds.length === 0) {
-      req.flash("error", "Please select at least one course for the package.");
-      return res.redirect("back");
+      return res.status(400).json({
+        success: false,
+        message: "Please select at least one course for the package.",
+      });
     }
 
     await CoursePackage.create({
@@ -169,7 +171,7 @@ exports.createPackage = async (req, res) => {
   } catch (error) {
     console.error(error);
     req.flash("error", error.message);
-    res.redirect("back");
+    res.status(error.status).json(error.message);
   }
 };
 
@@ -204,7 +206,7 @@ exports.renderEditPackage = async (req, res) => {
     const courseIdSet = new Set(
       upcomingClasses
         .map((c) => (c.courseId ? c.courseId.toString() : null))
-        .filter(Boolean)
+        .filter(Boolean),
     );
 
     let courses = [];
@@ -252,8 +254,10 @@ exports.updatePackage = async (req, res) => {
     const courseIds = courses || [];
 
     if (courseIds.length === 0) {
-      req.flash("error", "Please select at least one course for the package.");
-      return res.redirect("back");
+      return res.status(400).json({
+        success: false,
+        message: "Please select at least one course for the package.",
+      });
     }
 
     const updated = await CoursePackage.findByIdAndUpdate(
@@ -271,7 +275,7 @@ exports.updatePackage = async (req, res) => {
           : undefined,
         published: req.body.published === "on",
       },
-      { new: true, runValidators: true }
+      { new: true, runValidators: true },
     );
 
     if (!updated) {
@@ -283,8 +287,7 @@ exports.updatePackage = async (req, res) => {
     res.redirect("/admin/packages");
   } catch (error) {
     console.error(error);
-    req.flash("error", error.message);
-    res.redirect("back");
+    res.status(error.status).json(error.message);
   }
 };
 
@@ -305,6 +308,6 @@ exports.deletePackage = async (req, res) => {
   } catch (error) {
     console.error(error);
     req.flash("error", error.message);
-    res.redirect("back");
+    res.status(error.status).json(error.message);
   }
 };
