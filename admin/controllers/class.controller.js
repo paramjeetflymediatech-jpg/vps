@@ -71,12 +71,12 @@ async function findTutorScheduleClash({
     // 2. CHECK DATE OVERLAP FIRST
     const oldStart = new Date(cls.startDate);
     const oldEnd = new Date(cls.endDate);
-    
+
     // Skip invalid dates
     if (isNaN(oldStart) || isNaN(oldEnd)) return false;
 
     // Overlap if ranges intersect
-    const activeDateOverlap = (newStart <= oldEnd) && (newEnd >= oldStart);
+    const activeDateOverlap = newStart <= oldEnd && newEnd >= oldStart;
 
     if (!activeDateOverlap) return false;
 
@@ -84,7 +84,8 @@ async function findTutorScheduleClash({
     if (!Array.isArray(cls.schedule)) return false;
 
     return cls.schedule.some((existingSlot) => {
-      if (!existingSlot.day || !existingSlot.startTime || !existingSlot.endTime) return false;
+      if (!existingSlot.day || !existingSlot.startTime || !existingSlot.endTime)
+        return false;
       if (!days.includes(existingSlot.day)) return false;
 
       return normalized.some((newSlot) => {
@@ -135,7 +136,6 @@ exports.renderClasses = async (req, res) => {
         .lean(),
       Class.countDocuments(),
     ]);
-console.log(data)
     const totalPages = Math.max(Math.ceil(total / limit) || 1, 1);
 
     res.render("batches/index", {
@@ -263,15 +263,8 @@ exports.renderEditClass = async (req, res) => {
  */
 exports.updateClass = async (req, res) => {
   try {
-    const {
-      courseId,
-      meetingLink,
-      startDate,
-      endDate,
-      schedule,
-      maxStudents,
-      status,
-    } = req.body;
+    const { meetingLink, startDate, endDate, schedule, maxStudents, status } =
+      req.body;
 
     const existingClass = await Class.findById(req.params.id);
     if (!existingClass) {
@@ -279,7 +272,7 @@ exports.updateClass = async (req, res) => {
       return res.redirect("/admin/classes");
     }
 
-    const effectiveTutorId = req.body.tutorId || existingClass.tutorId;
+    const effectiveTutorId = existingClass.tutorId;
 
     const normalizedSchedule = normalizeSchedule(schedule);
 
@@ -299,7 +292,6 @@ exports.updateClass = async (req, res) => {
     const updated = await Class.findByIdAndUpdate(
       req.params.id,
       {
-        courseId: courseId || null,
         meetingLink,
         startDate,
         endDate,
@@ -310,9 +302,8 @@ exports.updateClass = async (req, res) => {
         status,
         title: req.body.title,
         description: req.body.description,
-        tutorId: req.body.tutorId || null,
       },
-      { new: true, runValidators: true }
+      { new: true, runValidators: true },
     );
 
     req.flash("success", "Class updated successfully");

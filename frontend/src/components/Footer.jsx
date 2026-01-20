@@ -91,9 +91,7 @@ const Footer = () => {
         <div>
           <h4 className="font-bold mb-4 text-lg">Company</h4>
           <ul className="space-y-2 text-md text-black/80">
-            <li><Link href="/#goal">Goal</Link></li>
             <li><Link href="/CoursesPricing">Pricing</Link></li>
-            <li><Link href="/#review">Review</Link></li>
             <li><Link href="/#book-a-session">Book a Session</Link></li>
             <li><Link href="/#contact">Contact</Link></li>
           </ul>
@@ -105,10 +103,8 @@ const Footer = () => {
           <h4 className="font-bold mb-4 text-lg">Support</h4>
           <ul className="space-y-2 text-md text-black/80">
             <li><Link href="/support">Help & Support</Link></li>
-            <li><Link href="/become-tutor">Become Instructor</Link></li>
-            <li><Link href="/app">Get the App</Link></li>
+            <li><Link href="/become-tutor">Become Tutor</Link></li>
             <li><Link href="/faq">FAQ</Link></li>
-            <li><Link href="/tutorial">Tutorial</Link></li>
           </ul>
         </div>
 
