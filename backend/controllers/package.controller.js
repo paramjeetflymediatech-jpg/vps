@@ -1,46 +1,115 @@
 import mongoose from "mongoose";
 import CoursePackage from "../models/package.js";
 import Course from "../models/course.js";
+import Payment from "../models/payment.js";
 
-const isValidObjectId = (id) => mongoose.Types.ObjectId.isValid(id);
+const ObjectId = mongoose.Types.ObjectId;
+const isValidObjectId = (id) => ObjectId.isValid(id);
 
-// Helper to generate simple unique slug from title
-const generateSlug = (title) => {
-  return (
-    title
-      .toLowerCase()
-      .trim()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/(^-|-$)+/g, "") +
-    "-" +
-    Date.now()
-  );
-};
-
-/**
- * PUBLIC: Get all published packages (optionally filter by level/category)
- * GET /api/packages
- */
 export const getPackages = async (req, res) => {
   try {
-    const { level, category, organizationId } = req.query;
+    const { level, category, organizationId, userId } = req.query;
 
-    const filter = { published: true, isDeleted: false };
+    if (userId) {
+      /* ---------- VALIDATE USER ---------- */
+      if (!userId || !isValidObjectId(userId)) {
+        return res.status(400).json({ message: "Valid userId is required" });
+      }
+    }
+    /* ---------- MATCH PACKAGES ---------- */
+    const matchStage = {
+      published: true,
+      isDeleted: false,
+    };
 
-    if (level) filter.level = level;
-    if (category) filter.category = category;
+    if (level) matchStage.level = level;
+    if (category) matchStage.category = category;
     if (organizationId && isValidObjectId(organizationId)) {
-      filter.organizationId = organizationId;
+      matchStage.organizationId = new ObjectId(organizationId);
     }
 
-    const packages = await CoursePackage.find(filter)
-      .populate("courses", "title price image")
-      .sort({ createdAt: -1 });
+    /* ---------- AGGREGATION ---------- */
+    const ObjectId = mongoose.Types.ObjectId;
 
-    res.json({ success: true, data: packages });
+    const packages = await CoursePackage.aggregate([
+      { $match: matchStage },
+
+      /* 🔹 Lookup payment */
+      {
+        $lookup: {
+          from: "payments",
+          let: { packageId: "$_id" },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    { $eq: ["$packageId", "$$packageId"] },
+                    { $eq: ["$userId", new ObjectId(userId)] },
+                    { $eq: ["$status", "SUCCESS"] },
+                  ],
+                },
+              },
+            },
+
+            /* 🔹 Lookup user inside payment */
+            {
+              $lookup: {
+                from: "users",
+                localField: "userId",
+                foreignField: "_id",
+                as: "user",
+              },
+            },
+            { $unwind: "$user" },
+
+            {
+              $project: {
+                user: {
+                  _id: 1,
+                  name: 1,
+                  email: 1,
+                  isPaymentDone: 1,
+                },
+              },
+            },
+          ],
+          as: "paymentInfo",
+        },
+      },
+
+      /* 🔹 isPaymentDone */
+      {
+        $addFields: {
+          isPaymentDone: { $gt: [{ $size: "$paymentInfo" }, 0] },
+          user: { $arrayElemAt: ["$paymentInfo.user", 0] },
+        },
+      },
+
+      {
+        $project: {
+          paymentInfo: 0,
+        },
+      },
+
+      { $sort: { createdAt: -1 } },
+    ]);
+
+    /* ---------- POPULATE COURSES ---------- */
+    await CoursePackage.populate(packages, {
+      path: "courses",
+      select: "title price image",
+    });
+
+    console.log(packages);
+
+    return res.json({
+      success: true,
+      data: packages,
+    });
   } catch (error) {
-    console.error("getPackages error", error);
-    res.status(500).json({ message: error.message });
+    console.error("getPackages error:", error);
+    return res.status(500).json({ message: error.message });
   }
 };
 
@@ -60,8 +129,7 @@ export const getPackageById = async (req, res) => {
       _id: id,
       isDeleted: false,
       published: true,
-    })
-      .populate("courses", "title description price image");
+    }).populate("courses", "title description price image");
 
     if (!pkg) {
       return res.status(404).json({ message: "Package not found" });
@@ -91,7 +159,11 @@ export const createPackage = async (req, res) => {
       courses,
     } = req.body;
 
-    const courseIds = Array.isArray(courses) ? courses : courses ? [courses] : [];
+    const courseIds = Array.isArray(courses)
+      ? courses
+      : courses
+        ? [courses]
+        : [];
 
     if (!title || courseIds.length === 0) {
       return res.status(400).json({
@@ -187,7 +259,9 @@ export const updatePackage = async (req, res) => {
       }
       for (const courseId of courseIds) {
         if (!isValidObjectId(courseId)) {
-          return res.status(400).json({ message: "Invalid course id in courses" });
+          return res
+            .status(400)
+            .json({ message: "Invalid course id in courses" });
         }
       }
       updates.courses = courseIds;
@@ -228,7 +302,7 @@ export const deletePackage = async (req, res) => {
     const pkg = await CoursePackage.findByIdAndUpdate(
       id,
       { isDeleted: true, published: false },
-      { new: true }
+      { new: true },
     );
 
     if (!pkg) {

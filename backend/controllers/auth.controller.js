@@ -380,6 +380,7 @@ export const login = async (req, res) => {
         phone: user.phone,
         role: user.role,
         avatar: user.avatar,
+        isPaymentDone:user.isPaymentDone,
         organizationId: user.organizationId,
       },
     });

@@ -14,6 +14,7 @@ export default function PaymentUPIContent() {
   const clientPaymentId = useRef(crypto.randomUUID());
   const amount = searchParams.get("amount");
   const lessons = searchParams.get("lessons");
+  const packageId = searchParams.get("packageId");
   const tutorId = searchParams.get("tutorId");
 
   const [ready, setReady] = useState(false);
@@ -59,6 +60,7 @@ export default function PaymentUPIContent() {
           },
           body: JSON.stringify({
             tutorId,
+            packageId,
             amount: Number(amountFormatted),
             lessons: Number(lessons),
             status: "PENDING",

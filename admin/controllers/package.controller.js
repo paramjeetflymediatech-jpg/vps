@@ -131,6 +131,7 @@ exports.createPackage = async (req, res) => {
       level,
       category,
       price,
+      lessons,
       discountPrice,
       accessDurationDays,
     } = req.body;
@@ -153,6 +154,7 @@ exports.createPackage = async (req, res) => {
       title,
       slug: generateSlug(title),
       description,
+      lessons,
       courses: courseIds,
       level,
       category,
@@ -242,6 +244,7 @@ exports.updatePackage = async (req, res) => {
       title,
       description,
       level,
+      lessons,
       category,
       price,
       discountPrice,
@@ -253,12 +256,12 @@ exports.updatePackage = async (req, res) => {
 
     const courseIds = courses || [];
 
-    if (courseIds.length === 0) {
-      return res.status(400).json({
-        success: false,
-        message: "Please select at least one course for the package.",
-      });
-    }
+    // if (courseIds.length === 0) {
+    //   return res.status(400).json({
+    //     success: false,
+    //     message: "Please select at least one course for the package.",
+    //   });
+    // }
 
     const updated = await CoursePackage.findByIdAndUpdate(
       req.params.id,
@@ -267,6 +270,7 @@ exports.updatePackage = async (req, res) => {
         description,
         courses: courseIds,
         level,
+        lessons,
         category,
         price: Number(price || 0),
         discountPrice: discountPrice ? Number(discountPrice) : undefined,

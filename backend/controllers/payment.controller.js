@@ -75,8 +75,9 @@ const grantAccess = async (userId, itemId, itemType) => {
 
 // POST /api/payment/upi/log
 export const logUpiPayment = async (req, res) => {
+  console.log(req.body,'sss')
   try {
-    const { tutorId, amount, lessons, status, clientPaymentId, itemId, itemType } = req.body;
+    const { tutorId, amount, lessons, status, clientPaymentId, itemId, itemType ,packageId } = req.body;
 
     const userId = req.user?.id || req.user?._id;
     if (!userId) {
@@ -91,6 +92,7 @@ export const logUpiPayment = async (req, res) => {
           clientPaymentId: paymentId,
           userId,
           tutorId,
+          packageId,
           amount,
           lessons,
           itemId, // Store what was bought

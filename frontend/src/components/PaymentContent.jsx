@@ -12,6 +12,7 @@ export default function PaymentContent() {
     const tutorId = searchParams.get("tutorId");
     const amountParam = searchParams.get("amount");
     const lessonsParam = searchParams.get("lessons");
+    const packageId = searchParams.get("packageId");
 
     const amount = amountParam ? Number(amountParam) : undefined;
     const finalStatus =
@@ -21,22 +22,27 @@ export default function PaymentContent() {
 
     const logAndRedirect = async () => {
       try {
-        const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+        const token =
+          typeof window !== "undefined" ? localStorage.getItem("token") : null;
 
         if (token && amount) {
-          await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/payment/upi/log`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
+          await fetch(
+            `${process.env.NEXT_PUBLIC_API_URL}/api/payment/upi/log`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+              body: JSON.stringify({
+                tutorId,
+                amount,
+                lessons: lessonsParam ? Number(lessonsParam) : undefined,
+                status: finalStatus,
+                packageId,
+              }),
             },
-            body: JSON.stringify({
-              tutorId,
-              amount,
-              lessons: lessonsParam ? Number(lessonsParam) : undefined,
-              status: finalStatus,
-            }),
-          });
+          );
         }
       } catch (err) {
         console.error("Failed to log payment", err);

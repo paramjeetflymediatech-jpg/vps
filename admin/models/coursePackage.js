@@ -16,7 +16,8 @@ const coursePackageSchema = new mongoose.Schema(
     description: {
       type: String,
     },
-
+    lessons: { type: Number, default: 0 },
+    
     // Courses inside this package (admin selects from existing courses)
     courses: [
       {
@@ -83,7 +84,7 @@ const coursePackageSchema = new mongoose.Schema(
       default: false,
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 module.exports = mongoose.model("CoursePackage", coursePackageSchema);
