@@ -26,6 +26,7 @@ import TutorLogin from "./tutor/pages/TutorLogin";
 import TutorDashboard from "./tutor/pages/Dashboard";
 import Courses from "./tutor/Courses";
 import Classes from "./tutor/Classes";
+import Packages from "./tutor/Packages";
 import ProfilePage from "./tutor/ProfilePage";
 import TutorLayout from "./tutor/pages/TutorLayout";
 
@@ -83,6 +84,8 @@ const App = () => {
         <Route path="/tutor" element={<TutorLayout />}>
           <Route index element={<TutorDashboard />} />
           <Route path="dashboard" element={<TutorDashboard />} />
+          <Route path="packages" element={<Packages />} />
+          <Route path="packages/:id" element={<PackageDetail />} />
           <Route path="classes" element={<Classes />} />
           <Route path="classes/:id" element={<ClassDeatail />} />
           <Route path="profile/:id" element={<ProfilePage />} />

@@ -10,12 +10,6 @@ export const getPackages = async (req, res) => {
   try {
     const { level, category, organizationId, userId } = req.query;
 
-    if (userId) {
-      /* ---------- VALIDATE USER ---------- */
-      if (!userId || !isValidObjectId(userId)) {
-        return res.status(400).json({ message: "Valid userId is required" });
-      }
-    }
     /* ---------- MATCH PACKAGES ---------- */
     const matchStage = {
       published: true,
@@ -29,78 +23,78 @@ export const getPackages = async (req, res) => {
     }
 
     /* ---------- AGGREGATION ---------- */
-    const ObjectId = mongoose.Types.ObjectId;
-
-    const packages = await CoursePackage.aggregate([
+    const pipeline = [
       { $match: matchStage },
+    ];
 
-      /* 🔹 Lookup payment */
-      {
-        $lookup: {
-          from: "payments",
-          let: { packageId: "$_id" },
-          pipeline: [
-            {
-              $match: {
-                $expr: {
-                  $and: [
-                    { $eq: ["$packageId", "$$packageId"] },
-                    { $eq: ["$userId", new ObjectId(userId)] },
-                    { $eq: ["$status", "SUCCESS"] },
-                  ],
+    // Only add payment lookup if userId is provided and valid
+    if (userId && isValidObjectId(userId)) {
+      pipeline.push(
+        /* 🔹 Lookup payment */
+        {
+          $lookup: {
+            from: "payments",
+            let: { packageId: "$_id" },
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $and: [
+                      { $eq: ["$packageId", "$$packageId"] },
+                      { $eq: ["$userId", new ObjectId(userId)] },
+                      { $eq: ["$status", "SUCCESS"] },
+                    ],
+                  },
                 },
               },
-            },
 
-            /* 🔹 Lookup user inside payment */
-            {
-              $lookup: {
-                from: "users",
-                localField: "userId",
-                foreignField: "_id",
-                as: "user",
-              },
-            },
-            { $unwind: "$user" },
-
-            {
-              $project: {
-                user: {
-                  _id: 1,
-                  name: 1,
-                  email: 1,
-                  isPaymentDone: 1,
+              /* 🔹 Lookup user inside payment */
+              {
+                $lookup: {
+                  from: "users",
+                  localField: "userId",
+                  foreignField: "_id",
+                  as: "user",
                 },
               },
-            },
-          ],
-          as: "paymentInfo",
+              { $unwind: "$user" },
+
+              {
+                $project: {
+                  user: {
+                    _id: 1,
+                    name: 1,
+                    email: 1,
+                    isPaymentDone: 1,
+                  },
+                },
+              },
+            ],
+            as: "paymentInfo",
+          },
         },
-      },
 
-      /* 🔹 isPaymentDone */
-      {
-        $addFields: {
-          isPaymentDone: { $gt: [{ $size: "$paymentInfo" }, 0] },
-          user: { $arrayElemAt: ["$paymentInfo.user", 0] },
+        /* 🔹 isPaymentDone */
+        {
+          $addFields: {
+            isPaymentDone: { $gt: [{ $size: "$paymentInfo" }, 0] },
+            user: { $arrayElemAt: ["$paymentInfo.user", 0] },
+          },
         },
-      },
 
-      {
-        $project: {
-          paymentInfo: 0,
-        },
-      },
+        {
+          $project: {
+            paymentInfo: 0,
+          },
+        }
+      );
+    }
 
-      { $sort: { createdAt: -1 } },
-    ]);
+    pipeline.push({ $sort: { createdAt: -1 } });
 
-    /* ---------- POPULATE COURSES ---------- */
-  //  let data= await CoursePackage.populate(packages, {
-  //     path: "courses",
-  //     select: "title price image",
-  //   });
-    console.log(packages)
+    const packages = await CoursePackage.aggregate(pipeline);
+
+    console.log(packages);
     return res.json({
       success: true,
       data: packages,
@@ -316,3 +310,12 @@ export const deletePackage = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+function generateSlug(title) {
+  return title
+    .toLowerCase()
+    .replace(/[^\w\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/--+/g, '-')
+    .trim();
+}

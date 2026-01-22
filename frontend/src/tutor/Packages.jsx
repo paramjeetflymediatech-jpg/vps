@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { getTutorPackages } from "@/api/tutorApi";
 import {
   BookOpen,
@@ -15,6 +16,7 @@ import {
 } from "lucide-react";
 
 const TutorPackages = () => {
+  const router = useRouter();
   const [packages, setPackages] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -34,6 +36,10 @@ const TutorPackages = () => {
 
     fetchPackages();
   }, []);
+
+  const handleViewPackage = (packageId) => {
+    router.push(`/tutor/packages/${packageId}`);
+  };
 
   if (loading) {
     return (
@@ -92,8 +98,8 @@ const TutorPackages = () => {
               >
                 {/* Card Header with Gradient */}
                 <div className={`h-32 bg-gradient-to-br ${index % 3 === 0 ? 'from-blue-500 to-blue-600' :
-                    index % 3 === 1 ? 'from-purple-500 to-purple-600' :
-                      'from-green-500 to-green-600'
+                  index % 3 === 1 ? 'from-purple-500 to-purple-600' :
+                    'from-green-500 to-green-600'
                   } p-6 flex flex-col justify-between`}>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2 text-white/90 text-xs font-bold uppercase tracking-wider">
@@ -156,7 +162,10 @@ const TutorPackages = () => {
                         </p>
                       )}
                     </div>
-                    <button className="flex items-center gap-2 px-4 py-2 bg-slate-100 hover:bg-blue-600 hover:text-white text-slate-700 rounded-xl font-bold transition-all group-hover:shadow-md">
+                    <button
+                      onClick={() => handleViewPackage(pkg._id)}
+                      className="flex items-center gap-2 px-4 py-2 bg-slate-100 hover:bg-blue-600 hover:text-white text-slate-700 rounded-xl font-bold transition-all group-hover:shadow-md"
+                    >
                       <Eye size={16} />
                       View
                     </button>
