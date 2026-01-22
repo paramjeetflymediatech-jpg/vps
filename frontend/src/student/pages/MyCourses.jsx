@@ -147,6 +147,10 @@ const MySessions = () => {
       const status = paymentRes.data?.status;
 
       if (paid && status === "SUCCESS") {
+        const confirmed = window.confirm(
+          "Are you sure you want to book this slot?",
+        );
+        if (!confirmed) return;
         await saveSelectedSlot({ tutorId, date, slot });
         setSelectedSlot({ tutorId, startTime: slot.startTime });
         setPaymentMessage("Slot booked successfully!");
@@ -242,12 +246,14 @@ const MySessions = () => {
           <div>
             <h2 className="text-xl font-bold text-gray-900">My Sessions</h2>
             <p className="text-sm text-gray-500">
-              Showing <span className="font-semibold">{activeTab}</span> sessions
+              Showing <span className="font-semibold">{activeTab}</span>{" "}
+              sessions
             </p>
           </div>
           <div className="inline-flex items-center gap-2 rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-600">
             <span className="h-2 w-2 rounded-full bg-emerald-500" />
-            {enrollments.length} {enrollments.length === 1 ? "session" : "sessions"}
+            {enrollments.length}{" "}
+            {enrollments.length === 1 ? "session" : "sessions"}
           </div>
         </div>
         {loadingEnrollments ? (
@@ -330,7 +336,9 @@ const MySessions = () => {
                           Join session
                         </a>
                       ) : (
-                        <span className="text-xs text-gray-400">Not available</span>
+                        <span className="text-xs text-gray-400">
+                          Not available
+                        </span>
                       )}
                     </td>
                     <td className="px-4 py-3 text-right">
@@ -348,7 +356,6 @@ const MySessions = () => {
           </div>
         )}
       </div>
-
 
       {/* PAYMENT MESSAGE */}
       {paymentMessage && (

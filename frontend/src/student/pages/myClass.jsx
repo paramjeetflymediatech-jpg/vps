@@ -345,7 +345,7 @@ const BookSession = () => {
               onClick={handleConfirmBooking}
               className="w-full bg-[#6335F8] text-white py-2 rounded-lg"
             >
-              Proceed to Payment
+              Proceed to Book
             </button>
           </div>
         </div>
