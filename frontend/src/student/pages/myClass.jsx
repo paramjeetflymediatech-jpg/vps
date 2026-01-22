@@ -64,34 +64,22 @@ const BookSession = () => {
      FETCH TUTORS & AVAILABILITY
   ========================= */
   useEffect(() => {
-    const load = async () => {
+    const loadTutors = async () => {
       try {
         setLoading(true);
         const tutorsRes = await getTutors();
-        const availabilityRes = await getStudentClasses();
-
         const tutorsList = tutorsRes.data?.data || [];
-        const availabilityList = availabilityRes.data?.data || [];
 
-        const mapped = tutorsList.map((tutor) => {
-          const avail = availabilityList
-            .filter((a) => a.tutorId?._id?.toString() === tutor._id?.toString())
-            .map((a) => ({
-              date: a.date,
-              slots: a.availability,
-            }));
-
-          return {
+        setData(
+          tutorsList.map((tutor) => ({
             id: tutor._id,
             name: tutor.name,
             email: tutor.email,
             avatar:
               tutor.avatar || `https://i.pravatar.cc/150?u=${tutor.email}`,
-            availability: avail,
-          };
-        });
-
-        setData(mapped);
+            availability: [], // will be filled per date
+          })),
+        );
       } catch (err) {
         toast.error("Failed to load tutors");
         console.error(err);
@@ -99,8 +87,49 @@ const BookSession = () => {
         setLoading(false);
       }
     };
-    load();
+
+    loadTutors();
   }, []);
+
+  useEffect(() => {
+    const loadAvailability = async () => {
+      try {
+        setLoading(true);
+
+        const availabilityRes = await getStudentClasses({ activeDate });
+        const availabilityList = availabilityRes.data?.data || [];
+
+        setData((prev) =>
+          prev.map((tutor) => {
+            const avail = availabilityList
+              .filter(
+                (a) => a.tutorId?._id?.toString() === tutor.id?.toString(),
+              )
+              .map((a) => ({
+                date: a.date,
+                slots: a.availability,
+              }));
+
+            return {
+              ...tutor,
+              availability: avail,
+            };
+          }),
+        );
+      } catch (err) {
+        toast.error("Failed to load availability");
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadAvailability();
+
+    // reset selection when date changes
+    setSelectedSlot(null);
+    setSelectedTutor(null);
+  }, [activeDate]);
 
   /* =========================
      FILTER TUTORS PER ACTIVE DATE

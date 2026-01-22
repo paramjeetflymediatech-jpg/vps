@@ -12,36 +12,56 @@ import mongoose from "mongoose";
  * Optional query params:
  *  - tutorId: filter by specific tutor
  */
+// export const getClasses = async (req, res) => {
+//   try {
+//     const todayStary = new Date();
+//     todayStary.setHours(0, 0, 0, 0);
+//     const tomorrow = new Date(todayStary);
+//     tomorrow.setDate(todayStary.getDate() + 1);
+
+//     const tutorSlotsToday = await TutorAvailability.find({
+//       date: { $gte: todayStary, $lt: tomorrow },
+//     })
+//       .populate("tutorId")
+//       .lean();
+
+//     return res.json({ success: true, data: tutorSlotsToday });
+//   } catch (error) {
+//     console.error("getClasses (student) error", error);
+//     return res.status(500).json({ message: error.message });
+//   }
+// };
+
 export const getClasses = async (req, res) => {
   try {
-    // const { tutorId } = req.query;
+    let { activeDate } = req.query; 
 
-    const todayStary = new Date();
-    todayStary.setHours(0, 0, 0, 0);
+    // fallback to today if activeDate not sent
+    const baseDate = activeDate ? new Date(activeDate) : new Date();
 
-    // const filter = {
-    //   status: { $in: ["UPCOMING", "ONGOING"] },
-    //   endDate: { $gte: todayStary },
-    // };
+    // normalize day (UTC-safe)
+    const startOfDay = new Date(baseDate);
+    startOfDay.setUTCHours(0, 0, 0, 0);
 
-    // const classes = await Class.find(filter)
-    //   .populate("tutorId")
-    //   .populate("courseId", "title")
-    //   .sort({ startDate: 1 })
-    //   .lean();
-    const tomorrow = new Date(todayStary);
-    tomorrow.setDate(todayStary.getDate() + 1);
+    const endOfDay = new Date(startOfDay);
+    endOfDay.setUTCDate(startOfDay.getUTCDate() + 1);
 
-    const tutorSlotsToday = await TutorAvailability.find({
-      date: { $gte: todayStary, $lt: tomorrow },
+    const tutorSlots = await TutorAvailability.find({
+      date: { $gte: startOfDay, $lt: endOfDay },
     })
       .populate("tutorId")
-      .lean();
-
-    return res.json({ success: true, data: tutorSlotsToday });
+      .lean(); 
+    return res.json({
+      success: true,
+      data: tutorSlots,
+      dateUsed: startOfDay, // optional debug
+    });
   } catch (error) {
     console.error("getClasses (student) error", error);
-    return res.status(500).json({ message: error.message });
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
   }
 };
 
@@ -714,7 +734,7 @@ export const getMyEnrollmentsStudent = async (req, res) => {
           _id: 1,
           slot: 1,
           status: 1,
-          meetingLink:1,
+          meetingLink: 1,
           computedStatus: 1,
           paymentStatus: 1,
           createdAt: 1,
