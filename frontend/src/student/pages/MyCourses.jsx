@@ -15,13 +15,27 @@ import {
   checkPaymentStatus,
   saveSelectedSlot,
 } from "@/api/student.api";
-import { getEnrollmentsStudents } from "@/api/enrollments.api";
+import {
+  getEnrollmentsStudents,
+  cancelEnrollment,
+} from "@/api/enrollments.api";
 import toast from "react-hot-toast";
 
-const TABS = ["Upcoming", "Completed", "Cancelled", "Missed", "Pending"];
+const TABS = ["Upcoming", "Completed", "Cancelled", "Missed"];
 const ITEMS_PER_PAGE = 6;
 
 const getTodayKey = () => new Date().toISOString().split("T")[0];
+const canCancelSlot = (slot) => {
+  if (!slot?.date || !slot?.startTime) return false;
+  const now = new Date();
+  const [h, m] = slot.startTime.split(":").map(Number);
+  const slotDate = new Date(slot.date);
+  slotDate.setHours(h, m, 0, 0);
+
+  const diffInMs = slotDate - now;
+  const diffInHours = diffInMs / (1000 * 60 * 60);
+  return diffInHours >= 2; // 2 hours left
+};
 
 const isAvailableFutureSlot = (date, slot) => {
   if (!slot.isAvailable || slot.isBooked) return false;
@@ -130,6 +144,31 @@ const MySessions = () => {
     fetchTutors();
   }, []);
 
+  /* ---------------- Cancel SLOT SELECTION ---------------- */
+  const handleCancelSlot = async (enrollmentId) => {
+    console.log(enrollmentId);
+    const confirmed = window.confirm(
+      "Are you sure you want to cancel this session?",
+    );
+    if (!confirmed) return;
+
+    try {
+      // Call your API to cancel enrollment/slot
+      await cancelEnrollment(enrollmentId); // 👈 create this API in /api/enrollments.api.js
+      toast.success("Session cancelled successfully!");
+
+      // Update enrollments state locally
+      setEnrollments((prev) =>
+        prev.map((e) =>
+          e._id === enrollmentId ? { ...e, status: "CANCELLED" } : e,
+        ),
+      );
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to cancel session");
+    }
+  };
+
   /* ---------------- SLOT SELECTION ---------------- */
   const handleSlotSelection = async (tutorId, date, slot) => {
     if (slot.isBooked) {
@@ -196,7 +235,7 @@ const MySessions = () => {
 
     fetchEnrollments();
   }, [user?.id, activeTab]);
-console.log(enrollments,'enrollments')
+
   /* ---------------- PAGINATION ---------------- */
   const TOTAL_PAGES = Math.max(1, Math.ceil(tutors.length / ITEMS_PER_PAGE));
   const paginatedTutors = useMemo(() => {
@@ -325,7 +364,7 @@ console.log(enrollments,'enrollments')
                       </div>
                     </td>
                     <td className="px-4 py-3">
-                      {e.meetingLink ? (
+                      {e.meetingLink && e.status == "UPCOMING" ? (
                         <a
                           href={e.meetingLink}
                           target="_blank"
@@ -340,7 +379,24 @@ console.log(enrollments,'enrollments')
                         </span>
                       )}
                     </td>
+                    {/* <td className="px-4 py-3 text-right">
+                      <span
+                        className={`inline-flex items-center justify-end gap-2 rounded-full px-3 py-1 text-xs font-semibold ${getStatusClasses(e.status)}`}
+                      >
+                        <span className="h-1.5 w-1.5 rounded-full bg-current" />
+                        {formatStatus(e.status)}
+                      </span>
+                    </td> */}
+
                     <td className="px-4 py-3 text-right">
+                      {e.status === "UPCOMING" && canCancelSlot(e.slot) && (
+                        <button
+                          onClick={() => handleCancelSlot(e._id)}
+                          className="px-3 py-1 text-xs font-semibold rounded-lg bg-red-50 text-red-700 hover:bg-red-100"
+                        >
+                          Cancel
+                        </button>
+                      )}
                       <span
                         className={`inline-flex items-center justify-end gap-2 rounded-full px-3 py-1 text-xs font-semibold ${getStatusClasses(e.status)}`}
                       >

@@ -3,6 +3,7 @@ import { auth, role } from "../middlewares/auth.middleware.js";
 import {
   getClasses,
   enrollClass,
+  cancelEnrollment,
   getMyEnrollments,
   updateMeetingLink,
   checkPaymentStatus,
@@ -21,6 +22,7 @@ router.post(
   role("TUTOR"),
   updateMeetingLink,
 );
+router.post("/enrollments/:id", auth, role("STUDENT"), cancelEnrollment);
 router.get(
   "/checkPaymentStatus/:tutorId",
   auth,

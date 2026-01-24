@@ -12,4 +12,6 @@ export const getEnrollmentsStudents = (params) => {
 };
 export const updateMeetingLink = (id, data) =>
   API.post(`/student/enrollments/${id}/meeting-link`, data);
+export const cancelEnrollment = (id, data) =>
+  API.post(`/student/enrollments/${id}`, data);
 export default { getEnrollments };

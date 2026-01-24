@@ -126,6 +126,7 @@ router.get("/", auth, role("ADMIN"), async (req, res) => {
       .skip(skip)
       .limit(limit)
       .lean();
+    console.log(payments, "payments");
 
     return res.render("payments/list", {
       payments,
@@ -193,8 +194,9 @@ router.post("/:id/verify", auth, role("ADMIN"), async (req, res) => {
       const user = await User.findByIdAndUpdate(
         payment.userId,
         { $set: { isPaymentDone: true } },
-        { new: true }
+        { new: true },
       );
+      console.log(user, "payment update");
       // 📧 Send activation email
       if (user?.email) {
         await sendMail({

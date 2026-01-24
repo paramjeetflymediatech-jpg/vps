@@ -942,38 +942,39 @@ export const getMyEnrollmentsStudent = async (req, res) => {
           computedStatus: {
             $switch: {
               branches: [
+                // 1️⃣ Hard stops
                 { case: { $eq: ["$status", "CANCELLED"] }, then: "CANCELLED" },
                 { case: { $eq: ["$status", "COMPLETED"] }, then: "COMPLETED" },
+
+                // 2️⃣ Missed (guarded)
                 {
                   case: {
                     $and: [
-                      { $eq: ["$status", "UPCOMING"] },
+                      { $in: ["$status", ["UPCOMING", "CONFIRMED"]] },
                       { $lt: ["$sessionEnd", now] },
                     ],
                   },
                   then: "MISSED",
                 },
+
+                // 3️⃣ Ongoing
                 {
                   case: {
                     $and: [
-                      { $eq: ["$status", "UPCOMING"] },
-                      { $gte: ["$sessionStart", now] },
-                    ],
-                  },
-                  then: "UPCOMING",
-                },
-                {
-                  case: {
-                    $and: [
-                      { $eq: ["$status", "UPCOMING"] },
-                      { $lt: ["$sessionStart", now] },
+                      { $lte: ["$sessionStart", now] },
                       { $gte: ["$sessionEnd", now] },
                     ],
                   },
                   then: "ONGOING",
                 },
+
+                // 4️⃣ Upcoming
+                {
+                  case: { $gt: ["$sessionStart", now] },
+                  then: "UPCOMING",
+                },
               ],
-              default: "PENDING",
+              default: "$status",
             },
           },
         },
@@ -1212,7 +1213,7 @@ export const saveSelectedSlot = async (req, res) => {
     const { tutorId, slot, date } = req.body[0];
     const slotId = slot._id;
     const { startTime, endTime } = slot;
-    console.log(date);
+
     // 1️⃣ Check successful payment
     const payment = await Payment.findOne({
       userId,
@@ -1234,6 +1235,8 @@ export const saveSelectedSlot = async (req, res) => {
     const bookedCount = await Enrollment.countDocuments({
       userId,
       tutorId,
+      paymentStatus: "SUCCESS",
+      status: { $in: ["UPCOMING", "COMPLETED", "MISSED"] },
     });
 
     if (bookedCount >= totalLessons) {
@@ -1247,6 +1250,7 @@ export const saveSelectedSlot = async (req, res) => {
       userId,
       tutorId,
       slotId,
+      status: { $ne: "CANCELLED" },
     });
 
     if (existingEnrollment) {
@@ -1321,7 +1325,7 @@ export const updateMeetingLink = async (req, res) => {
   try {
     const tutorId = req.user.id;
     const { id } = req.params;
-    const { meetingLink } = req.body;
+    const { meetingLink, status } = req.body;
 
     if (!meetingLink) {
       return res.status(400).json({ message: "Meeting link is required" });
@@ -1339,11 +1343,76 @@ export const updateMeetingLink = async (req, res) => {
     }
 
     enrollment.meetingLink = meetingLink;
+    enrollment.status = status.toUpperCase();
     await enrollment.save();
 
     res.json({
       success: true,
       message: "Meeting link updated successfully",
+      data: enrollment,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+export const cancelEnrollment = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { id } = req.params; // enrollment ID
+
+    const enrollment = await Enrollment.findOne({
+      _id: id,
+      userId, // 🔒 ensure only the student can cancel
+    });
+
+    if (!enrollment) {
+      return res.status(403).json({
+        message: "You are not authorized to cancel this session",
+      });
+    }
+
+    // Check if the session is at least 2 hours away
+    if (!enrollment.slot?.date || !enrollment.slot?.startTime) {
+      return res.status(400).json({ message: "Invalid slot data" });
+    }
+
+    const [h, m] = enrollment.slot.startTime.split(":").map(Number);
+    const slotDate = new Date(enrollment.slot.date);
+    slotDate.setHours(h, m, 0, 0);
+
+    const now = new Date();
+    const diffInHours = (slotDate - now) / (1000 * 60 * 60);
+
+    if (diffInHours < 2) {
+      return res.status(400).json({
+        message:
+          "You can only cancel a session at least 2 hours before it starts",
+      });
+    }
+
+    // Cancel the session
+    enrollment.status = "CANCELLED";
+    await enrollment.save();
+
+    // Update tutor availability: mark the slot as available
+    await TutorAvailability.updateOne(
+      {
+        tutorId: enrollment.tutorId,
+        date: enrollment.slot.date,
+        "availability.startTime": enrollment.slot.startTime,
+      },
+      {
+        $set: {
+          "availability.$.isBooked": false,
+          "availability.$.isAvailable": true,
+        },
+      },
+    );
+    res.json({
+      success: true,
+      message: "Session cancelled successfully",
       data: enrollment,
     });
   } catch (err) {

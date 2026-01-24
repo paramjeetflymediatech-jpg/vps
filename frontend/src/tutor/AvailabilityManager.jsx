@@ -27,7 +27,7 @@ const generateTimeSlots = () => {
 };
 
 /* =========================
-   NEXT 7 DAYS (LOCAL SAFE)
+   NEXT 7 DAYS
 ========================= */
 const getNext7Days = () => {
   const days = [];
@@ -39,8 +39,7 @@ const getNext7Days = () => {
     d.setDate(today.getDate() + i);
 
     days.push({
-      date: d,
-      dateString: d.toLocaleDateString("en-CA"), // YYYY-MM-DD
+      dateString: d.toLocaleDateString("en-CA"),
       day: names[d.getDay()],
       dateNum: d.getDate(),
     });
@@ -53,28 +52,37 @@ const AvailabilityManager = () => {
   const timeSlots = generateTimeSlots();
   const days = getNext7Days();
 
+  const todayStr = new Date().toLocaleDateString("en-CA");
+
+  const getCurrentTimeHHMM = () => {
+    const now = new Date();
+    return `${String(now.getHours()).padStart(2, "0")}:${String(
+      now.getMinutes(),
+    ).padStart(2, "0")}`;
+  };
+
   const [availability, setAvailability] = useState({});
-  const [selectedDate, setSelectedDate] = useState(
-    new Date().toLocaleDateString("en-CA"),
-  );
+  const [selectedDate, setSelectedDate] = useState(todayStr);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
   /* =========================
-     FETCH AVAILABILITY FOR A SPECIFIC DAY
+     FETCH AVAILABILITY
   ========================= */
   const fetchAvailabilityForDate = async (dateStr) => {
     try {
       setLoading(true);
       const res = await getTutorAvailability({ date: dateStr });
+
       const dayAvailability = {};
-      let availableslots = res?.data?.data;
-      availableslots?.forEach((slot) => {
-        slot?.availability.forEach((x) => {
-          // Ensure keys match frontend time keys
-          const timeKey = x.startTime.padStart(5, "0");
-          dayAvailability[timeKey] = x.isAvailable;
+
+      res?.data?.data?.forEach((day) => {
+        day?.availability?.forEach((x) => { 
+          dayAvailability[x.startTime.padStart(5, "0")] = {
+            isAvailable: x.isAvailable,
+            isBooked: x.isBooked,
+          };
         });
       });
 
@@ -89,16 +97,10 @@ const AvailabilityManager = () => {
     }
   };
 
-  /* =========================
-     LOAD INITIAL DATA
-  ========================= */
   useEffect(() => {
     fetchAvailabilityForDate(selectedDate);
   }, []);
 
-  /* =========================
-     FETCH WHEN SELECTING ANOTHER DAY
-  ========================= */
   useEffect(() => {
     if (!availability[selectedDate]) {
       fetchAvailabilityForDate(selectedDate);
@@ -109,28 +111,44 @@ const AvailabilityManager = () => {
      TOGGLE SLOT
   ========================= */
   const toggleSlot = (startTime) => {
+    const slot = availability[selectedDate]?.[startTime];
+    if (slot?.isBooked) return;
+
     setAvailability((prev) => ({
       ...prev,
       [selectedDate]: {
         ...prev[selectedDate],
-        [startTime]: !prev[selectedDate]?.[startTime],
+        [startTime]: {
+          isAvailable: !slot?.isAvailable,
+          isBooked: false,
+        },
       },
     }));
+
     setSaved(false);
   };
 
   /* =========================
-     SAVE TO BACKEND
+     SAVE AVAILABILITY
   ========================= */
   const handleSave = async () => {
     try {
       setSaving(true);
 
-      const payload = timeSlots.map((slot) => ({
-        startTime: slot.startTime,
-        endTime: slot.endTime,
-        isAvailable: availability[selectedDate]?.[slot.startTime] || false,
-      }));
+      const payload = timeSlots.map((slot) => {
+        const state = availability[selectedDate]?.[slot.startTime] || {
+          isAvailable: false,
+          isBooked: false,
+        };
+      
+
+        return {
+          startTime: slot.startTime,
+          endTime: slot.endTime,
+          isAvailable: state.isAvailable,
+          isBooked: state.isBooked,
+        };
+      });
 
       await saveTutorAvailability({
         date: selectedDate,
@@ -140,7 +158,6 @@ const AvailabilityManager = () => {
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
     } catch (err) {
-      console.error("Save error:", err);
       alert("Failed to save availability");
     } finally {
       setSaving(false);
@@ -212,32 +229,57 @@ const AvailabilityManager = () => {
 
       {/* Slots */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-        {timeSlots.map((slot) => {
-          const active = availability[selectedDate]?.[slot.startTime];
-          return (
-            <button
-              key={slot.startTime}
-              onClick={() => toggleSlot(slot.startTime)}
-              className={`px-4 py-3 rounded-xl border-2 text-left ${
-                active
-                  ? "bg-[#6335F8] border-[#6335F8] text-white"
-                  : "border-gray-200"
-              }`}
-            >
-              {slot.label}
-            </button>
-          );
-        })}
+        {timeSlots
+          .filter((slot) =>
+            selectedDate === todayStr
+              ? slot.startTime > getCurrentTimeHHMM()
+              : true,
+          )
+          .map((slot) => {
+            const state = availability[selectedDate]?.[slot.startTime];
+            const isAvailable = state?.isAvailable;
+            const isBooked = state?.isBooked;
+
+            return (
+              <button
+                key={slot.startTime}
+                disabled={isBooked}
+                onClick={() => toggleSlot(slot.startTime)}
+                className={`relative px-4 py-3 rounded-xl border-2 text-left
+                  ${
+                    isBooked
+                      ? "bg-gray-200 border-gray-300 text-gray-500 cursor-not-allowed"
+                      : isAvailable
+                      ? "bg-[#6335F8] border-[#6335F8] text-white"
+                      : "border-gray-200"
+                  }`}
+              >
+                <div className="font-medium">{slot.label}</div>
+
+                {isBooked && (
+                  <>
+                    <div className="mt-1 text-xs font-semibold text-red-600">
+                      Reserved
+                    </div>
+                    <span className="absolute top-2 right-2 text-xs bg-red-500 text-white px-2 py-1 rounded-lg">
+                      Reserved
+                    </span>
+                  </>
+                )}
+              </button>
+            );
+          })}
       </div>
 
       {/* Summary */}
       <div className="mt-6 bg-blue-50 p-4 rounded-xl">
         <p className="text-sm font-semibold text-blue-900">
           {
-            Object.values(availability[selectedDate] || {}).filter(Boolean)
-              .length
+            Object.values(availability[selectedDate] || {}).filter(
+              (s) => s?.isAvailable && !s?.isBooked,
+            ).length
           }{" "}
-          slots selected for {selectedDate}
+          available slots for {selectedDate}
         </p>
       </div>
     </div>

@@ -39,17 +39,18 @@ export const getAvailability = async (req, res) => {
       date: { $gte: startDate, $lte: endDate },
     })
       .sort({ date: 1 })
-      .lean(); 
+      .lean();
     // 4️⃣ Format data to match frontend logic
-    const formatted = availability.map((day) => ({
+    let formatted = availability.map((day) => ({
       date: day.date,
       availability: day.availability.map((slot) => ({
         startTime: slot.startTime, // "09:00"
         endTime: slot.endTime, // "10:00"
         isAvailable: slot.isAvailable,
+        isBooked: slot.isBooked,
       })),
     }));
-
+ 
     res.status(200).json({
       success: true,
       data: formatted.length ? formatted : [],
@@ -154,12 +155,17 @@ export const saveAvailability = async (req, res) => {
 
       availability.forEach((newSlot) => {
         const index = mergedAvailability.findIndex(
-          (slot) => slot.startTime === newSlot.startTime && slot.endTime === newSlot.endTime
+          (slot) =>
+            slot.startTime === newSlot.startTime &&
+            slot.endTime === newSlot.endTime,
         );
 
         if (index !== -1) {
           // Update existing slot
-          mergedAvailability[index] = { ...mergedAvailability[index], ...newSlot };
+          mergedAvailability[index] = {
+            ...mergedAvailability[index],
+            ...newSlot,
+          };
         } else {
           // Add new slot
           mergedAvailability.push(newSlot);
@@ -197,7 +203,6 @@ export const saveAvailability = async (req, res) => {
     });
   }
 };
-
 
 // Delete tutor's availability for a specific week
 export const deleteAvailability = async (req, res) => {

@@ -31,8 +31,6 @@ export const createUpiPayment = (req, res) => {
 
 // POST /api/payment/upi/log
 
-
-
 import Class from "../models/class.js";
 import Course from "../models/course.js";
 import CoursePackage from "../models/package.js";
@@ -65,7 +63,7 @@ const grantAccess = async (userId, itemId, itemType) => {
       await Enrollment.updateOne(
         { userId, classId },
         { $setOnInsert: { userId, classId } },
-        { upsert: true }
+        { upsert: true },
       );
     }
   } catch (error) {
@@ -75,16 +73,25 @@ const grantAccess = async (userId, itemId, itemType) => {
 
 // POST /api/payment/upi/log
 export const logUpiPayment = async (req, res) => {
-  console.log(req.body,'sss')
+  console.log(req.body, "sss");
   try {
-    const { tutorId, amount, lessons, status, clientPaymentId, itemId, itemType ,packageId } = req.body;
+    const {
+      tutorId,
+      amount,
+      lessons,
+      status,
+      clientPaymentId,
+      itemId,
+      itemType,
+      packageId,
+    } = req.body;
 
     const userId = req.user?.id || req.user?._id;
     if (!userId) {
       return res.status(401).json({ success: false, message: "Unauthorized" });
     }
 
-    const paymentId = clientPaymentId || uuidv4(); 
+    const paymentId = clientPaymentId || uuidv4();
     const payment = await Payment.findOneAndUpdate(
       { clientPaymentId: paymentId },
       {
@@ -105,14 +112,14 @@ export const logUpiPayment = async (req, res) => {
         upsert: true,
         new: true,
         setDefaultsOnInsert: true,
-      }
+      },
     );
 
     // If payment is SUCCESS/COMPLETED, grant access immediately
     if (payment.status === "SUCCESS" || payment.status === "COMPLETED") {
-       if (itemId && itemType) {
-           await grantAccess(userId, itemId, itemType);
-       }
+      if (itemId && itemType) {
+        await grantAccess(userId, itemId, itemType);
+      }
     }
 
     console.log("Logged payment:", payment);
@@ -122,7 +129,6 @@ export const logUpiPayment = async (req, res) => {
     res.status(500).json({ success: false, message: err.message });
   }
 };
-
 
 // Logs a payment attempt/result into the database
 // export const logUpiPayment = async (req, res) => {
@@ -232,7 +238,7 @@ export const verifyPayment = async (req, res) => {
     const payment = await Payment.findByIdAndUpdate(
       paymentId,
       { status },
-      { new: true }
+      { new: true },
     ).populate("userId", "name email");
 
     if (!payment) {
@@ -240,9 +246,9 @@ export const verifyPayment = async (req, res) => {
     }
 
     if (status === "SUCCESS" || status === "COMPLETED") {
-        if (payment.itemId && payment.itemType) {
-            await grantAccess(payment.userId._id, payment.itemId, payment.itemType);
-        }
+      if (payment.itemId && payment.itemType) {
+        await grantAccess(payment.userId._id, payment.itemId, payment.itemType);
+      }
     }
 
     return res.status(200).json({
@@ -263,13 +269,14 @@ export const uploadPaymentProof = async (req, res) => {
       return res.status(400).json({ message: "Image required" });
     }
 
-    const payment = await Payment.findById(paymentId);
+    const payment = await Payment.findById(paymentId).populate("packageId");
     if (!payment) {
       return res.status(404).json({ message: "Payment not found" });
-    }
+    } 
 
     payment.proofImage = req.file.path;
     payment.status = "UNDER_REVIEW";
+    payment.lessons = payment?.packageId.lessons || 0;
     await payment.save();
 
     res.status(201).json({ success: true });

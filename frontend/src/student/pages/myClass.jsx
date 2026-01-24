@@ -22,9 +22,8 @@ const getNext7Dates = () => {
     const d = new Date(today);
     d.setDate(today.getDate() + i);
 
-    // UTC midnight ISO
     const isoDate = new Date(
-      Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()),
+      Date.UTC(d.getFullYear(), d.getMonth(), d.getDate())
     ).toISOString();
 
     return {
@@ -64,38 +63,59 @@ const BookSession = () => {
      FETCH TUTORS & AVAILABILITY
   ========================= */
   useEffect(() => {
-    const loadTutors = async () => {
+    const loadTutorsAndAvailability = async () => {
       try {
         setLoading(true);
+
+        // 1️⃣ Load tutors
         const tutorsRes = await getTutors();
         const tutorsList = tutorsRes.data?.data || [];
+        const tutorsData = tutorsList.map((tutor) => ({
+          id: tutor._id,
+          name: tutor.name,
+          email: tutor.email,
+          avatar: tutor.avatar || `https://i.pravatar.cc/150?u=${tutor.email}`,
+          availability: [],
+        }));
 
-        setData(
-          tutorsList.map((tutor) => ({
-            id: tutor._id,
-            name: tutor.name,
-            email: tutor.email,
-            avatar:
-              tutor.avatar || `https://i.pravatar.cc/150?u=${tutor.email}`,
-            availability: [], // will be filled per date
-          })),
-        );
+        // 2️⃣ Load availability for first active date
+        const availabilityRes = await getStudentClasses({ activeDate });
+        const availabilityList = availabilityRes.data?.data || [];
+
+        // 3️⃣ Merge availability into tutors
+        const mergedData = tutorsData.map((tutor) => {
+          const avail = availabilityList
+            .filter(
+              (a) => a.tutorId?._id?.toString() === tutor.id?.toString()
+            )
+            .map((a) => ({
+              date: a.date,
+              slots: a.availability,
+            }));
+          return { ...tutor, availability: avail };
+        });
+
+        setData(mergedData);
       } catch (err) {
-        toast.error("Failed to load tutors");
         console.error(err);
+        toast.error("Failed to load tutors or availability");
       } finally {
         setLoading(false);
       }
     };
 
-    loadTutors();
+    loadTutorsAndAvailability();
   }, []);
 
+  /* =========================
+     FETCH AVAILABILITY WHEN DATE CHANGES
+  ========================= */
   useEffect(() => {
-    const loadAvailability = async () => {
+    if (!data.length) return; // wait until tutors are loaded
+
+    const loadAvailabilityForDate = async () => {
       try {
         setLoading(true);
-
         const availabilityRes = await getStudentClasses({ activeDate });
         const availabilityList = availabilityRes.data?.data || [];
 
@@ -103,28 +123,24 @@ const BookSession = () => {
           prev.map((tutor) => {
             const avail = availabilityList
               .filter(
-                (a) => a.tutorId?._id?.toString() === tutor.id?.toString(),
+                (a) => a.tutorId?._id?.toString() === tutor.id?.toString()
               )
               .map((a) => ({
                 date: a.date,
                 slots: a.availability,
               }));
-
-            return {
-              ...tutor,
-              availability: avail,
-            };
-          }),
+            return { ...tutor, availability: avail };
+          })
         );
       } catch (err) {
-        toast.error("Failed to load availability");
         console.error(err);
+        toast.error("Failed to load availability");
       } finally {
         setLoading(false);
       }
     };
 
-    loadAvailability();
+    loadAvailabilityForDate();
 
     // reset selection when date changes
     setSelectedSlot(null);
@@ -138,32 +154,27 @@ const BookSession = () => {
     return data
       .map((tutor) => {
         const dayAvailability = tutor.availability.find(
-          (a) => a.date && a.date.split("T")[0] === activeDate.split("T")[0],
+          (a) => a.date && a.date.split("T")[0] === activeDate.split("T")[0]
         );
         if (!dayAvailability) return null;
-        let date = dayAvailability.date;
+
         const slots = dayAvailability.slots
           .filter(
-            (s) =>
-              s.isAvailable &&
-              !s.isBooked &&
-              isFutureSlot(activeDate, s.startTime),
+            (s) => s.isAvailable && !s.isBooked && isFutureSlot(activeDate, s.startTime)
           )
-          .map((s) => {
-            return {
-              slotId: s._id,
-              startTime: s.startTime,
-              endTime: s.endTime,
-              label: `${s.startTime} - ${s.endTime}`,
-            };
-          });
+          .map((s) => ({
+            slotId: s._id,
+            startTime: s.startTime,
+            endTime: s.endTime,
+            label: `${s.startTime} - ${s.endTime}`,
+          }));
         if (!slots.length) return null;
 
         return {
           id: tutor.id,
           tutorId: tutor.id,
           name: tutor.name,
-          date,
+          date: dayAvailability.date,
           image: tutor.avatar,
           slots,
         };
@@ -189,6 +200,7 @@ const BookSession = () => {
       const res = await checkPaymentStatus(selectedTutor.tutorId);
       const paid = res.data?.paid;
       const status = res.data?.status;
+
       if (paid && status === "SUCCESS") {
         await saveSelectedSlot({
           tutorId: selectedTutor.tutorId,
@@ -214,6 +226,7 @@ const BookSession = () => {
       setPaymentMessage("Something went wrong. Try again later.");
     }
   };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-screen">
@@ -240,11 +253,7 @@ const BookSession = () => {
         {dates.map((d) => (
           <button
             key={d.date}
-            onClick={() => {
-              setActiveDate(d.date);
-              setSelectedSlot(null);
-              setSelectedTutor(null);
-            }}
+            onClick={() => setActiveDate(d.date)}
             className={`w-16 h-16 rounded-xl font-bold ${
               activeDate === d.date
                 ? "bg-[#6335F8] text-white"

@@ -1,11 +1,10 @@
 "use client";
 
 import { useSearchParams, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { Upload, CheckCircle } from "lucide-react";
-import { useRef } from "react";
 
 export default function PaymentUPIContent() {
   const router = useRouter();
@@ -68,12 +67,11 @@ export default function PaymentUPIContent() {
           }),
         }
       );
-      // If backend returns HTML or non-JSON (e.g. 404/HTML error page),
-      // logRes.json() would normally throw "Unexpected token '<'".
+
       if (!logRes.ok) {
         const text = await logRes.text();
         throw new Error(
-          `Failed to log payment (status ${logRes.status}). Check backend URL and auth.`,
+          `Failed to log payment (status ${logRes.status}). Check backend URL and auth.`
         );
       }
 
@@ -99,13 +97,12 @@ export default function PaymentUPIContent() {
           body: formData,
         }
       );
-      console.log(uploadRes)
 
       if (!uploadRes.ok) {
         const text = await uploadRes.text();
         console.error("Failed to upload payment proof", uploadRes.status, text);
         throw new Error(
-          `Failed to upload payment proof (status ${uploadRes.status}).`,
+          `Failed to upload payment proof (status ${uploadRes.status}).`
         );
       }
 
@@ -142,8 +139,8 @@ export default function PaymentUPIContent() {
 
         <p className="text-sm text-gray-600">{planName}</p>
 
-        {/* QR CODE ONLY */}
-        <div className="mt-6 flex justify-center">
+        {/* QR CODE */}
+        <div className="mt-6 flex flex-col items-center gap-3">
           <Image
             src="/upi-sc.jpeg"
             width={220}
@@ -151,6 +148,16 @@ export default function PaymentUPIContent() {
             alt="UPI QR"
             priority
           />
+
+          {/* PayPal link for international students */}
+          <a
+            href="https://paypal.me/aneesha3089"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-600 font-semibold text-sm hover:underline"
+          >
+            Pay via PayPal (International Students)
+          </a>
         </div>
 
         <p className="mt-3 text-xs text-gray-500">
