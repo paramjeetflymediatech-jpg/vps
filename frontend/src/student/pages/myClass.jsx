@@ -115,7 +115,7 @@ const BookSession = () => {
 
     const loadAvailabilityForDate = async () => {
       try {
-        setLoading(true);
+        // setLoading(true);
         const availabilityRes = await getStudentClasses({ activeDate });
         const availabilityList = availabilityRes.data?.data || [];
 
@@ -136,7 +136,7 @@ const BookSession = () => {
         console.error(err);
         toast.error("Failed to load availability");
       } finally {
-        setLoading(false);
+        // setLoading(false);
       }
     };
 
