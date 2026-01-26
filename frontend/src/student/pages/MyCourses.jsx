@@ -251,7 +251,8 @@ const MySessions = () => {
   return (
     <div className="max-w-7xl mx-auto px-4 lg:px-10 bg-[#FBFCFF] min-h-screen pt-20 space-y-12">
       {/* HEADER */}
-      <div className="flex flex-col lg:flex-row justify-between mb-8 gap-6">
+
+      {/* <div className="flex flex-col lg:flex-row justify-between mb-8 gap-6">
         <div>
           <h1 className="text-3xl font-black">My Sessions</h1>
           <p className="text-gray-500 font-medium">
@@ -273,9 +274,46 @@ const MySessions = () => {
             </button>
           ))}
         </div>
-      </div>
+      </div> */}
+
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between mb-8 gap-4 lg:gap-6">
+
+  {/* ===== TITLE SECTION ===== */}
+  <div className="text-center lg:text-left">
+    <h1 className="text-2xl sm:text-3xl font-black text-gray-900">
+      My Sessions
+    </h1>
+    <p className="text-sm sm:text-base text-gray-500 font-medium">
+      Manage your learning journey
+    </p>
+  </div>
+
+  {/* ===== TABS SECTION ===== */}
+  <div className="w-full lg:w-auto">
+    <div className="flex gap-1 bg-gray-100 p-1.5 rounded-2xl overflow-x-auto no-scrollbar">
+      {TABS.map((tab) => (
+        <button
+          key={tab}
+          onClick={() => setActiveTab(tab)}
+          className={`px-4 sm:px-5 py-2 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all duration-200
+            ${
+              activeTab === tab
+                ? "bg-white text-[#6335F8] shadow-md scale-[1.02]"
+                : "text-gray-500 hover:text-gray-700 hover:bg-white/50"
+            }
+          `}
+        >
+          {tab}
+        </button>
+      ))}
+    </div>
+  </div>
+
+</div>
+
+
       {/* ENROLLMENTS TABLE */}
-      <div className="bg-white p-6 rounded-2xl shadow border">
+      <div className="bg-white p-6 rounded-2xl shadow border ">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
           <div>
             <h2 className="text-xl font-bold text-gray-900">My Sessions</h2>
@@ -299,103 +337,297 @@ const MySessions = () => {
             No enrollments found for this tab.
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[720px] text-sm">
-              <thead className="bg-gray-50 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
-                <tr>
-                  <th className="px-4 py-3">Tutor</th>
-                  <th className="px-4 py-3">Course</th>
-                  <th className="px-4 py-3">Date</th>
-                  <th className="px-4 py-3">Time</th>
-                  <th className="px-4 py-3">Meeting</th>
-                  <th className="px-4 py-3 text-right">Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {enrollments.map((e) => (
-                  <tr
-                    key={e._id}
-                    className="border-t border-gray-100 transition-colors hover:bg-gray-50/80"
-                  >
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-3">
-                        <div className="flex h-9 w-9 items-center justify-center rounded-full bg-indigo-50 text-xs font-semibold text-indigo-700">
-                          {e.tutor?.name?.[0] || "T"}
-                        </div>
-                        <div className="flex flex-col">
-                          <span className="text-sm font-semibold text-gray-900">
-                            {e.tutor?.name}
-                          </span>
-                          {e.package?.title && (
-                            <span className="text-xs text-gray-500">
-                              {e.package.title}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-4 py-3 align-top">
-                      <span className="text-sm text-gray-800 line-clamp-2">
-                        {e.package?.title || "-"}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-2 text-sm text-gray-800">
-                        <Calendar className="h-4 w-4 text-gray-400" />
-                        <span>
-                          {e.slot?.date
-                            ? new Date(e.slot.date).toLocaleDateString()
-                            : "-"}
-                        </span>
-                      </div>
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-2 text-sm text-gray-800">
-                        <Clock className="h-4 w-4 text-gray-400" />
-                        <span>
-                          {e.slot?.startTime && e.slot?.endTime
-                            ? `${e.slot.startTime} - ${e.slot.endTime}`
-                            : "-"}
-                        </span>
-                      </div>
-                    </td>
-                    <td className="px-4 py-3">
-                      {e.meetingLink && e.status=="UPCOMING" ? (
-                        <a
-                          href={e.meetingLink}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="inline-flex items-center gap-1 text-sm font-semibold text-indigo-600 hover:text-indigo-700 hover:underline"
-                        >
-                          Join session
-                        </a>
-                      ) : (
-                        <span className="text-xs text-gray-400">
-                          Not available
-                        </span>
-                      )}
-                    </td>
-                    <td className="px-4 py-3 text-right">
-                       {e.status === "UPCOMING" && canCancelSlot(e.slot) && (
-                        <button
-                          onClick={() => handleCancelSlot(e._id)}
-                          className="px-3 py-1 text-xs font-semibold rounded-lg bg-red-50 text-red-700 hover:bg-red-100"
-                        >
-                          Cancel
-                        </button>
-                      )}
-                      <span
-                        className={`inline-flex items-center justify-end gap-2 rounded-full px-3 py-1 text-xs font-semibold ${getStatusClasses(e.status)}`}
-                      >
-                        <span className="h-1.5 w-1.5 rounded-full bg-current" />
-                        {formatStatus(e.status)}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          // <div className="overflow-x-auto ">
+          //   <table className="w-full min-w-[720px] text-sm">
+          //     <thead className="bg-gray-50 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+          //       <tr>
+          //         <th className="px-4 py-3">Tutor</th>
+          //         <th className="px-4 py-3">Course</th>
+          //         <th className="px-4 py-3">Date</th>
+          //         <th className="px-4 py-3">Time</th>
+          //         <th className="px-4 py-3">Meeting</th>
+          //         <th className="px-4 py-3 text-right">Status</th>
+          //       </tr>
+          //     </thead>
+          //     <tbody>
+          //       {enrollments.map((e) => (
+          //         <tr
+          //           key={e._id}
+          //           className="border-t border-gray-100 transition-colors hover:bg-gray-50/80 sm:grid-cols-2"
+          //         >
+          //           <td className="px-4 py-3">
+          //             <div className="flex items-center gap-3">
+          //               <div className="flex h-9 w-9 items-center justify-center rounded-full bg-indigo-50 text-xs font-semibold text-indigo-700">
+          //                 {e.tutor?.name?.[0] || "T"}
+          //               </div>
+          //               <div className="flex flex-col">
+          //                 <span className="text-sm font-semibold text-gray-900">
+          //                   {e.tutor?.name}
+          //                 </span>
+          //                 {e.package?.title && (
+          //                   <span className="text-xs text-gray-500">
+          //                     {e.package.title}
+          //                   </span>
+          //                 )}
+          //               </div>
+          //             </div>
+          //           </td>
+          //           <td className="px-4 py-3 align-top">
+          //             <span className="text-sm text-gray-800 line-clamp-2">
+          //               {e.package?.title || "-"}
+          //             </span>
+          //           </td>
+          //           <td className="px-4 py-3">
+          //             <div className="flex items-center gap-2 text-sm text-gray-800">
+          //               <Calendar className="h-4 w-4 text-gray-400" />
+          //               <span>
+          //                 {e.slot?.date
+          //                   ? new Date(e.slot.date).toLocaleDateString()
+          //                   : "-"}
+          //               </span>
+          //             </div>
+          //           </td>
+          //           <td className="px-4 py-3">
+          //             <div className="flex items-center gap-2 text-sm text-gray-800">
+          //               <Clock className="h-4 w-4 text-gray-400" />
+          //               <span>
+          //                 {e.slot?.startTime && e.slot?.endTime
+          //                   ? `${e.slot.startTime} - ${e.slot.endTime}`
+          //                   : "-"}
+          //               </span>
+          //             </div>
+          //           </td>
+          //           <td className="px-4 py-3">
+          //             {e.meetingLink && e.status=="UPCOMING" ? (
+          //               <a
+          //                 href={e.meetingLink}
+          //                 target="_blank"
+          //                 rel="noreferrer"
+          //                 className="inline-flex items-center gap-1 text-sm font-semibold text-indigo-600 hover:text-indigo-700 hover:underline"
+          //               >
+          //                 Join session
+          //               </a>
+          //             ) : (
+          //               <span className="text-xs text-gray-400">
+          //                 Not available
+          //               </span>
+          //             )}
+          //           </td>
+          //           <td className="px-4 py-3 text-right">
+          //              {e.status === "UPCOMING" && canCancelSlot(e.slot) && (
+          //               <button
+          //                 onClick={() => handleCancelSlot(e._id)}
+          //                 className="px-3 py-1 text-xs font-semibold rounded-lg bg-red-50 text-red-700 hover:bg-red-100"
+          //               >
+          //                 Cancel
+          //               </button>
+          //             )}
+          //             <span
+          //               className={`inline-flex items-center justify-end gap-2 rounded-full px-3 py-1 text-xs font-semibold ${getStatusClasses(e.status)}`}
+          //             >
+          //               <span className="h-1.5 w-1.5 rounded-full bg-current" />
+          //               {formatStatus(e.status)}
+          //             </span>
+          //           </td>
+          //         </tr>
+          //       ))}
+          //     </tbody>
+          //   </table>
+          // </div>
+<div className="w-full">
+
+  {/* ===== DESKTOP TABLE VIEW ===== */}
+  <div className="hidden md:block overflow-x-auto">
+    <table className="w-full text-sm">
+      <thead className="bg-gray-50 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+        <tr>
+          <th className="px-4 py-3">Tutor</th>
+          <th className="px-4 py-3">Course</th>
+          <th className="px-4 py-3">Date</th>
+          <th className="px-4 py-3">Time</th>
+          <th className="px-4 py-3">Meeting</th>
+          <th className="px-4 py-3 text-right">Status</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {enrollments.map((e) => (
+          <tr
+            key={e._id}
+            className="border-t border-gray-100 transition-colors hover:bg-gray-50/80"
+          >
+            {/* Tutor */}
+            <td className="px-4 py-3">
+              <div className="flex items-center gap-3">
+                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-indigo-50 text-xs font-semibold text-indigo-700">
+                  {e.tutor?.name?.[0] || "T"}
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-sm font-semibold text-gray-900">
+                    {e.tutor?.name}
+                  </span>
+                  {e.package?.title && (
+                    <span className="text-xs text-gray-500">
+                      {e.package.title}
+                    </span>
+                  )}
+                </div>
+              </div>
+            </td>
+
+            {/* Course */}
+            <td className="px-4 py-3">
+              <span className="text-sm text-gray-800">
+                {e.package?.title || "-"}
+              </span>
+            </td>
+
+            {/* Date */}
+            <td className="px-4 py-3">
+              <div className="flex items-center gap-2 text-sm text-gray-800">
+                <Calendar className="h-4 w-4 text-gray-400" />
+                <span>
+                  {e.slot?.date
+                    ? new Date(e.slot.date).toLocaleDateString()
+                    : "-"}
+                </span>
+              </div>
+            </td>
+
+            {/* Time */}
+            <td className="px-4 py-3">
+              <div className="flex items-center gap-2 text-sm text-gray-800">
+                <Clock className="h-4 w-4 text-gray-400" />
+                <span>
+                  {e.slot?.startTime && e.slot?.endTime
+                    ? `${e.slot.startTime} - ${e.slot.endTime}`
+                    : "-"}
+                </span>
+              </div>
+            </td>
+
+            {/* Meeting */}
+            <td className="px-4 py-3">
+              {e.meetingLink && e.status === "UPCOMING" ? (
+                <a
+                  href={e.meetingLink}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-1 text-sm font-semibold text-indigo-600 hover:text-indigo-700 hover:underline"
+                >
+                  Join session
+                </a>
+              ) : (
+                <span className="text-xs text-gray-400">
+                  Not available
+                </span>
+              )}
+            </td>
+
+            {/* Status */}
+            <td className="px-4 py-3 text-right space-x-2">
+              {e.status === "UPCOMING" && canCancelSlot(e.slot) && (
+                <button
+                  onClick={() => handleCancelSlot(e._id)}
+                  className="px-3 py-1 text-xs font-semibold rounded-lg bg-red-50 text-red-700 hover:bg-red-100"
+                >
+                  Cancel
+                </button>
+              )}
+
+              <span
+                className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold ${getStatusClasses(
+                  e.status
+                )}`}
+              >
+                <span className="h-1.5 w-1.5 rounded-full bg-current" />
+                {formatStatus(e.status)}
+              </span>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+
+  {/* ===== MOBILE CARD GRID VIEW ===== */}
+  <div className="md:hidden space-y-4">
+    {enrollments.map((e) => (
+      <div
+        key={e._id}
+        className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm"
+      >
+        {/* Tutor */}
+        <div className="flex items-center gap-3">
+          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-indigo-50 text-xs font-semibold text-indigo-700">
+            {e.tutor?.name?.[0] || "T"}
           </div>
+          <div>
+            <p className="font-semibold text-gray-900">
+              {e.tutor?.name}
+            </p>
+            <p className="text-xs text-gray-500">
+              {e.package?.title}
+            </p>
+          </div>
+        </div>
+
+        {/* Info Grid */}
+        <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm text-gray-800">
+          <p>
+            <span className="font-medium">Course:</span>{" "}
+            {e.package?.title || "-"}
+          </p>
+          <p>
+            <span className="font-medium">Date:</span>{" "}
+            {e.slot?.date
+              ? new Date(e.slot.date).toLocaleDateString()
+              : "-"}
+          </p>
+          <p>
+            <span className="font-medium">Time:</span>{" "}
+            {e.slot?.startTime && e.slot?.endTime
+              ? `${e.slot.startTime} - ${e.slot.endTime}`
+              : "-"}
+          </p>
+          <p>
+            <span className="font-medium">Status:</span>{" "}
+            {formatStatus(e.status)}
+          </p>
+        </div>
+
+        {/* Actions */}
+        <div className="mt-3 flex justify-between items-center">
+          {e.meetingLink && e.status === "UPCOMING" ? (
+            <a
+              href={e.meetingLink}
+              target="_blank"
+              rel="noreferrer"
+              className="text-indigo-600 font-semibold text-sm"
+            >
+              Join session
+            </a>
+          ) : (
+            <span className="text-xs text-gray-400">
+              Meeting not available
+            </span>
+          )}
+
+          {e.status === "UPCOMING" && canCancelSlot(e.slot) && (
+            <button
+              onClick={() => handleCancelSlot(e._id)}
+              className="px-3 py-1 text-xs font-semibold rounded-lg bg-red-50 text-red-700"
+            >
+              Cancel
+            </button>
+          )}
+        </div>
+      </div>
+    ))}
+  </div>
+</div>
+
+
         )}
       </div>
 

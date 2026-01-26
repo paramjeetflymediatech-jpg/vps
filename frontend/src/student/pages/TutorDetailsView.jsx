@@ -271,7 +271,7 @@ const TutorDetailsView = ({ id: propId }) => {
   }
 
   return (
-    <div className="min-h-screen bg-[#F5F5FF] pb-16">
+    <div className="min-h-screen bg-[#F5F5FF] pt-15 md:pt-4 pb-10">
       {/* Top gradient banner */}
       <div className="bg-gradient-to-r from-indigo-500 via-blue-500 to-purple-500 text-white py-6 md:py-8 px-4 md:px-12">
         <div className="max-w-6xl mx-auto">
