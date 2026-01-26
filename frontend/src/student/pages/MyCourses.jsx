@@ -192,7 +192,10 @@ const MySessions = () => {
         return;
       }
 
-      if (paid && status !== "SUCCESS") {
+      if (
+        (!paid && status == "UNDER_REVIEW") ||
+        (paid && status !== "SUCCESS")
+      ) {
         setPaymentMessage(
           "Please wait for the payment confirmation from admin.",
         );
