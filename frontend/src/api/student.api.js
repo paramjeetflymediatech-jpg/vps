@@ -10,8 +10,8 @@ export const enrollInBatch = (data) => API.post("/student/enroll", data);
 /* ================= STUDENT: PACKAGES (READ-ONLY) ================= */
 // List all published packages
 export const getStudentPackages = (params) => API.get("/packages", { params });
-export const saveSelectedSlot = (...params) =>
-  API.post("/student/saveSelectedSlot", params);
+export const saveSelectedSlot = (data) =>
+  API.post("/student/saveSelectedSlot", data);
 
 // Get single package details
 export const getStudentPackageById = (id) => API.get(`/packages/${id}`);

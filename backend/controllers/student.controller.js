@@ -1047,11 +1047,11 @@ export const getMyEnrollmentsStudent = async (req, res) => {
 export const checkPaymentStatus = async (req, res) => {
   try {
     const userId = req.user.id;
-    const tutorId = req.params.tutorId;
+    // const tutorId = req.params.tutorId;
     let status = "pending";
     const payment = await Payment.findOne({
       userId,
-      tutorId,
+      // tutorId,
     });
     if (payment && payment.status === "SUCCESS") {
       status = payment.status;
@@ -1227,14 +1227,14 @@ export const getAllEnrollmentStudents = async (req, res) => {
 export const saveSelectedSlot = async (req, res) => {
   try {
     const userId = req.user.id;
-    const { tutorId, slot, date } = req.body[0];
+    const { tutorId, slot, date } = req.body;
     const slotId = slot._id;
     const { startTime, endTime } = slot;
 
     // 1️⃣ Check successful payment
     const payment = await Payment.findOne({
       userId,
-      tutorId,
+      // tutorId,
       status: "SUCCESS",
     }).populate("packageId");
 

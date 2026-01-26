@@ -198,6 +198,7 @@ const BookSession = () => {
     try {
       setPaymentMessage("");
       const res = await checkPaymentStatus(selectedTutor.tutorId);
+
       const paid = res.data?.paid;
       const status = res.data?.status;
 
@@ -226,7 +227,7 @@ const BookSession = () => {
       setPaymentMessage("Something went wrong. Try again later.");
     }
   };
-
+  console.log(selectedSlot, selectedTutor);
   if (loading) {
     return (
       <div className="flex justify-center items-center h-screen">
